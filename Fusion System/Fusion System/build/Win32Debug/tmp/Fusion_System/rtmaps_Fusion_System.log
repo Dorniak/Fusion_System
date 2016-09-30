@@ -1,0 +1,8 @@
+﻿  maps_Estimation.cpp
+  maps_Matching.cpp
+d:\documentos\github\fusion_system\fusion system\fusion system\fusion_system.u\src\maps_matching.cpp(98): warning C4018: '<': signed/unsigned mismatch
+d:\documentos\github\fusion_system\fusion system\fusion system\fusion_system.u\src\maps_matching.cpp(102): warning C4018: '<': signed/unsigned mismatch
+  Generating Code...
+  LINK : D:\Documentos\GitHub\Fusion_System\Fusion System\Fusion System\packages\debug\Fusion_System.pck not found or not built by the last incremental link; performing full link
+     Creating library D:\Documentos\GitHub\Fusion_System\Fusion System\Fusion System\build\Win32Debug\tmp\Fusion_System\Fusion_System.lib and object D:\Documentos\GitHub\Fusion_System\Fusion System\Fusion System\build\Win32Debug\tmp\Fusion_System\Fusion_System.exp
+  rtmaps_Fusion_System.vcxproj -> D:\Documentos\GitHub\Fusion_System\Fusion System\Fusion System\packages\debug\Fusion_System.pck
