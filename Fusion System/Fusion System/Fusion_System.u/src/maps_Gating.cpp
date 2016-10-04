@@ -45,6 +45,28 @@ MAPS_COMPONENT_DEFINITION(MAPSGating,"Gating","1.0",128,
 //Initialization: Birth() will be called once at diagram execution startup.			  
 void MAPSGating::Birth()
 {
+	this->m_objects_per.number_of_objects = 0;
+	this->m_objects_com.number_of_objects = 0;
+	this->m_objects_ass.number_of_objects = 0;
+	this->m_objects_np.number_of_objects = 0;
+	this->m_objects_nc.number_of_objects = 0;
+
+	this->m_max_com_id = 0;
+	this->m_max_hyp_id = 0;
+
+	for (int i = 0; i<(int)m_ass_per_com_meas.size(); i++) {
+		m_ass_per_com_meas[i].clear();
+	}
+	m_ass_per_com_meas.clear();
+	m_hypothesis_tree.clear();
+	m_prev_gate.clear();
+	m_already_seen_com.clear();
+	m_already_seen_per.clear();
+	m_prev_hypothesis.clear();
+
+
+
+
     // Reports this information to the RTMaps console. You can remove this line if you know when Birth() is called in the component lifecycle.
     ReportInfo("Passing through Birth() method");
 }
@@ -74,6 +96,7 @@ void MAPSGating::Core()
     // Sleeps during 500 milliseconds (500000 microseconds).
 	//This line will most probably have to be removed when you start programming your component.
 	// Replace it with another blocking function. (StartReading?)
+	ProcessData();
     Rest(500000);
 }
 
@@ -86,64 +109,6 @@ void MAPSGating::Death()
 
 
 
-//Constructors and destructors
-///////////////////////////////
-MAPSGating::MAPSGating(bool use_laser_points, bool save_exp, std::string save_path) {
-
-	this->p_use_laser_points = use_laser_points;
-	this->m_objects_per.number_of_objects = 0;
-	this->m_objects_com.number_of_objects = 0;
-	this->m_objects_ass.number_of_objects = 0;
-	this->m_objects_np.number_of_objects = 0;
-	this->m_objects_nc.number_of_objects = 0;
-
-	this->m_max_com_id = 0;
-	this->m_max_hyp_id = 0;
-
-	for (int i = 0; i<(int)m_ass_per_com_meas.size(); i++) {
-		m_ass_per_com_meas[i].clear();
-	}
-	m_ass_per_com_meas.clear();
-	m_hypothesis_tree.clear();
-	m_prev_gate.clear();
-	m_already_seen_com.clear();
-	m_already_seen_per.clear();
-	m_prev_hypothesis.clear();
-
-	this->p_save_exp = save_exp;
-	this->p_save_path = save_path;
-
-	if (this->p_save_exp) {
-		this->p_save_path = Comm_Tools::CreateSaveDirectory(this->p_save_path);
-
-		std::string ass_objs_file = this->p_save_path + "associated_objects.csv";
-		this->m_ass_objs_file.open(ass_objs_file.c_str(), std::ios::out);
-
-		std::string np_objs_file = this->p_save_path + "not_perceived_objects.csv";
-		this->m_np_objs_file.open(np_objs_file.c_str(), std::ios::out);
-
-		std::string nc_objs_file = this->p_save_path + "not_communicating_objects.csv";
-		this->m_nc_objs_file.open(nc_objs_file.c_str(), std::ios::out);
-
-		std::string per_objs_file = this->p_save_path + "input_perception_tracks.csv";
-		this->m_perception_objs_file.open(per_objs_file.c_str(), std::ios::out);
-
-		std::string com_objs_file = this->p_save_path + "input_communication_tracks.csv";
-		this->m_communication_objs_file.open(com_objs_file.c_str(), std::ios::out);
-
-		std::string hyp_no_pruning_file = this->p_save_path + "hypothesis_tree_before_pruning.csv";
-		this->m_hypothesis_no_pruning_file.open(hyp_no_pruning_file.c_str(), std::ios::out);
-
-		std::string hyp_pruning_file = this->p_save_path + "hypothesis_tree_after_pruning.csv";
-		this->m_hypothesis_pruning_file.open(hyp_pruning_file.c_str(), std::ios::out);
-
-		std::string gate_objs_file = this->p_save_path + "gate_objects.csv";
-		this->m_gate_objs_file.open(gate_objs_file.c_str(), std::ios::out);
-
-		std::string config_file = this->p_save_path + "config.txt";
-		this->m_config_file.open(config_file.c_str(), std::ios::out);
-	}
-}
 
 MAPSGating::~MAPSGating() {
 
@@ -169,22 +134,9 @@ MAPSGating::~MAPSGating() {
 	}
 }
 
-//Core functions
-////////////////
-
-//ReadInputs
-int MAPSGating::ReadInputs(const AUTO_Objects & objs_per, const AUTO_Objects & objs_com) {
-
-	UtilsObject::PrintObjects(this->m_objects_per, objs_per);
-	UtilsObject::PrintObjects(this->m_objects_com, objs_com);
-
-	return 0;
-}
-
-
 
 //ProcessData
-int MAPSGating::ProcessData(double system_time) {
+int MAPSGating::ProcessData() {
 
 	this->m_objects_ass.number_of_objects = 0;
 	this->m_objects_np.number_of_objects = 0;
@@ -195,10 +147,6 @@ int MAPSGating::ProcessData(double system_time) {
 
 	// Calculate gating
 	Gating();
-
-	if (this->p_save_exp&&this->p_save_gate_objects) {
-		SaveHypothesis(this->m_hypothesis_tree, this->m_hypothesis_no_pruning_file, system_time);
-	}
 
 	// Update hypothesis tree
 	UpdateTree();
@@ -220,10 +168,6 @@ int MAPSGating::ProcessData(double system_time) {
 			<< "), posterior probability (" << this->m_hypothesis_tree[h].prob << ")\n";
 	}
 
-	if (this->p_save_exp&&this->p_save_hypothesis) {
-		SavePerceptionTracks(this->m_gate_objs_file, system_time);
-	}
-
 	// Prune hypothesis
 	PruneHypothesis();
 
@@ -237,105 +181,6 @@ int MAPSGating::ProcessData(double system_time) {
 
 	// estimated fused tracks
 	FusedTracksEstimation();
-
-	if (this->p_save_exp) {
-		if (this->p_save_ass_objs) {
-			SaveROIs(this->m_objects_ass, this->m_ass_objs_file, system_time);
-		}
-
-		if (this->p_save_np_objs) {
-			SaveROIs(this->m_objects_np, this->m_np_objs_file, system_time);
-		}
-
-		if (this->p_save_nc_objs) {
-			SaveROIs(this->m_objects_nc, this->m_nc_objs_file, system_time);
-		}
-
-		if (this->p_save_perception_objs) {
-			SaveROIs(this->m_objects_per, this->m_perception_objs_file, system_time);
-		}
-
-		if (this->p_save_communication_objs) {
-			SaveCommunicationTracks(this->m_communication_objs_file, system_time);
-		}
-
-		if (this->p_save_hypothesis) {
-			SaveHypothesis(this->m_hypothesis_tree, this->m_hypothesis_pruning_file, system_time);
-		}
-	}
-
-	return 0;
-}
-
-//WriteOutputs
-int MAPSGating::WriteOutputs(AUTO_Objects & o_objs, int o_type) {
-
-	switch (o_type) {
-	case V2PFUSION_OUTPUT_FUSED: {
-		o_objs.number_of_objects = 0;
-		for (int i = 0; i<this->m_objects_ass.number_of_objects; i++) {
-			if (o_objs.number_of_objects >= MAXIMUM_OBJECT_NUMBER) {
-				break;
-			}
-			UtilsObject::PrintObject(o_objs.object[i], this->m_objects_ass.object[i]);
-			o_objs.number_of_objects++;
-		}
-		for (int i = 0; i<this->m_objects_np.number_of_objects; i++) {
-			if (o_objs.number_of_objects >= MAXIMUM_OBJECT_NUMBER) {
-				break;
-			}
-			UtilsObject::PrintObject(o_objs.object[this->m_objects_ass.number_of_objects + i], this->m_objects_np.object[i]);
-			o_objs.number_of_objects++;
-		}
-		for (int i = 0; i<this->m_objects_nc.number_of_objects; i++) {
-			if (o_objs.number_of_objects >= MAXIMUM_OBJECT_NUMBER) {
-				break;
-			}
-			UtilsObject::PrintObject(o_objs.object[this->m_objects_np.number_of_objects + this->m_objects_ass.number_of_objects + i], this->m_objects_nc.object[i]);
-			o_objs.number_of_objects++;
-		}
-		break;
-	}
-	case V2PFUSION_OUTPUT_ASS: {
-		UtilsObject::PrintObjects(o_objs, this->m_objects_ass);
-		break;
-	}
-	case V2PFUSION_OUTPUT_NP: {
-		UtilsObject::PrintObjects(o_objs, this->m_objects_np);
-		break;
-	}
-	case V2PFUSION_OUTPUT_NC: {
-		UtilsObject::PrintObjects(o_objs, this->m_objects_nc);
-		break;
-	}
-	case V2PFUSION_OUTPUT_GATE: {
-		o_objs.number_of_objects = 0;
-		for (int i = 0; i<(int)m_idx_gate.size(); i++) {
-			if (o_objs.number_of_objects<MAXIMUM_OBJECT_NUMBER) {
-				UtilsObject::PrintObject(o_objs.object[o_objs.number_of_objects], this->m_objects_per.object[m_idx_gate[i]]);
-				o_objs.number_of_objects++;
-			}
-		}
-		break;
-	}
-	}
-	return 0;
-}
-
-int MAPSGating::WriteHypothesisTree(std::vector<s_hypothesis> & o_hyp) {
-	o_hyp.clear();
-
-	for (int h = 0; h<(int)m_hypothesis_tree.size(); h++) {
-		o_hyp.push_back(m_hypothesis_tree[h]);
-	}
-
-	return 0;
-}
-
-int MAPSGating::WriteOccludedAreaRatio(double *occ_ratio, int nb_objects) {
-	for (int i = 0; i<nb_objects; i++) {
-		occ_ratio[i] = m_occluded_area_ratio[i];
-	}
 
 	return 0;
 }
@@ -386,7 +231,7 @@ void MAPSGating::Gating() {
 	for (int i = 0; i<this->m_objects_com.number_of_objects; i++) {
 		sigma_x = this->m_objects_com.object[i].x_sigma;
 		sigma_y = this->m_objects_com.object[i].y_sigma;
-		sigma_xy = this->m_objects_com.object[i].z_sigma;
+	//TODO:	sigma_xy = this->m_objects_com.object[i].xy_sigma;
 		c = sigma_x*sigma_y - pow(sigma_xy, 2);
 
 		for (int j = 0; j<this->m_objects_per.number_of_objects; j++) {
@@ -399,8 +244,6 @@ void MAPSGating::Gating() {
 				if (!IsAlreadyHere(j, m_idx_gate)) {
 					m_idx_gate.push_back(j);
 				}
-				//UtilsObject::PrintObject(this->m_objects_ass.object[this->m_objects_ass.nb_objects],this->m_objects_per.object[j]);
-				//this->m_objects_ass.nb_objects++;
 			}
 		}
 
@@ -408,8 +251,6 @@ void MAPSGating::Gating() {
 			m_max_com_id = this->m_objects_com.object[i].id;
 			m_prev_gate.resize(m_max_com_id);
 		}
-		//UtilsObject::PrintObject(this->m_objects_np.object[this->m_objects_np.nb_objects],this->m_objects_com.object[i]);
-		//this->m_objects_np.nb_objects++;
 	}
 }
 
@@ -593,9 +434,13 @@ void MAPSGating::UpdateTree() {
 				if (m_hypothesis_tree[h].assoc_vec[ass].id_per>0) {
 					idx_per = GetIdxObstacle(m_hypothesis_tree[h].assoc_vec[ass].id_per, this->m_objects_per);
 					if (idx_per >= 0 && idx_com >= 0) {
+						//TODO:
+						/*
 						likelihood_meas = LocationLikelihood(this->m_objects_per.object[idx_per].x_rel, this->m_objects_per.object[idx_per].y_rel, this->m_objects_com.object[idx_com].x_rel, this->m_objects_com.object[idx_com].y_rel,
-							this->m_objects_com.object[idx_com].x_sigma, this->m_objects_com.object[idx_com].y_sigma, this->m_objects_com.object[idx_com].xy_sigma);
-						likelihood_meas *= this->m_objects_per.object[idx_per].class_probability[this->m_objects_com.object[idx_com].obj_class];
+						this->m_objects_com.object[idx_com].x_sigma, this->m_objects_com.object[idx_com].y_sigma, this->m_objects_com.object[idx_com].xy_sigma);
+						likelihood_meas *= this->m_objects_per.object[idx_per].class_confidence;
+						*/
+						//TODO:END
 					}
 					else {
 						likelihood_meas = 0;
@@ -604,14 +449,18 @@ void MAPSGating::UpdateTree() {
 					m_hypothesis_tree[h].detection_prob *= p_perception_prob;
 				}
 				else {
+
+				//TODO:
+				/*
 					if (this->p_use_laser_points) {
 						m_hypothesis_tree[h].likelihood_meas *= (float)m_occluded_area_ratio[idx_com] * p_occlusion_ratio;
 					}
 					else {
 						m_hypothesis_tree[h].likelihood_meas *= p_occlusion_ratio;
 					}
+				
+				//TODO:end*/
 				}
-				//m_hypothesis_tree[h].detection_prob *= p_communication_prob;
 			}
 			m_hypothesis_tree[h].detection_prob *= pow(p_communication_prob, m_objects_com.number_of_objects);
 
@@ -641,6 +490,7 @@ void MAPSGating::UpdateTree() {
 		}
 	}
 }
+
 
 void MAPSGating::PruneHypothesis() {
 	int h = 0;
@@ -724,25 +574,31 @@ void MAPSGating::FusedTracksEstimation() {
 				idx_per = GetIdxObstacle(m_hypothesis_tree[id_best_hyp].assoc_vec[ass].id_per, this->m_objects_per);
 				idx_com = GetIdxObstacle(m_hypothesis_tree[id_best_hyp].assoc_vec[ass].id_com, this->m_objects_com);
 				if (idx_com >= 0 && idx_per >= 0 && m_objects_ass.number_of_objects<MAXIMUM_OBJECT_NUMBER) {
-					UtilsObject::PrintObject(m_objects_ass.object[m_objects_ass.number_of_objects], m_objects_per.object[idx_per]);
+					m_objects_ass.object[m_objects_ass.number_of_objects] = m_objects_per.object[idx_per];
 					associated_perception_tracks.push_back(idx_per);
 
-					//m_objects_ass.object[m_objects_ass.nb_objects].id = m_objects_com.object[idx_com].id;
-					m_objects_ass.object[m_objects_ass.number_of_objects].obj_class = m_objects_com.object[idx_com].obj_class;
+					m_objects_ass.object[m_objects_ass.number_of_objects].object_class = m_objects_com.object[idx_com].object_class;
+					//TODO:
+					/*
 					m_objects_ass.object[m_objects_ass.number_of_objects].color_b = p_color_b_ass;
 					m_objects_ass.object[m_objects_ass.number_of_objects].color_g = p_color_g_ass;
 					m_objects_ass.object[m_objects_ass.number_of_objects].color_r = p_color_r_ass;
+					*/
+					//TODO:END
 					m_objects_ass.number_of_objects++;
 				}
 			}
 			else {
 				idx_com = GetIdxObstacle(m_hypothesis_tree[id_best_hyp].assoc_vec[ass].id_com, this->m_objects_com);
 				if (idx_com >= 0 && m_objects_np.number_of_objects<MAXIMUM_OBJECT_NUMBER) {
-					UtilsObject::PrintObject(m_objects_np.object[m_objects_np.number_of_objects], m_objects_com.object[idx_com]);
-
+					m_objects_np.object[m_objects_np.number_of_objects] = m_objects_com.object[idx_com];
+					//TODO:
+					/*
 					m_objects_np.object[m_objects_np.number_of_objects].color_b = p_color_b_np;
 					m_objects_np.object[m_objects_np.number_of_objects].color_g = p_color_g_np;
 					m_objects_np.object[m_objects_np.number_of_objects].color_r = p_color_r_np;
+					*/
+					//TODO:END
 					m_objects_np.number_of_objects++;
 				}
 			}
@@ -752,7 +608,7 @@ void MAPSGating::FusedTracksEstimation() {
 	// Estimate not communication obstacles
 	for (int i_p = 0; i_p<m_objects_per.number_of_objects; i_p++) {
 		if (!IsAlreadyHere(i_p, associated_perception_tracks) && m_objects_nc.number_of_objects<MAXIMUM_OBJECT_NUMBER) {
-			UtilsObject::PrintObject(m_objects_nc.object[m_objects_nc.number_of_objects], m_objects_per.object[i_p]);
+			m_objects_nc.object[m_objects_nc.number_of_objects] = m_objects_per.object[i_p];
 			m_objects_nc.number_of_objects++;
 		}
 	}
@@ -827,101 +683,4 @@ float MAPSGating::LocationLikelihood(float x_per, float y_per, float x_com, floa
 	float y = y_per - y_com;
 
 	return (float)(exp(-(x*(x*y_sigma - y*xy_sigma) + y*(y*x_sigma - x*xy_sigma)) / (2 * c)) / (2 * PI*sqrt(c)));
-}
-
-void MAPSGating::SaveROIs(const AUTO_Objects & objs, std::ofstream & save_file, double system_time) {
-
-	save_file << system_time << ";";
-	save_file << objs.number_of_objects;
-	for (int i = 0; i<objs.number_of_objects; i++) {
-		save_file << ";";
-		save_file << objs.object[i].id << ";";
-		save_file << objs.object[i].x_rel << ";";
-		save_file << objs.object[i].y_rel << ";";
-		save_file << objs.object[i].speed_x_rel << ";";
-		save_file << objs.object[i].speed_y_rel << ";";
-		save_file << objs.object[i].x_abs << ";";
-		save_file << objs.object[i].y_abs << ";";
-		save_file << objs.object[i].vx_abs << ";";
-		save_file << objs.object[i].vy_abs;
-
-		for (int c = 0; c<NB_CLASSES; c++) {
-			save_file << ";";
-			save_file << objs.object[i].class_probability[c];
-		}
-	}
-	save_file << "\n";
-}
-
-void MAPSGating::SaveHypothesis(const std::vector<s_hypothesis> & hyp, std::ofstream & save_file, double system_time) {
-
-	save_file << system_time << ";";
-	save_file << (int)hyp.size();
-	for (int i = 0; i<(int)hyp.size(); i++) {
-		save_file << ";";
-		save_file << hyp[i].id << ";";
-		save_file << hyp[i].likelihood_meas << ";";
-		save_file << hyp[i].likelihood_branch << ";";
-		save_file << hyp[i].prob << ";";
-		save_file << hyp[i].likelihood_branch_nt << ";";
-		save_file << hyp[i].likelihood_branch_dt << ";";
-		save_file << hyp[i].detection_prob << ";";
-		save_file << (int)hyp[i].assoc_vec.size();
-		for (int h = 0; h<(int)hyp[i].assoc_vec.size(); h++) {
-			save_file << ";";
-			save_file << hyp[i].assoc_vec[h].id_com << ";" << hyp[i].assoc_vec[h].id_per;
-		}
-	}
-	save_file << "\n";
-
-}
-
-void MAPSGating::SaveCommunicationTracks(std::ofstream & save_file, double system_time) {
-
-	save_file << system_time << ";";
-	save_file << m_objects_com.number_of_objects;
-	for (int i = 0; i<m_objects_com.number_of_objects; i++) {
-		save_file << ";";
-		save_file << m_objects_com.object[i].id << ";";
-		save_file << m_objects_com.object[i].x_rel << ";";
-		save_file << m_objects_com.object[i].y_rel << ";";
-		save_file << m_objects_com.object[i].speed_x_rel << ";";
-		save_file << m_objects_com.object[i].speed_y_rel << ";";
-		save_file << m_objects_com.object[i].x_abs << ";";
-		save_file << m_objects_com.object[i].y_abs << ";";
-		save_file << m_objects_com.object[i].vx_abs << ";";
-		save_file << m_objects_com.object[i].vy_abs << ";";
-		save_file << m_objects_com.object[i].obj_class << ";";
-		save_file << m_occluded_area_ratio[i];
-	}
-	save_file << "\n";
-}
-
-void MAPSGating::SavePerceptionTracks(std::ofstream & save_file, double system_time) {
-
-	int idx_per;
-	for (int g = 0; g<(int)this->m_ass_per_com_meas.size(); g++) {
-		save_file << system_time << ";";
-		save_file << g << ";";
-		save_file << (int)this->m_ass_per_com_meas[g].size();
-		for (int i = 0; i<(int)this->m_ass_per_com_meas[g].size(); i++) {
-			idx_per = this->m_ass_per_com_meas[g][i];
-			save_file << ";";
-			save_file << m_objects_per.object[idx_per].id << ";";
-			save_file << m_objects_per.object[idx_per].x_rel << ";";
-			save_file << m_objects_per.object[idx_per].y_rel << ";";
-			save_file << m_objects_per.object[idx_per].speed_x_rel << ";";
-			save_file << m_objects_per.object[idx_per].speed_y_rel << ";";
-			save_file << m_objects_per.object[idx_per].x << ";";
-			save_file << m_objects_per.object[idx_per].y << ";";
-			save_file << m_objects_per.object[idx_per].vx_abs << ";";
-			save_file << m_objects_per.object[idx_per].vy_abs;
-
-			for (int c = 0; c<NB_CLASSES; c++) {
-				save_file << ";";
-				save_file << m_objects_per.object[idx_per].class_probability[c];
-			}
-		}
-		save_file << "\n";
-	}
 }

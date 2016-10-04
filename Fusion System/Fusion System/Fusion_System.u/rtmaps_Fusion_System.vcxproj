@@ -107,6 +107,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\maps_Estimation.cpp" />
+    <ClCompile Include="src\maps_Gating.cpp" />
     <ClCompile Include="src\maps_Matching.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -115,6 +116,7 @@
     <ClInclude Include="local_interfaces\Data_EnvironmentState.h" />
     <ClInclude Include="local_interfaces\Hipotesys.h" />
     <ClInclude Include="local_interfaces\maps_Estimation.h" />
+    <ClInclude Include="local_interfaces\maps_Gating.h" />
     <ClInclude Include="local_interfaces\maps_Matching.h" />
     <ClInclude Include="local_interfaces\Properties.h" />
   </ItemGroup>

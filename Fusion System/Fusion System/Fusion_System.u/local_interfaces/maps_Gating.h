@@ -32,7 +32,6 @@ private :
 	bool p_save_hypothesis; /*!<boolean used to save generated hypothesis*/
 	bool p_save_gate_objects; /*!<boolean used to save objects located inside gating window*/
 
-	(std::string) p_save_path; /*!<path to save experimental results*/
 	std::ofstream m_ass_objs_file; /*!<file to save associated objects*/
 	std::ofstream m_np_objs_file; /*!<file to save not perceived objects*/
 	std::ofstream m_nc_objs_file; /*!<file to save not communicating objects*/
@@ -44,7 +43,6 @@ private :
 	std::ofstream m_config_file; /*!<file to save experimental configuration, like important parameters*/
 
 	bool p_debug_report; /*!<boolean used to display debugging information in the console*/
-	bool p_use_laser_points; /*!<boolean to use laser points to calculate occluded area ratio*/
 	float p_laser_range; /*!<laser range*/
 	float p_laser_angular_resolution; /*!<laser angular resolution*/
 	float p_min_nb_impacts; /*!<minimum number of impacts for obstacle dtection*/
@@ -95,15 +93,8 @@ private :
 public:
 	//Constructors and Destructors
 	//////////////////////////////
-	/*
-	* @function V2PFusion()
-	* @brief Constructor of the class V2PFusion
-	* @param use_laser_points: boolean to use laser points to calculate occluded area ratio
-	* @param save_exp: boolean used to save experimental results
-	* @param save_path: path to save experimental results
-	*/
-	MAPSGating(bool use_laser_points = false, bool save_exp = false, std::string save_path = "");
 
+	
 	/*
 	* @function ~V2PFusion()
 	* @brief Destructor of the class V2PFusion
@@ -112,47 +103,14 @@ public:
 
 	// Core Functions
 	//////////////////
-	/*
-	* @function ReadProperties()
-	* @brief Read properties requiered to run a V2PFusion
-	* @param xml_file: xml file containing all the necessary parameters for the component
-	* @return 0 is the function exited normally, -1 otherwise
-	*/
-	int ReadProperties(std::string xml_file);
-	/*
-	* @function ReadInputs()
-	* @brief Read inputs of a V2PFusion
-	* @param objs_per: perception objects
-	* @param objs_com: communication objects
-	* @return 0 is the function exited normally, -1 otherwise
-	*/
-	int ReadInputs(const AUTO_Objects & objs_per, const AUTO_Objects & objs_com);
+
+
 	/*
 	* @function ProcessData()
 	* @brief Process the data acquired
 	* @param system_time: sytem time
 	*/
-	int ProcessData(double system_time);
-	/*
-	* @function WriteOutputs()
-	* @brief Write the outputs of a V2PFusion
-	* @param o_objs: fused objects
-	* @param o_type: fused objects type (0 - Associated objects, 1 - Not perceived objects, 2 - Not communicating objects, 3 - All objects)
-	*/
-	int WriteOutputs(AUTO_Objects & o_objs, int o_type);
-	/*
-	* @function WriteHypothesisTree()
-	* @brief Write the hypothesis tree after a V2PFusion
-	* @param o_hyp: current hypothesis tree
-	*/
-	int WriteHypothesisTree(std::vector<s_hypothesis> & o_hyp);
-	/*
-	* @function WriteOccludedAreaRatio()
-	* @brief Write the hypothesis tree after a V2PFusion
-	* @param occ_ratio: pointer to the occluded area ratio array
-	* @param nb_objects: number of objects
-	*/
-	int WriteOccludedAreaRatio(double *occ_ratio, int nb_objects);
+	int ProcessData();
 
 	/*
 	* @function SetMessage()
@@ -278,37 +236,6 @@ private:
 		else
 			return BinomialCoeff(k - 1, n - 1) + BinomialCoeff(k, n - 1);
 	};
-
-	/*
-	* @function SaveROIs()
-	* @brief Save a list of objects
-	* @param objs: a list of objects to save
-	* @param save_file: destination file
-	* @param system_time: system time
-	*/
-	void SaveROIs(const AUTO_Objects & objs, std::ofstream & save_file, double system_time);
-	/*
-	* @function SaveHypothesis()
-	* @brief Save a list of hypothesis
-	* @param hyp: a list of hypothesis to save
-	* @param save_file: destination file
-	* @param system_time: system time
-	*/
-	void SaveHypothesis(const std::vector<s_hypothesis> & hyp, std::ofstream & save_file, double system_time);
-	/*
-	* @function SavePerceptionTracks()
-	* @brief Save perception tracks located in a gating window
-	* @param save_file: destination file
-	* @param system_time: system time
-	*/
-	void SavePerceptionTracks(std::ofstream & save_file, double system_time);
-	/*
-	* @function SaveCommunicationTracks()
-	* @brief Save all communcation tracks
-	* @param save_file: destination file
-	* @param system_time: system time
-	*/
-	void SaveCommunicationTracks(std::ofstream & save_file, double system_time);
 };
 
 #endif

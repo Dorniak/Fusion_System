@@ -21,8 +21,9 @@ private :
 	MAPSStreamedString str;
 	AUTO_Objects* ArrayLaserObjects;
 	AUTO_Objects* ArrayCameraObjects;
-	std::vector<bool> LMatched;
-	std::vector<bool> CMatched;
+	std::vector<std::vector<int>> LMatched;
+	std::vector<std::vector<int>> CMatched;
+	void WriteOutputs();
 	void findMatches(AUTO_Objects* ArrayLaserObjects, AUTO_Objects* ArrayCameraObjects);
 	bool BoxMatching(AUTO_Object Object1, AUTO_Object Object2);
 

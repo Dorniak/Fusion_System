@@ -9,7 +9,7 @@
 #include "maps_Matching.h"	// Includes the header of this component
 
 const MAPSTypeFilterBase ValeoStructure = MAPS_FILTER_USER_STRUCTURE(AUTO_Objects); 
-const MAPSTypeFilterBase matchedVector = MAPS_FILTER_USER_STRUCTURE(std::vector<bool>);
+const MAPSTypeFilterBase matchedVector = MAPS_FILTER_USER_STRUCTURE(std::vector<std::vector<int>>);
 // Use the macros to declare the inputs
 MAPS_BEGIN_INPUTS_DEFINITION(MAPSMatching)
     //MAPS_INPUT("iName",MAPS::FilterInteger32,MAPS::FifoReader)
@@ -20,8 +20,8 @@ MAPS_END_INPUTS_DEFINITION
 // Use the macros to declare the outputs
 MAPS_BEGIN_OUTPUTS_DEFINITION(MAPSMatching)
     //MAPS_OUTPUT("oName",MAPS::Integer32,NULL,NULL,1)
-	MAPS_OUTPUT_USER_STRUCTURE("MatchedLaser", ValeoStructure)
-	MAPS_OUTPUT_USER_STRUCTURE("MatchedCamera", ValeoStructure)
+	MAPS_OUTPUT_USER_STRUCTURE("MatchedLaser", matchedVector)
+	MAPS_OUTPUT_USER_STRUCTURE("MatchedCamera", matchedVector)
 	MAPS_OUTPUT_USER_STRUCTURE("LaserObjects", ValeoStructure)
 	MAPS_OUTPUT_USER_STRUCTURE("CameraObjects", ValeoStructure)
 	//MAPS_OUTPUT_USER_STRUCTURES_VECTOR("foo_vector", IMARA_Object, 16)
@@ -81,6 +81,7 @@ void MAPSMatching::Core()
 	ArrayLaserObjects = nullptr;
 	ArrayCameraObjects = nullptr;
 	str.Clear();
+	//If there are any obstacle in the frame we do a process
 	if (DataAvailableInFIFO(Input("LaserObject")) || DataAvailableInFIFO(Input("CameraObject"))) {
 		str << '\n' << "Objects detected";
 		//Leer laser
@@ -92,17 +93,29 @@ void MAPSMatching::Core()
 		elt2 = StartReading(Input("CameraObject"));
 		ArrayCameraObjects = static_cast<AUTO_Objects*>(elt2->Data());
 		StopReading(Input("LaserObject"));
+
 		str << '\n' << "Box Matchig "<< ArrayLaserObjects->number_of_objects <<" "<< ArrayCameraObjects->number_of_objects;
+		//Buscamos objetos en el gating window de cada obstaculo
 		findMatches(ArrayLaserObjects, ArrayCameraObjects);
 		str << '\n' << "Imprimir coincidencias " << '\n';
 		for (int printer = 0; printer < LMatched.size(); printer++) {
-			str << " " << LMatched[printer];
+			str << "ID: " << ArrayLaserObjects->object[printer].id << '\n';
+			for (int printer2 = 0; printer < LMatched[printer].size(); printer2++) {
+				str << " " << LMatched[printer][printer2];
+			}
+			str << '\n';
 		}
 		str << '\n';
 		for (int printer = 0; printer < CMatched.size(); printer++) {
-			str << " " << CMatched[printer];
+			str << "ID: " << ArrayCameraObjects->object[printer].id << '\n';
+			for (int printer2 = 0; printer < CMatched[printer].size(); printer2++) {
+				str << " " << CMatched[printer][printer2];
+			}
+			str << '\n';
 		}
 		str << '\n' << "fin de impresion";
+		WriteOutputs();
+
 	}
 
 	
@@ -121,20 +134,46 @@ void MAPSMatching::Death()
     ReportInfo("Passing through Death() method");
 }
 
+void MAPSMatching::WriteOutputs()
+{
+	MAPSIOElt *_ioOutput = StartWriting(Output("LaserObjects"));
+	AUTO_Objects &list = *static_cast<AUTO_Objects*>(_ioOutput->Data());
+	list = *ArrayLaserObjects;
+	StopWriting(_ioOutput);
+
+	MAPSIOElt *_ioOutput2 = StartWriting(Output("CameraObjects"));
+	AUTO_Objects &list2 = *static_cast<AUTO_Objects*>(_ioOutput->Data());
+	list2 = *ArrayCameraObjects;
+	StopWriting(_ioOutput2);
+
+	MAPSIOElt *_ioOutput3 = StartWriting(Output("MatchedLaser"));
+	std::vector<std::vector<int>> &list3 = *static_cast<std::vector<std::vector<int>>*>(_ioOutput3->Data());
+	list3 = LMatched;
+	StopWriting(_ioOutput3);
+
+	MAPSIOElt *_ioOutput4 = StartWriting(Output("MatchedCamera"));
+	std::vector<std::vector<int>> &list4 = *static_cast<std::vector<std::vector<int>>*>(_ioOutput4->Data());
+	list4 = CMatched;
+	StopWriting(_ioOutput4);
+}
+
 void MAPSMatching::findMatches(AUTO_Objects* ArrayLaserObjects, AUTO_Objects* ArrayCameraObjects)
 {
-	for (int i = 0; i < ArrayLaserObjects->number_of_objects; i++) {
-		LMatched.push_back(false);
-	}
-	for (int j = 0; j < ArrayCameraObjects->number_of_objects; j++) {
-		CMatched.push_back(false);
-	}
-
+	LMatched.resize(ArrayLaserObjects->number_of_objects);
+	CMatched.resize(ArrayCameraObjects->number_of_objects);
+	//Comparar cada obstaculo del laser con cada uno de la camara
 	for (int i = 0; i < ArrayLaserObjects->number_of_objects; i++) {
 		for (int j = 0; j < ArrayCameraObjects->number_of_objects; j++) {
 			if (BoxMatching(ArrayLaserObjects->object[i], ArrayCameraObjects->object[j])) {
-				LMatched[i] = true;
-				CMatched[j] = true;
+				LMatched[i].push_back(ArrayCameraObjects->object[j].id);
+			}
+		}
+	}
+	//Comparar cada obstaculo del camara con cada uno de la laser
+	for (int i = 0; i < ArrayCameraObjects->number_of_objects; i++) {
+		for (int j = 0; j < ArrayLaserObjects->number_of_objects; j++) {
+			if (BoxMatching(ArrayLaserObjects->object[i], ArrayCameraObjects->object[j])) {
+				CMatched[i].push_back(ArrayLaserObjects->object[j].id);
 			}
 		}
 	}
