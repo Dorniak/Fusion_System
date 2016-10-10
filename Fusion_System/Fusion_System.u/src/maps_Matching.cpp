@@ -20,10 +20,10 @@ MAPS_END_INPUTS_DEFINITION
 // Use the macros to declare the outputs
 MAPS_BEGIN_OUTPUTS_DEFINITION(MAPSMatching)
     //MAPS_OUTPUT("oName",MAPS::Integer32,NULL,NULL,1)
-	MAPS_OUTPUT_USER_STRUCTURE("MatchedLaser", matchedVector)
-	MAPS_OUTPUT_USER_STRUCTURE("MatchedCamera", matchedVector)
-	MAPS_OUTPUT_USER_STRUCTURE("LaserObjects", ValeoStructure)
-	MAPS_OUTPUT_USER_STRUCTURE("CameraObjects", ValeoStructure)
+	MAPS_OUTPUT_USER_STRUCTURE("LaserObjects", AUTO_Objects)
+	MAPS_OUTPUT_USER_STRUCTURE("CameraObjects", AUTO_Objects)
+	MAPS_OUTPUT_USER_STRUCTURE("MatchedLaser", std::vector<std::vector<int>>)
+	MAPS_OUTPUT_USER_STRUCTURE("MatchedCamera", std::vector<std::vector<int>>)
 	//MAPS_OUTPUT_USER_STRUCTURES_VECTOR("foo_vector", IMARA_Object, 16)
 MAPS_END_OUTPUTS_DEFINITION
 
@@ -74,7 +74,7 @@ void MAPSMatching::Birth()
 //  Remember that the StartReading function used with an input declared as a SamplingReader is not blocking.
 //	In case of two or more blocking functions inside the Core, this is likely to induce synchronization issues and data loss. (Ex: don't call two successive StartReading on FifoReader inputs.)
 /***************************************************************************/
-void MAPSMatching::Core() 
+void MAPSMatching::Core()
 {
 	LMatched.clear();
 	CMatched.clear();
@@ -82,45 +82,47 @@ void MAPSMatching::Core()
 	ArrayCameraObjects = nullptr;
 	str.Clear();
 	//If there are any obstacle in the frame we do a process
-	if (DataAvailableInFIFO(Input("LaserObject")) || DataAvailableInFIFO(Input("CameraObject"))) {
-		str << '\n' << "Objects detected";
-		//Leer laser
-		MAPSIOElt* elt = StartReading(Input("LaserObject"));
-		ArrayLaserObjects = static_cast<AUTO_Objects*>(elt->Data());
-		StopReading(Input("LaserObject"));
-		//Leer camara
-		MAPSIOElt* elt2;
-		elt2 = StartReading(Input("CameraObject"));
-		ArrayCameraObjects = static_cast<AUTO_Objects*>(elt2->Data());
-		StopReading(Input("LaserObject"));
+	while (!DataAvailableInFIFO(Input("LaserObject")) || !DataAvailableInFIFO(Input("CameraObject"))) {}
+	str << '\n' << "Objects detected";
+	//Leer laser
+	MAPSIOElt* elt = StartReading(Input("LaserObject"));
+	ArrayLaserObjects = static_cast<AUTO_Objects*>(elt->Data());
+	StopReading(Input("LaserObject"));
+	//Leer camara
+	MAPSIOElt* elt2;
+	elt2 = StartReading(Input("CameraObject"));
+	ArrayCameraObjects = static_cast<AUTO_Objects*>(elt2->Data());
+	StopReading(Input("CameraObject"));
 
-		str << '\n' << "Box Matchig "<< ArrayLaserObjects->number_of_objects <<" "<< ArrayCameraObjects->number_of_objects;
-		//Buscamos objetos en el gating window de cada obstaculo
-		findMatches(ArrayLaserObjects, ArrayCameraObjects);
-		str << '\n' << "Imprimir coincidencias " << '\n';
-		for (int printer = 0; printer < LMatched.size(); printer++) {
-			str << "ID: " << ArrayLaserObjects->object[printer].id << '\n';
-			for (int printer2 = 0; printer < LMatched[printer].size(); printer2++) {
-				str << " " << LMatched[printer][printer2];
-			}
-			str << '\n';
+	str << '\n' << "Box Matchig " << ArrayLaserObjects->number_of_objects << " " << ArrayCameraObjects->number_of_objects;
+	//Buscamos objetos en el gating window de cada obstaculo
+	findMatches(ArrayLaserObjects, ArrayCameraObjects);
+	str << '\n' << "Imprimir coincidencias " << '\n';
+	str << '\n' << "Laser" << '\n';
+	for (int printer = 0; printer < LMatched.size(); printer++) {
+		str << "ID: " << ArrayLaserObjects->object[printer].id << '\n';
+		for (int printer2 = 0; printer2 < LMatched[printer].size(); printer2++) {
+			str << " " << LMatched[printer][printer2];
 		}
 		str << '\n';
-		for (int printer = 0; printer < CMatched.size(); printer++) {
-			str << "ID: " << ArrayCameraObjects->object[printer].id << '\n';
-			for (int printer2 = 0; printer < CMatched[printer].size(); printer2++) {
-				str << " " << CMatched[printer][printer2];
-			}
-			str << '\n';
-		}
-		str << '\n' << "fin de impresion";
-		WriteOutputs();
-
 	}
+	str << '\n';
+	str << '\n' << "Camara" << '\n';
+	for (int printer = 0; printer < CMatched.size(); printer++) {
+		str << "ID: " << ArrayCameraObjects->object[printer].id << '\n';
+		for (int printer2 = 0; printer2 < CMatched[printer].size(); printer2++) {
+			str << " " << CMatched[printer][printer2];
+		}
+		str << '\n';
+	}
+	str << '\n' << "fin de impresion";
+	WriteOutputs();
+	ReportInfo(str);
 
-	
 
-    // Sleeps during 500 milliseconds (500000 microseconds).
+
+
+	// Sleeps during 500 milliseconds (500000 microseconds).
 	//This line will most probably have to be removed when you start programming your component.
 	// Replace it with another blocking function. (StartReading?)
 	ReportInfo(str);
@@ -136,6 +138,7 @@ void MAPSMatching::Death()
 
 void MAPSMatching::WriteOutputs()
 {
+	/*
 	MAPSIOElt *_ioOutput = StartWriting(Output("LaserObjects"));
 	AUTO_Objects &list = *static_cast<AUTO_Objects*>(_ioOutput->Data());
 	list = *ArrayLaserObjects;
@@ -145,7 +148,7 @@ void MAPSMatching::WriteOutputs()
 	AUTO_Objects &list2 = *static_cast<AUTO_Objects*>(_ioOutput->Data());
 	list2 = *ArrayCameraObjects;
 	StopWriting(_ioOutput2);
-
+	
 	MAPSIOElt *_ioOutput3 = StartWriting(Output("MatchedLaser"));
 	std::vector<std::vector<int>> &list3 = *static_cast<std::vector<std::vector<int>>*>(_ioOutput3->Data());
 	list3 = LMatched;
@@ -154,14 +157,13 @@ void MAPSMatching::WriteOutputs()
 	MAPSIOElt *_ioOutput4 = StartWriting(Output("MatchedCamera"));
 	std::vector<std::vector<int>> &list4 = *static_cast<std::vector<std::vector<int>>*>(_ioOutput4->Data());
 	list4 = CMatched;
-	StopWriting(_ioOutput4);
+	StopWriting(_ioOutput4);*/
 }
 
 void MAPSMatching::findMatches(AUTO_Objects* ArrayLaserObjects, AUTO_Objects* ArrayCameraObjects)
 {
 	LMatched.resize(ArrayLaserObjects->number_of_objects);
 	CMatched.resize(ArrayCameraObjects->number_of_objects);
-	//Comparar cada obstaculo del laser con cada uno de la camara
 	for (int i = 0; i < ArrayLaserObjects->number_of_objects; i++) {
 		for (int j = 0; j < ArrayCameraObjects->number_of_objects; j++) {
 			if (BoxMatching(ArrayLaserObjects->object[i], ArrayCameraObjects->object[j])) {
@@ -172,7 +174,7 @@ void MAPSMatching::findMatches(AUTO_Objects* ArrayLaserObjects, AUTO_Objects* Ar
 	//Comparar cada obstaculo del camara con cada uno de la laser
 	for (int i = 0; i < ArrayCameraObjects->number_of_objects; i++) {
 		for (int j = 0; j < ArrayLaserObjects->number_of_objects; j++) {
-			if (BoxMatching(ArrayLaserObjects->object[i], ArrayCameraObjects->object[j])) {
+			if (BoxMatching(ArrayLaserObjects->object[j], ArrayCameraObjects->object[i])) {
 				CMatched[i].push_back(ArrayLaserObjects->object[j].id);
 			}
 		}
@@ -181,14 +183,31 @@ void MAPSMatching::findMatches(AUTO_Objects* ArrayLaserObjects, AUTO_Objects* Ar
 
 bool MAPSMatching::BoxMatching(AUTO_Object Object1, AUTO_Object Object2)
 {
+	/*for (int i = 0; i < 4; i++) {
+	if (Object1.bounding_box_x_rel[i] >= Object2.bounding_box_x_rel[0] || Object1.bounding_box_x_rel[i] >= Object2.bounding_box_x_rel[3]) {
+	if (Object1.bounding_box_x_rel[i] <= Object2.bounding_box_x_rel[0] || Object1.bounding_box_x_rel[i] <= Object2.bounding_box_x_rel[3]) {
+	if (Object1.bounding_box_y_rel[i] >= Object2.bounding_box_y_rel[0] || Object1.bounding_box_y_rel[i] >= Object2.bounding_box_y_rel[1]) {
+	if (Object1.bounding_box_y_rel[i] <= Object2.bounding_box_y_rel[2] || Object1.bounding_box_y_rel[i] <= Object2.bounding_box_y_rel[3]) {
+	return true;
+	}
+	}
+	}
+	}
+	}
+
+	return false;*/
+	double x_max(Object1.bounding_box_x_rel[0]), x_min(Object1.bounding_box_x_rel[0]), y_max(Object1.bounding_box_y_rel[0]), y_min(Object1.bounding_box_y_rel[0]);
+
+	for (int i = 1; i < 4; i++) {
+		if (x_max < Object1.bounding_box_x_rel[i]) x_max = Object1.bounding_box_x_rel[i];
+		if (x_min > Object1.bounding_box_x_rel[i]) x_min = Object1.bounding_box_x_rel[i];
+		if (y_max < Object1.bounding_box_y_rel[i]) y_max = Object1.bounding_box_y_rel[i];
+		if (y_min > Object1.bounding_box_y_rel[i]) y_min = Object1.bounding_box_y_rel[i];
+	}
 	for (int i = 0; i < 4; i++) {
-		if (Object1.bounding_box_x_rel[i] >= Object2.bounding_box_x_rel[0] || Object1.bounding_box_x_rel[i] >= Object2.bounding_box_x_rel[3]) {
-			if (Object1.bounding_box_x_rel[i] <= Object2.bounding_box_x_rel[0] || Object1.bounding_box_x_rel[i] <= Object2.bounding_box_x_rel[3]) {
-				if (Object1.bounding_box_y_rel[i] >= Object2.bounding_box_y_rel[0] || Object1.bounding_box_y_rel[i] >= Object2.bounding_box_y_rel[1]) {
-					if (Object1.bounding_box_y_rel[i] <= Object2.bounding_box_y_rel[2] || Object1.bounding_box_y_rel[i] <= Object2.bounding_box_y_rel[3]) {
-						return true;
-					}
-				}
+		if (Object2.bounding_box_x_rel[i] > x_min - 1 && Object2.bounding_box_x_rel[i] < x_max + 1) {
+			if (Object2.bounding_box_y_rel[i] > y_min - 1 && Object2.bounding_box_y_rel[i] < y_max + 1) {
+				return true;
 			}
 		}
 	}
