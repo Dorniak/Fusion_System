@@ -138,7 +138,7 @@ void MAPSMatching::Death()
 
 void MAPSMatching::WriteOutputs()
 {
-	/*
+	
 	MAPSIOElt *_ioOutput = StartWriting(Output("LaserObjects"));
 	AUTO_Objects &list = *static_cast<AUTO_Objects*>(_ioOutput->Data());
 	list = *ArrayLaserObjects;
@@ -148,7 +148,7 @@ void MAPSMatching::WriteOutputs()
 	AUTO_Objects &list2 = *static_cast<AUTO_Objects*>(_ioOutput->Data());
 	list2 = *ArrayCameraObjects;
 	StopWriting(_ioOutput2);
-	
+	/*
 	MAPSIOElt *_ioOutput3 = StartWriting(Output("MatchedLaser"));
 	std::vector<std::vector<int>> &list3 = *static_cast<std::vector<std::vector<int>>*>(_ioOutput3->Data());
 	list3 = LMatched;
@@ -183,30 +183,42 @@ void MAPSMatching::findMatches(AUTO_Objects* ArrayLaserObjects, AUTO_Objects* Ar
 
 bool MAPSMatching::BoxMatching(AUTO_Object Object1, AUTO_Object Object2)
 {
-	/*for (int i = 0; i < 4; i++) {
-	if (Object1.bounding_box_x_rel[i] >= Object2.bounding_box_x_rel[0] || Object1.bounding_box_x_rel[i] >= Object2.bounding_box_x_rel[3]) {
-	if (Object1.bounding_box_x_rel[i] <= Object2.bounding_box_x_rel[0] || Object1.bounding_box_x_rel[i] <= Object2.bounding_box_x_rel[3]) {
-	if (Object1.bounding_box_y_rel[i] >= Object2.bounding_box_y_rel[0] || Object1.bounding_box_y_rel[i] >= Object2.bounding_box_y_rel[1]) {
-	if (Object1.bounding_box_y_rel[i] <= Object2.bounding_box_y_rel[2] || Object1.bounding_box_y_rel[i] <= Object2.bounding_box_y_rel[3]) {
-	return true;
-	}
-	}
-	}
-	}
+	/*
+	for (int i = 0; i < 4; i++) {
+		if (Object1.bounding_box_x_rel[i] >= Object2.bounding_box_x_rel[0] || Object1.bounding_box_x_rel[i] >= Object2.bounding_box_x_rel[3]) {
+			if (Object1.bounding_box_x_rel[i] <= Object2.bounding_box_x_rel[0] || Object1.bounding_box_x_rel[i] <= Object2.bounding_box_x_rel[3]) {
+				if (Object1.bounding_box_y_rel[i] >= Object2.bounding_box_y_rel[0] || Object1.bounding_box_y_rel[i] >= Object2.bounding_box_y_rel[1]) {
+					if (Object1.bounding_box_y_rel[i] <= Object2.bounding_box_y_rel[2] || Object1.bounding_box_y_rel[i] <= Object2.bounding_box_y_rel[3]) {
+						return true;
+					}
+				}
+			}
+		}
 	}
 
 	return false;*/
+	double tolerance = Object1.distance *0.02;
+	double tolerance_x_1 = Object1.x_sigma;
+	double tolerance_y_1 = Object1.y_sigma;
+	double tolerance_x_2 = Object2.x_sigma;
+	double tolerance_y_2 = Object2.y_sigma;
 	double x_max(Object1.bounding_box_x_rel[0]), x_min(Object1.bounding_box_x_rel[0]), y_max(Object1.bounding_box_y_rel[0]), y_min(Object1.bounding_box_y_rel[0]);
-
+	//Paralelizar bounding box del objeto 1
 	for (int i = 1; i < 4; i++) {
 		if (x_max < Object1.bounding_box_x_rel[i]) x_max = Object1.bounding_box_x_rel[i];
 		if (x_min > Object1.bounding_box_x_rel[i]) x_min = Object1.bounding_box_x_rel[i];
 		if (y_max < Object1.bounding_box_y_rel[i]) y_max = Object1.bounding_box_y_rel[i];
 		if (y_min > Object1.bounding_box_y_rel[i]) y_min = Object1.bounding_box_y_rel[i];
 	}
+	//Aumentar bounding box del objeto 1
+	x_min -= tolerance_x_1;
+	x_max += tolerance_x_1;
+	y_min -= tolerance_y_1;
+	y_max += tolerance_y_1;
+	//Comparar las bounding box ampiadas
 	for (int i = 0; i < 4; i++) {
-		if (Object2.bounding_box_x_rel[i] > x_min - 1 && Object2.bounding_box_x_rel[i] < x_max + 1) {
-			if (Object2.bounding_box_y_rel[i] > y_min - 1 && Object2.bounding_box_y_rel[i] < y_max + 1) {
+		if (Object2.bounding_box_x_rel[i] + tolerance_x_2 > x_min && Object2.bounding_box_x_rel[i] - tolerance_x_2 < x_max) {
+			if (Object2.bounding_box_y_rel[i] + tolerance_y_2 > y_min && Object2.bounding_box_y_rel[i] - tolerance_y_2 < y_max) {
 				return true;
 			}
 		}

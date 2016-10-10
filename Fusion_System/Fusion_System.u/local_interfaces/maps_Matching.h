@@ -18,6 +18,7 @@ class MAPSMatching : public MAPSComponent
 private :
 	// Place here your specific methods and attributes
 	//
+	//int[200][200] a;
 	MAPSStreamedString str;
 	AUTO_Objects* ArrayLaserObjects;
 	AUTO_Objects* ArrayCameraObjects;
