@@ -228,8 +228,8 @@ bool MAPSMatching::BoxMatching(AUTO_Object Object1, AUTO_Object Object2)
 
 void MAPSMatching::clear_Matched()
 {
-	for (int i = 0; i < 200; i++) {
-		for (int j = 0; j < 200; j++) {
+	for (int i = 0; i < AUTO_MAX_NUM_OBJECTS; i++) {
+		for (int j = 0; j < AUTO_MAX_NUM_OBJECTS; j++) {
 			LaserMatched.Matrix_matched[i][j] = 0;
 			CameraMatched.Matrix_matched[i][j] = 0;
 		}

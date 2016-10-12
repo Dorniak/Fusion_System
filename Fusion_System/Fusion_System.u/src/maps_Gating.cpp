@@ -76,35 +76,12 @@ void MAPSGating::Birth()
     ReportInfo("Passing through Birth() method");
 }
 
-void MAPSGating::Core() 
+void MAPSGating::Core()
 {
-	if (DataAvailableInFIFO(Input("LaserObject")) || DataAvailableInFIFO(Input("CameraObject")) || DataAvailableInFIFO(Input("CameraObject")) || DataAvailableInFIFO(Input("CameraObject"))) {
-#pragma region Lectura
-		//Leer objetos del laser
-		elt = StartReading(Input("LaserObject"));
-		m_objects_per2 = static_cast<AUTO_Objects*>(elt->Data());
-		StopReading(Input("LaserObject"));
-		m_objects_per = *m_objects_per2;
-		//Leer objetos de la camara
-		elt = StartReading(Input("CameraObject"));
-		m_objects_com2 = static_cast<AUTO_Objects*>(elt->Data());
-		StopReading(Input("CameraObject"));
-		m_objects_com = *m_objects_com2;
-		//Leer vector de objetos de camara vistos en la gating window de cada objeto laser
-		elt = StartReading(Input("MatchedLaser"));
-		m_ass_per_com_meas2 = static_cast<std::vector<std::vector<int>>*>(elt->Data());
-		StopReading(Input("MatchedLaser"));
-		m_ass_per_com_meas = *m_ass_per_com_meas2;
-		//Leer vector de objetos de camara vistos en la gating window de cada objeto laser
-		elt = StartReading(Input("MatchedCamera"));
-		m_prev_gate2 = static_cast<std::vector<std::vector<int>>*>(elt->Data());
-		StopReading(Input("MatchedCamera"));
-		m_prev_gate = *m_prev_gate2;
-#pragma endregion
-		
-		ProcessData();
-	}
-    Rest(500000);
+	readInputs();
+	adaptation();
+	ProcessData();
+	writeOutputs();
 }
 
 void MAPSGating::Death()
@@ -129,6 +106,63 @@ void MAPSGating::Death()
 		this->m_gate_objs_file.close();
 		this->m_config_file.close();
 	}
+}
+
+void MAPSGating::readInputs()
+{
+	while (!DataAvailableInFIFO(Input("LaserObject")) || !DataAvailableInFIFO(Input("CameraObject"))) {}
+#pragma region Lectura
+	//Leer objetos del laser
+	elt = StartReading(Input("LaserObject"));
+	m_objects_per2 = static_cast<AUTO_Objects*>(elt->Data());
+	StopReading(Input("LaserObject"));
+	m_objects_per = *m_objects_per2;
+
+	//Leer objetos de la camara
+	elt = StartReading(Input("CameraObject"));
+	m_objects_com2 = static_cast<AUTO_Objects*>(elt->Data());
+	StopReading(Input("CameraObject"));
+	m_objects_com = *m_objects_com2;
+
+	//Leer vector de objetos de camara vistos en la gating window de cada objeto laser
+	elt = StartReading(Input("MatchedLaser"));
+	input_Laser_Matched = static_cast<MATCH_OBJECTS*>(elt->Data());
+	StopReading(Input("MatchedLaser"));
+	Laser_Matched = *input_Laser_Matched;
+
+	//Leer vector de objetos de camara vistos en la gating window de cada objeto laser
+	elt = StartReading(Input("MatchedCamera"));
+	input_Camera_Matched = static_cast<MATCH_OBJECTS*>(elt->Data());
+	StopReading(Input("MatchedCamera"));
+	Camera_Matched = *input_Camera_Matched;
+#pragma endregion
+}
+
+void MAPSGating::adaptation()
+{
+	for (size_t i = 0; i<m_ass_per_com_meas.size(); i++) {
+		m_ass_per_com_meas[i].clear();
+	}
+	m_idx_gate.clear();
+	m_ass_per_com_meas.resize(m_objects_com.number_of_objects);
+	for (size_t i = 0; i < Laser_Matched.number_objects; i++)
+	{
+		for (size_t j = 0; j < Laser_Matched.number_matched[i]; j++)
+		{
+			m_ass_per_com_meas[i].push_back(j);
+			if (!IsAlreadyHere(j, m_idx_gate)) {
+				m_idx_gate.push_back(j);
+			}
+		}
+		if (m_objects_com.object[i].id>m_max_com_id) {
+			m_max_com_id = m_objects_com.object[i].id;
+			m_prev_gate.resize(m_max_com_id);
+		}
+	}
+}
+
+void MAPSGating::writeOutputs()
+{
 }
 
 //ProcessData

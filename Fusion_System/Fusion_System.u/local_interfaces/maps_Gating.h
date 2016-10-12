@@ -12,7 +12,7 @@
 #include <vector>
 // Includes maps sdk library header
 #include "maps.hpp"
-#include "Data_EnvironmentState.h"
+#include "Match_Objects.h"
 #include "auto_objects.h"
 #include "Hipotesys.h"
 #include "Properties.h"
@@ -71,10 +71,14 @@ private :
 	//int p_color_g_np; /*!<green value for displaying not perceived objects*/
 	//int p_color_r_np; /*!<red value for displaying not perceived objects*/
 	MAPSIOElt* elt;
+	MATCH_OBJECTS* input_Laser_Matched;
+	MATCH_OBJECTS* input_Camera_Matched;
 	AUTO_Objects* m_objects_per2; /*!<perception objects*/
-	AUTO_Objects m_objects_per; /*!<perception objects*/
 	AUTO_Objects* m_objects_com2; /*!<communication objects*/
-	AUTO_Objects m_objects_com; /*!<communication objects*/
+	MATCH_OBJECTS Laser_Matched;
+	MATCH_OBJECTS Camera_Matched;
+	AUTO_Objects m_objects_per; /*!<perception objects*/	//Camara
+	AUTO_Objects m_objects_com; /*!<communication objects*/ //Laser
 	AUTO_Objects m_objects_ass; /*!<associated objects*/
 	AUTO_Objects m_objects_np; /*!<not perceived objects*/
 	AUTO_Objects m_objects_nc; /*!<not communicating objects*/
@@ -87,9 +91,7 @@ private :
 
 	std::stringstream m_ss; /*!<debugging string to display information in command window*/
 
-	std::vector<std::vector<int>>* m_ass_per_com_meas2; /*!<vector of perception obstacles indexes located inside every communication obstacle gating window*/
 	std::vector<std::vector<int>> m_ass_per_com_meas; /*!<vector of perception obstacles indexes located inside every communication obstacle gating window*/
-	std::vector<std::vector<int>>* m_prev_gate2; /*!<list of perception obstacle which have already been inside the communication gating window*/
 	std::vector<std::vector<int>> m_prev_gate; /*!<list of perception obstacle which have already been inside the communication gating window*/
 	int m_max_com_id; /*!<maximum communication identifier*/
 	int m_max_hyp_id; /*!<maximum perception identifier*/
@@ -127,6 +129,10 @@ public:
 
 	//Private methods
 private:
+
+	void readInputs();
+	void adaptation();
+	void writeOutputs();
 	/*
 	* @function IntializeTree()
 	* @brief Initialize hypothesis tree
