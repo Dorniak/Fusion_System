@@ -117,6 +117,7 @@
     <ClInclude Include="local_interfaces\maps_Estimation.h" />
     <ClInclude Include="local_interfaces\maps_Gating.h" />
     <ClInclude Include="local_interfaces\maps_Matching.h" />
+    <ClInclude Include="local_interfaces\Match_Objects.h" />
     <ClInclude Include="local_interfaces\Properties.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

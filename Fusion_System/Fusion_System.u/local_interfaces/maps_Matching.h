@@ -7,8 +7,7 @@
 
 // Includes maps sdk library header
 #include "maps.hpp"
-#include "auto_objects.h"
-#include <vector>
+#include "Match_Objects.h"
 
 // Declares a new MAPSComponent child class
 class MAPSMatching : public MAPSComponent 
@@ -16,18 +15,18 @@ class MAPSMatching : public MAPSComponent
 	// Use standard header definition macro
 	MAPS_COMPONENT_STANDARD_HEADER_CODE(MAPSMatching)
 private :
-	// Place here your specific methods and attributes
-	//
-	//int[200][200] a;
+	MAPSIOElt* elt;
+	MAPSIOElt *_ioOutput;
 	MAPSStreamedString str;
 	AUTO_Objects* ArrayLaserObjects;
 	AUTO_Objects* ArrayCameraObjects;
-	std::vector<std::vector<int>> LMatched;
-	std::vector<std::vector<int>> CMatched;
+	MATCH_OBJECTS LaserMatched;
+	MATCH_OBJECTS CameraMatched;
+	void readInputs();
 	void WriteOutputs();
+	void printResults();
 	void findMatches(AUTO_Objects* ArrayLaserObjects, AUTO_Objects* ArrayCameraObjects);
 	bool BoxMatching(AUTO_Object Object1, AUTO_Object Object2);
-
+	void clear_Matched();
 };
-
 #endif

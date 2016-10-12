@@ -9,7 +9,6 @@
 #include "maps_Matching.h"	// Includes the header of this component
 
 const MAPSTypeFilterBase ValeoStructure = MAPS_FILTER_USER_STRUCTURE(AUTO_Objects); 
-const MAPSTypeFilterBase matchedVector = MAPS_FILTER_USER_STRUCTURE(std::vector<std::vector<int>>);
 // Use the macros to declare the inputs
 MAPS_BEGIN_INPUTS_DEFINITION(MAPSMatching)
     //MAPS_INPUT("iName",MAPS::FilterInteger32,MAPS::FifoReader)
@@ -22,9 +21,8 @@ MAPS_BEGIN_OUTPUTS_DEFINITION(MAPSMatching)
     //MAPS_OUTPUT("oName",MAPS::Integer32,NULL,NULL,1)
 	MAPS_OUTPUT_USER_STRUCTURE("LaserObjects", AUTO_Objects)
 	MAPS_OUTPUT_USER_STRUCTURE("CameraObjects", AUTO_Objects)
-	MAPS_OUTPUT_USER_STRUCTURE("MatchedLaser", std::vector<std::vector<int>>)
-	MAPS_OUTPUT_USER_STRUCTURE("MatchedCamera", std::vector<std::vector<int>>)
-	//MAPS_OUTPUT_USER_STRUCTURES_VECTOR("foo_vector", IMARA_Object, 16)
+	MAPS_OUTPUT_USER_STRUCTURE("MatchedLaser", MATCH_OBJECTS)
+	MAPS_OUTPUT_USER_STRUCTURE("MatchedCamera", MATCH_OBJECTS)
 MAPS_END_OUTPUTS_DEFINITION
 
 // Use the macros to declare the properties
@@ -48,12 +46,8 @@ MAPS_COMPONENT_DEFINITION(MAPSMatching,"Matching","1.0",128,
 //Initialization: Birth() will be called once at diagram execution startup.			  
 void MAPSMatching::Birth()
 {
-		// Lectura de la variable (Además se filtran los obstáculos etc...)
-	
-
-
-
-    // Reports this information to the RTMaps console. You can remove this line if you know when Birth() is called in the component lifecycle.
+	// Lectura de la variable (Además se filtran los obstáculos etc...)
+	// Reports this information to the RTMaps console. You can remove this line if you know when Birth() is called in the component lifecycle.
     ReportInfo("Passing through Birth() method");
 }
 
@@ -76,57 +70,22 @@ void MAPSMatching::Birth()
 /***************************************************************************/
 void MAPSMatching::Core()
 {
-	LMatched.clear();
-	CMatched.clear();
+	clear_Matched();
 	ArrayLaserObjects = nullptr;
 	ArrayCameraObjects = nullptr;
 	str.Clear();
-	//If there are any obstacle in the frame we do a process
-	while (!DataAvailableInFIFO(Input("LaserObject")) || !DataAvailableInFIFO(Input("CameraObject"))) {}
-	str << '\n' << "Objects detected";
-	//Leer laser
-	MAPSIOElt* elt = StartReading(Input("LaserObject"));
-	ArrayLaserObjects = static_cast<AUTO_Objects*>(elt->Data());
-	StopReading(Input("LaserObject"));
-	//Leer camara
-	MAPSIOElt* elt2;
-	elt2 = StartReading(Input("CameraObject"));
-	ArrayCameraObjects = static_cast<AUTO_Objects*>(elt2->Data());
-	StopReading(Input("CameraObject"));
+	//Read input objects
+	readInputs();
 
 	str << '\n' << "Box Matchig " << ArrayLaserObjects->number_of_objects << " " << ArrayCameraObjects->number_of_objects;
+
 	//Buscamos objetos en el gating window de cada obstaculo
+	//We look for objects inside the gating window of each object
 	findMatches(ArrayLaserObjects, ArrayCameraObjects);
-	str << '\n' << "Imprimir coincidencias " << '\n';
-	str << '\n' << "Laser" << '\n';
-	for (int printer = 0; printer < LMatched.size(); printer++) {
-		str << "ID: " << ArrayLaserObjects->object[printer].id << '\n';
-		for (int printer2 = 0; printer2 < LMatched[printer].size(); printer2++) {
-			str << " " << LMatched[printer][printer2];
-		}
-		str << '\n';
-	}
-	str << '\n';
-	str << '\n' << "Camara" << '\n';
-	for (int printer = 0; printer < CMatched.size(); printer++) {
-		str << "ID: " << ArrayCameraObjects->object[printer].id << '\n';
-		for (int printer2 = 0; printer2 < CMatched[printer].size(); printer2++) {
-			str << " " << CMatched[printer][printer2];
-		}
-		str << '\n';
-	}
-	str << '\n' << "fin de impresion";
+	printResults();
 	WriteOutputs();
 	ReportInfo(str);
-
-
-
-
-	// Sleeps during 500 milliseconds (500000 microseconds).
-	//This line will most probably have to be removed when you start programming your component.
-	// Replace it with another blocking function. (StartReading?)
 	ReportInfo(str);
-	Rest(500000);
 }
 
 //De-initialization: Death() will be called once at diagram execution shutdown.
@@ -136,38 +95,78 @@ void MAPSMatching::Death()
     ReportInfo("Passing through Death() method");
 }
 
+void MAPSMatching::readInputs()
+{
+	while (!DataAvailableInFIFO(Input("LaserObject")) || !DataAvailableInFIFO(Input("CameraObject"))) {}
+	str << '\n' << "Objects detected";
+	//Leer laser
+	elt = StartReading(Input("LaserObject"));
+	ArrayLaserObjects = static_cast<AUTO_Objects*>(elt->Data());
+	StopReading(Input("LaserObject"));
+	//Leer camara
+	elt = StartReading(Input("CameraObject"));
+	ArrayCameraObjects = static_cast<AUTO_Objects*>(elt->Data());
+	StopReading(Input("CameraObject"));
+}
+
 void MAPSMatching::WriteOutputs()
 {
 	
-	MAPSIOElt *_ioOutput = StartWriting(Output("LaserObjects"));
+	_ioOutput = StartWriting(Output("LaserObjects"));
 	AUTO_Objects &list = *static_cast<AUTO_Objects*>(_ioOutput->Data());
 	list = *ArrayLaserObjects;
 	StopWriting(_ioOutput);
 
-	MAPSIOElt *_ioOutput2 = StartWriting(Output("CameraObjects"));
+	_ioOutput = StartWriting(Output("CameraObjects"));
 	AUTO_Objects &list2 = *static_cast<AUTO_Objects*>(_ioOutput->Data());
 	list2 = *ArrayCameraObjects;
-	StopWriting(_ioOutput2);
-	/*
-	MAPSIOElt *_ioOutput3 = StartWriting(Output("MatchedLaser"));
-	std::vector<std::vector<int>> &list3 = *static_cast<std::vector<std::vector<int>>*>(_ioOutput3->Data());
-	list3 = LMatched;
-	StopWriting(_ioOutput3);
+	StopWriting(_ioOutput);
 
-	MAPSIOElt *_ioOutput4 = StartWriting(Output("MatchedCamera"));
-	std::vector<std::vector<int>> &list4 = *static_cast<std::vector<std::vector<int>>*>(_ioOutput4->Data());
-	list4 = CMatched;
-	StopWriting(_ioOutput4);*/
+	_ioOutput = StartWriting(Output("MatchedLaser"));
+	MATCH_OBJECTS &list3 = *static_cast<MATCH_OBJECTS*>(_ioOutput->Data());
+	list3 = LaserMatched;
+	StopWriting(_ioOutput);
+
+	_ioOutput = StartWriting(Output("MatchedCamera"));
+	MATCH_OBJECTS &list4 = *static_cast<MATCH_OBJECTS*>(_ioOutput->Data());
+	list4 = CameraMatched;
+	StopWriting(_ioOutput);
+}
+
+void MAPSMatching::printResults()
+{
+	str << '\n' << "Imprimir coincidencias " << '\n';
+	str << '\n' << "Laser" << '\n';
+	for (int printer = 0; printer < LaserMatched.number_objects; printer++) {
+		str << "ID: " << ArrayLaserObjects->object[printer].id << '\n';
+		for (int printer2 = 0; printer2 < LaserMatched.number_matched[printer]; printer2++) {
+			str << " " << LaserMatched.Matrix_matched[printer][printer2];
+		}
+		str << '\n';
+	}
+	str << '\n';
+	str << '\n' << "Camara" << '\n';
+	for (int printer = 0; printer < CameraMatched.number_objects; printer++) {
+		str << "ID: " << ArrayCameraObjects->object[printer].id << '\n';
+		for (int printer2 = 0; printer2 < CameraMatched.number_matched[printer]; printer2++) {
+			str << " " << CameraMatched.Matrix_matched[printer][printer2];
+		}
+		str << '\n';
+	}
+
+	str << '\n' << "fin de impresion";
 }
 
 void MAPSMatching::findMatches(AUTO_Objects* ArrayLaserObjects, AUTO_Objects* ArrayCameraObjects)
 {
-	LMatched.resize(ArrayLaserObjects->number_of_objects);
-	CMatched.resize(ArrayCameraObjects->number_of_objects);
+	LaserMatched.number_objects = ArrayLaserObjects->number_of_objects;
+	CameraMatched.number_objects = ArrayCameraObjects->number_of_objects;
 	for (int i = 0; i < ArrayLaserObjects->number_of_objects; i++) {
 		for (int j = 0; j < ArrayCameraObjects->number_of_objects; j++) {
 			if (BoxMatching(ArrayLaserObjects->object[i], ArrayCameraObjects->object[j])) {
-				LMatched[i].push_back(ArrayCameraObjects->object[j].id);
+				
+				LaserMatched.Matrix_matched[i][LaserMatched.number_matched[i]] = ArrayCameraObjects->object[j].id;
+				LaserMatched.number_matched[i]++;
 			}
 		}
 	}
@@ -175,7 +174,8 @@ void MAPSMatching::findMatches(AUTO_Objects* ArrayLaserObjects, AUTO_Objects* Ar
 	for (int i = 0; i < ArrayCameraObjects->number_of_objects; i++) {
 		for (int j = 0; j < ArrayLaserObjects->number_of_objects; j++) {
 			if (BoxMatching(ArrayLaserObjects->object[j], ArrayCameraObjects->object[i])) {
-				CMatched[i].push_back(ArrayLaserObjects->object[j].id);
+				CameraMatched.Matrix_matched[i][CameraMatched.number_matched[i]] = ArrayLaserObjects->object[j].id;
+				CameraMatched.number_matched[i]++;
 			}
 		}
 	}
@@ -224,4 +224,18 @@ bool MAPSMatching::BoxMatching(AUTO_Object Object1, AUTO_Object Object2)
 		}
 	}
 	return false;
+}
+
+void MAPSMatching::clear_Matched()
+{
+	for (int i = 0; i < 200; i++) {
+		for (int j = 0; j < 200; j++) {
+			LaserMatched.Matrix_matched[i][j] = 0;
+			CameraMatched.Matrix_matched[i][j] = 0;
+		}
+		LaserMatched.number_matched[i] = 0;
+		CameraMatched.number_matched[i] = 0;
+	}
+	LaserMatched.number_objects = 0;
+	CameraMatched.number_objects = 0;
 }
