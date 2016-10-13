@@ -46,9 +46,7 @@ MAPS_COMPONENT_DEFINITION(MAPSMatching,"Matching","1.0",128,
 //Initialization: Birth() will be called once at diagram execution startup.			  
 void MAPSMatching::Birth()
 {
-	// Lectura de la variable (Además se filtran los obstáculos etc...)
-	// Reports this information to the RTMaps console. You can remove this line if you know when Birth() is called in the component lifecycle.
-    ReportInfo("Passing through Birth() method");
+	
 }
 
 //ATTENTION: 
@@ -84,15 +82,12 @@ void MAPSMatching::Core()
 	findMatches(ArrayLaserObjects, ArrayCameraObjects);
 	printResults();
 	WriteOutputs();
-	ReportInfo(str);
-	ReportInfo(str);
+	//ReportInfo(str);
 }
 
 //De-initialization: Death() will be called once at diagram execution shutdown.
 void MAPSMatching::Death()
 {
-    // Reports this information to the RTMaps console. You can remove this line if you know when Death() is called in the component lifecycle.
-    ReportInfo("Passing through Death() method");
 }
 
 void MAPSMatching::readInputs()
@@ -100,18 +95,21 @@ void MAPSMatching::readInputs()
 	while (!DataAvailableInFIFO(Input("LaserObject")) || !DataAvailableInFIFO(Input("CameraObject"))) {}
 	str << '\n' << "Objects detected";
 	//Leer laser
-	elt = StartReading(Input("LaserObject"));
-	ArrayLaserObjects = static_cast<AUTO_Objects*>(elt->Data());
-	StopReading(Input("LaserObject"));
+	if (DataAvailableInFIFO(Input("LaserObject"))) {
+		elt = StartReading(Input("LaserObject"));
+		ArrayLaserObjects = static_cast<AUTO_Objects*>(elt->Data());
+		StopReading(Input("LaserObject"));
+	}
 	//Leer camara
-	elt = StartReading(Input("CameraObject"));
-	ArrayCameraObjects = static_cast<AUTO_Objects*>(elt->Data());
-	StopReading(Input("CameraObject"));
+	if (DataAvailableInFIFO(Input("CameraObject"))) {
+		elt = StartReading(Input("CameraObject"));
+		ArrayCameraObjects = static_cast<AUTO_Objects*>(elt->Data());
+		StopReading(Input("CameraObject"));
+	}
 }
 
 void MAPSMatching::WriteOutputs()
 {
-	
 	_ioOutput = StartWriting(Output("LaserObjects"));
 	AUTO_Objects &list = *static_cast<AUTO_Objects*>(_ioOutput->Data());
 	list = *ArrayLaserObjects;

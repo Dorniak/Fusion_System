@@ -7,7 +7,7 @@
 
 // Includes maps sdk library header
 #include "maps.hpp"
-#include "Data_EnvironmentState.h"
+#include "auto_objects.h"
 
 // Declares a new MAPSComponent child class
 class MAPSEstimation : public MAPSComponent 
@@ -15,7 +15,14 @@ class MAPSEstimation : public MAPSComponent
 	// Use standard header definition macro
 	MAPS_COMPONENT_STANDARD_HEADER_CODE(MAPSEstimation)
 private :
-	// Place here your specific methods and attributes
+	MAPSIOElt* elt;
+	MAPSStreamedString str;
+	MAPSIOElt *_ioOutput;
+	AUTO_Objects* ArrayLaserObjects;
+	AUTO_Objects* ArrayCameraObjects;
+	void readInputs();
+	void WriteOutputs();
+	
 };
 
 #endif

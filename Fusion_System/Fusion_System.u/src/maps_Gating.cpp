@@ -9,7 +9,7 @@
 #include "maps_Gating.h"	// Includes the header of this component
 
 const MAPSTypeFilterBase ValeoStructure = MAPS_FILTER_USER_STRUCTURE(AUTO_Objects);
-const MAPSTypeFilterBase matchedVector = MAPS_FILTER_USER_STRUCTURE(std::vector<std::vector<int>>);
+const MAPSTypeFilterBase matchedVector = MAPS_FILTER_USER_STRUCTURE(MATCH_OBJECTS);
 
 // Use the macros to declare the inputs
 MAPS_BEGIN_INPUTS_DEFINITION(MAPSGating)
@@ -23,8 +23,8 @@ MAPS_END_INPUTS_DEFINITION
 // Use the macros to declare the outputs
 MAPS_BEGIN_OUTPUTS_DEFINITION(MAPSGating)
     //MAPS_OUTPUT("oName",MAPS::Integer32,NULL,NULL,1)
-	MAPS_OUTPUT("output1", MAPS::Integer32, NULL, NULL, 1)
-	MAPS_OUTPUT("output2", MAPS::Integer32, NULL, NULL, 1)
+	MAPS_OUTPUT_USER_STRUCTURE("LaserObjects", AUTO_Objects)
+	MAPS_OUTPUT_USER_STRUCTURE("CameraObjects", AUTO_Objects)
 MAPS_END_OUTPUTS_DEFINITION
 
 // Use the macros to declare the properties
@@ -50,38 +50,19 @@ MAPS_COMPONENT_DEFINITION(MAPSGating,"Gating","1.0",128,
 //TODO::Comprobado OK
 void MAPSGating::Birth()
 {
-	this->m_objects_per.number_of_objects = 0;
-	this->m_objects_com.number_of_objects = 0;
-	this->m_objects_ass.number_of_objects = 0;
-	this->m_objects_np.number_of_objects = 0;
-	this->m_objects_nc.number_of_objects = 0;
-
-	this->m_max_com_id = 0;
-	this->m_max_hyp_id = 0;
-
-	for (int i = 0; i<(int)m_ass_per_com_meas.size(); i++) {
-		m_ass_per_com_meas[i].clear();
-	}
-	m_ass_per_com_meas.clear();
-	m_hypothesis_tree.clear();
-	m_prev_gate.clear();
-	m_already_seen_com.clear();
-	m_already_seen_per.clear();
-	m_prev_hypothesis.clear();
-
-
-
-
-    // Reports this information to the RTMaps console. You can remove this line if you know when Birth() is called in the component lifecycle.
-    ReportInfo("Passing through Birth() method");
 }
 
 void MAPSGating::Core()
 {
+	str.Clear();
 	readInputs();
+	ReportInfo("Fin de recepcion de objetos");
+	str << "Numero de objetos recibidos: " << '\n' << "Laser: " << m_objects_per.number_of_objects << '\n' << "Camara: " << m_objects_com.number_of_objects;
+	
 	adaptation();
-	ProcessData();
+	//ProcessData();
 	writeOutputs();
+	ReportInfo(str);
 }
 
 void MAPSGating::Death()
@@ -113,28 +94,36 @@ void MAPSGating::readInputs()
 	while (!DataAvailableInFIFO(Input("LaserObject")) || !DataAvailableInFIFO(Input("CameraObject"))) {}
 #pragma region Lectura
 	//Leer objetos del laser
-	elt = StartReading(Input("LaserObject"));
-	m_objects_per2 = static_cast<AUTO_Objects*>(elt->Data());
-	StopReading(Input("LaserObject"));
-	m_objects_per = *m_objects_per2;
+	if (DataAvailableInFIFO(Input("LaserObject"))) {
+		elt = StartReading(Input("LaserObject"));
+		m_objects_per2 = static_cast<AUTO_Objects*>(elt->Data());
+		StopReading(Input("LaserObject"));
+		m_objects_per = *m_objects_per2;
+	}
 
 	//Leer objetos de la camara
-	elt = StartReading(Input("CameraObject"));
-	m_objects_com2 = static_cast<AUTO_Objects*>(elt->Data());
-	StopReading(Input("CameraObject"));
-	m_objects_com = *m_objects_com2;
+	if (DataAvailableInFIFO(Input("CameraObject"))) {
+		elt = StartReading(Input("CameraObject"));
+		m_objects_com2 = static_cast<AUTO_Objects*>(elt->Data());
+		StopReading(Input("CameraObject"));
+		m_objects_com = *m_objects_com2;
+	}
 
 	//Leer vector de objetos de camara vistos en la gating window de cada objeto laser
-	elt = StartReading(Input("MatchedLaser"));
-	input_Laser_Matched = static_cast<MATCH_OBJECTS*>(elt->Data());
-	StopReading(Input("MatchedLaser"));
-	Laser_Matched = *input_Laser_Matched;
+	if (DataAvailableInFIFO(Input("MatchedLaser"))) {
+		elt = StartReading(Input("MatchedLaser"));
+		input_Laser_Matched = static_cast<MATCH_OBJECTS*>(elt->Data());
+		StopReading(Input("MatchedLaser"));
+		Laser_Matched = *input_Laser_Matched;
+	}
 
 	//Leer vector de objetos de camara vistos en la gating window de cada objeto laser
-	elt = StartReading(Input("MatchedCamera"));
-	input_Camera_Matched = static_cast<MATCH_OBJECTS*>(elt->Data());
-	StopReading(Input("MatchedCamera"));
-	Camera_Matched = *input_Camera_Matched;
+	if (DataAvailableInFIFO(Input("MatchedCamera"))) {
+		elt = StartReading(Input("MatchedCamera"));
+		input_Camera_Matched = static_cast<MATCH_OBJECTS*>(elt->Data());
+		StopReading(Input("MatchedCamera"));
+		Camera_Matched = *input_Camera_Matched;
+	}
 #pragma endregion
 }
 
@@ -147,14 +136,14 @@ void MAPSGating::adaptation()
 	m_ass_per_com_meas.resize(m_objects_com.number_of_objects);
 	for (size_t i = 0; i < Laser_Matched.number_objects; i++)
 	{
-		for (size_t j = 0; j < Laser_Matched.number_matched[i]; j++)
+		for (size_t j = 0; j < Camera_Matched.number_matched[i]; j++)
 		{
 			m_ass_per_com_meas[i].push_back(j);
 			if (!IsAlreadyHere(j, m_idx_gate)) {
 				m_idx_gate.push_back(j);
 			}
 		}
-		if (m_objects_com.object[i].id>m_max_com_id) {
+		if (m_objects_com.object[i].id > m_max_com_id) {
 			m_max_com_id = m_objects_com.object[i].id;
 			m_prev_gate.resize(m_max_com_id);
 		}
@@ -163,6 +152,37 @@ void MAPSGating::adaptation()
 
 void MAPSGating::writeOutputs()
 {
+	_ioOutput = StartWriting(Output("LaserObjects"));
+	AUTO_Objects &list = *static_cast<AUTO_Objects*>(_ioOutput->Data());
+	list = m_objects_per;
+	StopWriting(_ioOutput);
+
+	_ioOutput = StartWriting(Output("CameraObjects"));
+	AUTO_Objects &list2 = *static_cast<AUTO_Objects*>(_ioOutput->Data());
+	list2 = m_objects_com;
+	StopWriting(_ioOutput);
+}
+
+void MAPSGating::inicialization()
+{
+	m_objects_per.number_of_objects = 0;
+	m_objects_com.number_of_objects = 0;
+	m_objects_ass.number_of_objects = 0;
+	m_objects_np.number_of_objects = 0;
+	m_objects_nc.number_of_objects = 0;
+
+	m_max_com_id = 0;
+	m_max_hyp_id = 0;
+
+	for (int i = 0; i<(int)m_ass_per_com_meas.size(); i++) {
+		m_ass_per_com_meas[i].clear();
+	}
+	m_ass_per_com_meas.clear();
+	m_hypothesis_tree.clear();
+	m_prev_gate.clear();
+	m_already_seen_com.clear();
+	m_already_seen_per.clear();
+	m_prev_hypothesis.clear();
 }
 
 //ProcessData

@@ -71,6 +71,7 @@ private :
 	//int p_color_g_np; /*!<green value for displaying not perceived objects*/
 	//int p_color_r_np; /*!<red value for displaying not perceived objects*/
 	MAPSIOElt* elt;
+	MAPSStreamedString str;
 	MATCH_OBJECTS* input_Laser_Matched;
 	MATCH_OBJECTS* input_Camera_Matched;
 	AUTO_Objects* m_objects_per2; /*!<perception objects*/
@@ -129,10 +130,11 @@ public:
 
 	//Private methods
 private:
-
+	MAPSIOElt *_ioOutput;
 	void readInputs();
 	void adaptation();
 	void writeOutputs();
+	void inicialization();
 	/*
 	* @function IntializeTree()
 	* @brief Initialize hypothesis tree

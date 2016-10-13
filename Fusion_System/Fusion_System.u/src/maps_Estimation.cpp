@@ -7,18 +7,19 @@
 ////////////////////////////////
 
 #include "maps_Estimation.h"	// Includes the header of this component
+const MAPSTypeFilterBase ValeoStructure = MAPS_FILTER_USER_STRUCTURE(AUTO_Objects);
 
 // Use the macros to declare the inputs
 MAPS_BEGIN_INPUTS_DEFINITION(MAPSEstimation)
     //MAPS_INPUT("iName",MAPS::FilterInteger32,MAPS::FifoReader)
-	MAPS_INPUT("input1", MAPS::FilterInteger32, MAPS::FifoReader)
-	MAPS_INPUT("input2", MAPS::FilterInteger32, MAPS::FifoReader)
+	MAPS_INPUT("LaserObject", ValeoStructure, MAPS::FifoReader)
+	MAPS_INPUT("CameraObject", ValeoStructure, MAPS::FifoReader)
 MAPS_END_INPUTS_DEFINITION
 
 // Use the macros to declare the outputs
 MAPS_BEGIN_OUTPUTS_DEFINITION(MAPSEstimation)
     //MAPS_OUTPUT("oName",MAPS::Integer32,NULL,NULL,1)
-	MAPS_OUTPUT("output1", MAPS::Integer32, NULL, NULL, 1)
+	MAPS_OUTPUT_USER_STRUCTURE("Output_estimation", AUTO_Objects)
 MAPS_END_OUTPUTS_DEFINITION
 
 // Use the macros to declare the properties
@@ -65,18 +66,39 @@ void MAPSEstimation::Birth()
 /***************************************************************************/
 void MAPSEstimation::Core() 
 {
-    // Reports this information to the RTMaps console. You can remove this line if you know when Core() is called in the component lifecycle.
-    ReportInfo("Passing through Core() method");
-
-    // Sleeps during 500 milliseconds (500000 microseconds).
-	//This line will most probably have to be removed when you start programming your component.
-	// Replace it with another blocking function. (StartReading?)
-    Rest(500000);
+	str.Clear();
+	readInputs();
+	WriteOutputs();
+	ReportInfo(str);
 }
 
 //De-initialization: Death() will be called once at diagram execution shutdown.
 void MAPSEstimation::Death()
 {
-    // Reports this information to the RTMaps console. You can remove this line if you know when Death() is called in the component lifecycle.
-    ReportInfo("Passing through Death() method");
+   
+}
+
+void MAPSEstimation::readInputs()
+{
+	while (!DataAvailableInFIFO(Input("LaserObject")) || !DataAvailableInFIFO(Input("CameraObject"))) {}
+	//Leer laser
+	if (DataAvailableInFIFO(Input("LaserObject"))) {
+		elt = StartReading(Input("LaserObject"));
+		ArrayLaserObjects = static_cast<AUTO_Objects*>(elt->Data());
+		StopReading(Input("LaserObject"));
+	}
+	//Leer camara
+	if (DataAvailableInFIFO(Input("CameraObject"))) {
+		elt = StartReading(Input("CameraObject"));
+		ArrayCameraObjects = static_cast<AUTO_Objects*>(elt->Data());
+		StopReading(Input("CameraObject"));
+	}
+}
+void MAPSEstimation::WriteOutputs()
+{
+
+	_ioOutput = StartWriting(Output("Output_estimation"));
+	AUTO_Objects &list = *static_cast<AUTO_Objects*>(_ioOutput->Data());
+	list = *ArrayLaserObjects;
+	StopWriting(_ioOutput);
 }
