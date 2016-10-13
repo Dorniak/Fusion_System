@@ -56,11 +56,8 @@ void MAPSGating::Core()
 {
 	str.Clear();
 	readInputs();
-	ReportInfo("Fin de recepcion de objetos");
-	str << "Numero de objetos recibidos: " << '\n' << "Laser: " << m_objects_per.number_of_objects << '\n' << "Camara: " << m_objects_com.number_of_objects;
-	
 	adaptation();
-	//ProcessData();
+	ProcessData();
 	writeOutputs();
 	ReportInfo(str);
 }
@@ -194,41 +191,41 @@ void MAPSGating::ProcessData() {
 
 	// Initialize hypothesis tree
 	IntializeTree();	//TODO::Comprobado OK
-
+	
 	// Update hypothesis tree
 	UpdateTree();
 
 	for (int h = 0; h<(int)this->m_hypothesis_tree.size(); h++) {
-		m_ss << "Hypothesis " << this->m_hypothesis_tree[h].id << "(";
+		str << "Hypothesis " << this->m_hypothesis_tree[h].id << "(";
 		for (int ass = 0; ass<(int)this->m_hypothesis_tree[h].assoc_vec.size(); ass++) {
-			m_ss << "Com_" << this->m_hypothesis_tree[h].assoc_vec[ass].id_com << "-Per_" << this->m_hypothesis_tree[h].assoc_vec[ass].id_per;
+			str << "Laser_" << this->m_hypothesis_tree[h].assoc_vec[ass].id_com << "-Camera_" << this->m_hypothesis_tree[h].assoc_vec[ass].id_per;
 		}
-		m_ss << ") : measurement likelihood (" << this->m_hypothesis_tree[h].likelihood_meas
-			<< "), branch likelihood (" << this->m_hypothesis_tree[h].likelihood_branch
-			<< "), branch NT likelihood (" << this->m_hypothesis_tree[h].likelihood_branch_nt
-			<< "), N NT h (" << this->m_hypothesis_tree[h].n_nt_h
-			<< "), N NT com (" << this->m_hypothesis_tree[h].n_nt_com
-			<< "), branch DT likelihood (" << this->m_hypothesis_tree[h].likelihood_branch_dt
-			<< "), N NT Per (" << this->m_hypothesis_tree[h].n_nt_per
-			<< "), N Prev Com NP (" << this->m_hypothesis_tree[h].n_prev_com_np
-			<< "), detetection probability (" << this->m_hypothesis_tree[h].detection_prob
-			<< "), posterior probability (" << this->m_hypothesis_tree[h].prob << ")\n";
+		str << ") :'\n'measurement likelihood (" << this->m_hypothesis_tree[h].likelihood_meas
+			<< "),'\n' branch likelihood (" << this->m_hypothesis_tree[h].likelihood_branch
+			<< "),'\n' branch NT likelihood (" << this->m_hypothesis_tree[h].likelihood_branch_nt
+			<< "),'\n' N NT h (" << this->m_hypothesis_tree[h].n_nt_h
+			<< "),'\n' N NT com (" << this->m_hypothesis_tree[h].n_nt_com
+			<< "),'\n' branch DT likelihood (" << this->m_hypothesis_tree[h].likelihood_branch_dt
+			<< "),'\n' N NT Per (" << this->m_hypothesis_tree[h].n_nt_per
+			<< "),'\n' N Prev Com NP (" << this->m_hypothesis_tree[h].n_prev_com_np
+			<< "),'\n' detetection probability (" << this->m_hypothesis_tree[h].detection_prob
+			<< "),'\n' posterior probability (" << this->m_hypothesis_tree[h].prob << ")\n";
 	}
-
+	
 	// Prune hypothesis
 	PruneHypothesis();
 
-	m_ss << "Hypothesis after pruning \n";
+	str << "Hypothesis after pruning \n";
 	for (int h = 0; h<(int)this->m_hypothesis_tree.size(); h++) {
-		m_ss << "Hypothesis " << this->m_hypothesis_tree[h].id << " with probability " << this->m_hypothesis_tree[h].prob << "\n";
+		str << "Hypothesis " << this->m_hypothesis_tree[h].id << " with probability " << this->m_hypothesis_tree[h].prob << "\n";
 	}
-
+	/*
 	// Update the list of tracks insed gating window
 	UpdateGateTracks();
 
 	// estimated fused tracks
 	FusedTracksEstimation();
-
+	*/
 }
 
 //TODO::Comprobado OK
@@ -534,10 +531,10 @@ void MAPSGating::PruneHypothesis() {
 	float sum_prob(1.0f);
 	bool hypothesis_with_per(false);
 
-	std::vector<s_hypothesis>::iterator it_h = this->m_hypothesis_tree.begin();
+	std::vector<s_hypothesis>::iterator it_h = m_hypothesis_tree.begin();
 	// Delete hypothesis with probability below p_hypothesis_pruning threshold
 	// Be careful of keeping the hypothesis with all the not perceived branch in memory, this allows to keep generating new hypothesis from new perceived obstacles
-	while (h<(int)m_hypothesis_tree.size()) {
+	while (h < m_hypothesis_tree.size()) {
 		if (m_hypothesis_tree[h].prob >= p_hypothesis_pruning) {
 			h++;
 		}

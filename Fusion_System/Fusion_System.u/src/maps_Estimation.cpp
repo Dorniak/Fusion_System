@@ -43,8 +43,6 @@ MAPS_COMPONENT_DEFINITION(MAPSEstimation,"Estimation","1.0",128,
 //Initialization: Birth() will be called once at diagram execution startup.			  
 void MAPSEstimation::Birth()
 {
-    // Reports this information to the RTMaps console. You can remove this line if you know when Birth() is called in the component lifecycle.
-    ReportInfo("Passing through Birth() method");
 }
 
 //ATTENTION: 
@@ -69,13 +67,12 @@ void MAPSEstimation::Core()
 	str.Clear();
 	readInputs();
 	WriteOutputs();
-	ReportInfo(str);
+	//ReportInfo(str);
 }
 
 //De-initialization: Death() will be called once at diagram execution shutdown.
 void MAPSEstimation::Death()
-{
-   
+{ 
 }
 
 void MAPSEstimation::readInputs()
@@ -94,6 +91,7 @@ void MAPSEstimation::readInputs()
 		StopReading(Input("CameraObject"));
 	}
 }
+
 void MAPSEstimation::WriteOutputs()
 {
 

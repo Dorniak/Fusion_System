@@ -70,6 +70,7 @@ private :
 	//int p_color_b_np; /*!<blue value for displaying not perceived objects*/
 	//int p_color_g_np; /*!<green value for displaying not perceived objects*/
 	//int p_color_r_np; /*!<red value for displaying not perceived objects*/
+
 	MAPSIOElt* elt;
 	MAPSStreamedString str;
 	MATCH_OBJECTS* input_Laser_Matched;
