@@ -43,25 +43,9 @@ MAPS_COMPONENT_DEFINITION(MAPSEstimation,"Estimation","1.0",128,
 //Initialization: Birth() will be called once at diagram execution startup.			  
 void MAPSEstimation::Birth()
 {
+
 }
 
-//ATTENTION: 
-//	Make sure there is ONE and ONLY ONE blocking function inside this Core method.
-//	Consider that Core() will be called inside an infinite loop while the diagram is executing.
-//	Something similar to: 
-//		while (componentIsRunning) {Core();}
-//
-//	Usually, the one and only blocking function is one of the following:
-//		* StartReading(MAPSInput& input); //Data request on a single BLOCKING input. A "blocking input" is an input declared as FifoReader, LastOrNextReader, Wait4NextReader or NeverskippingReader (declaration happens in MAPS_INPUT: see the beginning of this file). A SamplingReader input is non-blocking: StartReading will not block with a SamplingReader input.
-//		* StartReading(int nCount, MAPSInput* inputs[], int* inputThatAnswered, int nCountEvents = 0, MAPSEvent* events[] = NULL); //Data request on several BLOCKING inputs.
-//		* SynchroStartReading(int nb, MAPSInput** inputs, MAPSIOElt** IOElts, MAPSInt64 synchroTolerance = 0, MAPSEvent* abortEvent = NULL); // Synchronized reading - waiting for samples with same or nearly same timestamps on several BLOCKING inputs.
-//		* Wait(MAPSTimestamp t); or Rest(MAPSDelay d); or MAPS::Sleep(MAPSDelay d); //Pauses the current thread for some time. Can be used for instance in conjunction with StartReading on a SamplingReader input (in which case StartReading is not blocking).
-//		* Any blocking grabbing function or other data reception function from another API (device driver,etc.). In such case, make sure this function cannot block forever otherwise it could freeze RTMaps when shutting down diagram.
-//**************************************************************************/
-//	In case of no blocking function inside the Core, your component will consume 100% of a CPU.
-//  Remember that the StartReading function used with an input declared as a SamplingReader is not blocking.
-//	In case of two or more blocking functions inside the Core, this is likely to induce synchronization issues and data loss. (Ex: don't call two successive StartReading on FifoReader inputs.)
-/***************************************************************************/
 void MAPSEstimation::Core() 
 {
 	str.Clear();
@@ -79,13 +63,15 @@ void MAPSEstimation::readInputs()
 {
 	while (!DataAvailableInFIFO(Input("LaserObject")) || !DataAvailableInFIFO(Input("CameraObject"))) {}
 	//Leer laser
-	if (DataAvailableInFIFO(Input("LaserObject"))) {
+	if (DataAvailableInFIFO(Input("LaserObject"))) 
+	{
 		elt = StartReading(Input("LaserObject"));
 		ArrayLaserObjects = static_cast<AUTO_Objects*>(elt->Data());
 		StopReading(Input("LaserObject"));
 	}
 	//Leer camara
-	if (DataAvailableInFIFO(Input("CameraObject"))) {
+	if (DataAvailableInFIFO(Input("CameraObject"))) 
+	{
 		elt = StartReading(Input("CameraObject"));
 		ArrayCameraObjects = static_cast<AUTO_Objects*>(elt->Data());
 		StopReading(Input("CameraObject"));

@@ -49,23 +49,6 @@ void MAPSMatching::Birth()
 	
 }
 
-//ATTENTION: 
-//	Make sure there is ONE and ONLY ONE blocking function inside this Core method.
-//	Consider that Core() will be called inside an infinite loop while the diagram is executing.
-//	Something similar to: 
-//		while (componentIsRunning) {Core();}
-//
-//	Usually, the one and only blocking function is one of the following:
-//		* StartReading(MAPSInput& input); //Data request on a single BLOCKING input. A "blocking input" is an input declared as FifoReader, LastOrNextReader, Wait4NextReader or NeverskippingReader (declaration happens in MAPS_INPUT: see the beginning of this file). A SamplingReader input is non-blocking: StartReading will not block with a SamplingReader input.
-//		* StartReading(int nCount, MAPSInput* inputs[], int* inputThatAnswered, int nCountEvents = 0, MAPSEvent* events[] = NULL); //Data request on several BLOCKING inputs.
-//		* SynchroStartReading(int nb, MAPSInput** inputs, MAPSIOElt** IOElts, MAPSInt64 synchroTolerance = 0, MAPSEvent* abortEvent = NULL); // Synchronized reading - waiting for samples with same or nearly same timestamps on several BLOCKING inputs.
-//		* Wait(MAPSTimestamp t); or Rest(MAPSDelay d); or MAPS::Sleep(MAPSDelay d); //Pauses the current thread for some time. Can be used for instance in conjunction with StartReading on a SamplingReader input (in which case StartReading is not blocking).
-//		* Any blocking grabbing function or other data reception function from another API (device driver,etc.). In such case, make sure this function cannot block forever otherwise it could freeze RTMaps when shutting down diagram.
-//**************************************************************************/
-//	In case of no blocking function inside the Core, your component will consume 100% of a CPU.
-//  Remember that the StartReading function used with an input declared as a SamplingReader is not blocking.
-//	In case of two or more blocking functions inside the Core, this is likely to induce synchronization issues and data loss. (Ex: don't call two successive StartReading on FifoReader inputs.)
-/***************************************************************************/
 void MAPSMatching::Core()
 {
 	clear_Matched();
@@ -85,9 +68,9 @@ void MAPSMatching::Core()
 	//ReportInfo(str);
 }
 
-//De-initialization: Death() will be called once at diagram execution shutdown.
 void MAPSMatching::Death()
 {
+
 }
 
 void MAPSMatching::readInputs()
@@ -95,13 +78,15 @@ void MAPSMatching::readInputs()
 	while (!DataAvailableInFIFO(Input("LaserObject")) || !DataAvailableInFIFO(Input("CameraObject"))) {}
 	str << '\n' << "Objects detected";
 	//Leer laser
-	if (DataAvailableInFIFO(Input("LaserObject"))) {
+	if (DataAvailableInFIFO(Input("LaserObject")))
+	{
 		elt = StartReading(Input("LaserObject"));
 		ArrayLaserObjects = static_cast<AUTO_Objects*>(elt->Data());
 		StopReading(Input("LaserObject"));
 	}
 	//Leer camara
-	if (DataAvailableInFIFO(Input("CameraObject"))) {
+	if (DataAvailableInFIFO(Input("CameraObject")))
+	{
 		elt = StartReading(Input("CameraObject"));
 		ArrayCameraObjects = static_cast<AUTO_Objects*>(elt->Data());
 		StopReading(Input("CameraObject"));
@@ -135,18 +120,22 @@ void MAPSMatching::printResults()
 {
 	str << '\n' << "Imprimir coincidencias " << '\n';
 	str << '\n' << "Laser" << '\n';
-	for (int printer = 0; printer < LaserMatched.number_objects; printer++) {
+	for (int printer = 0; printer < LaserMatched.number_objects; printer++)
+	{
 		str << "ID: " << ArrayLaserObjects->object[printer].id << '\n';
-		for (int printer2 = 0; printer2 < LaserMatched.number_matched[printer]; printer2++) {
+		for (int printer2 = 0; printer2 < LaserMatched.number_matched[printer]; printer2++)
+		{
 			str << " " << LaserMatched.Matrix_matched[printer][printer2];
 		}
 		str << '\n';
 	}
 	str << '\n';
 	str << '\n' << "Camara" << '\n';
-	for (int printer = 0; printer < CameraMatched.number_objects; printer++) {
+	for (int printer = 0; printer < CameraMatched.number_objects; printer++)
+	{
 		str << "ID: " << ArrayCameraObjects->object[printer].id << '\n';
-		for (int printer2 = 0; printer2 < CameraMatched.number_matched[printer]; printer2++) {
+		for (int printer2 = 0; printer2 < CameraMatched.number_matched[printer]; printer2++)
+		{
 			str << " " << CameraMatched.Matrix_matched[printer][printer2];
 		}
 		str << '\n';
@@ -159,19 +148,25 @@ void MAPSMatching::findMatches(AUTO_Objects* ArrayLaserObjects, AUTO_Objects* Ar
 {
 	LaserMatched.number_objects = ArrayLaserObjects->number_of_objects;
 	CameraMatched.number_objects = ArrayCameraObjects->number_of_objects;
-	for (int i = 0; i < ArrayLaserObjects->number_of_objects; i++) {
-		for (int j = 0; j < ArrayCameraObjects->number_of_objects; j++) {
-			if (BoxMatching(ArrayLaserObjects->object[i], ArrayCameraObjects->object[j])) {
-				
+	for (int i = 0; i < ArrayLaserObjects->number_of_objects; i++)
+	{
+		for (int j = 0; j < ArrayCameraObjects->number_of_objects; j++)
+		{
+			if (BoxMatching(ArrayLaserObjects->object[i], ArrayCameraObjects->object[j]))
+			{
+
 				LaserMatched.Matrix_matched[i][LaserMatched.number_matched[i]] = ArrayCameraObjects->object[j].id;
 				LaserMatched.number_matched[i]++;
 			}
 		}
 	}
 	//Comparar cada obstaculo del camara con cada uno de la laser
-	for (int i = 0; i < ArrayCameraObjects->number_of_objects; i++) {
-		for (int j = 0; j < ArrayLaserObjects->number_of_objects; j++) {
-			if (BoxMatching(ArrayLaserObjects->object[j], ArrayCameraObjects->object[i])) {
+	for (int i = 0; i < ArrayCameraObjects->number_of_objects; i++)
+	{
+		for (int j = 0; j < ArrayLaserObjects->number_of_objects; j++)
+		{
+			if (BoxMatching(ArrayLaserObjects->object[j], ArrayCameraObjects->object[i]))
+			{
 				CameraMatched.Matrix_matched[i][CameraMatched.number_matched[i]] = ArrayLaserObjects->object[j].id;
 				CameraMatched.number_matched[i]++;
 			}
@@ -215,7 +210,8 @@ bool MAPSMatching::BoxMatching(AUTO_Object Object1, AUTO_Object Object2)
 	return false;
 }
 
-void MAPSMatching::calculateBoundingBox(AUTO_Object Object, BOUNDIG_BOX* original_ampliated, BOUNDIG_BOX* ampliated_Lrotated, BOUNDIG_BOX* ampliated_Rrotated) {
+void MAPSMatching::calculateBoundingBox(AUTO_Object Object, BOUNDIG_BOX* original_ampliated, BOUNDIG_BOX* ampliated_Lrotated, BOUNDIG_BOX* ampliated_Rrotated)
+{
 #pragma region Calculate Original_ampliated
 #pragma region Copiar a local
 	original_ampliated->point[0].x = Object.bounding_box_x_rel[0];
@@ -254,7 +250,8 @@ void MAPSMatching::calculateBoundingBox(AUTO_Object Object, BOUNDIG_BOX* origina
 	trasladarBowndingBox(ampliated_Rrotated, Object.x_rel, Object.y_rel);
 }
 
-void MAPSMatching::trasladarBowndingBox(BOUNDIG_BOX* entrada, double x, double y) {
+void MAPSMatching::trasladarBowndingBox(BOUNDIG_BOX* entrada, double x, double y)
+{
 	entrada->point[0].x = entrada->point[0].x + x;
 	entrada->point[0].y = entrada->point[0].y + y;
 
@@ -268,8 +265,9 @@ void MAPSMatching::trasladarBowndingBox(BOUNDIG_BOX* entrada, double x, double y
 	entrada->point[3].y = entrada->point[3].y + y;
 }
 
-void MAPSMatching::ampliarBowndingBox(BOUNDIG_BOX* entrada, double x, double y) {
-	
+void MAPSMatching::ampliarBowndingBox(BOUNDIG_BOX* entrada, double x, double y)
+{
+
 	entrada->point[0].x = entrada->point[0].x - x;
 	entrada->point[0].y = entrada->point[0].y - y;
 
@@ -284,7 +282,8 @@ void MAPSMatching::ampliarBowndingBox(BOUNDIG_BOX* entrada, double x, double y) 
 
 }
 
-BOUNDIG_BOX MAPSMatching::finalBox(BOUNDIG_BOX original, BOUNDIG_BOX Lrotated, BOUNDIG_BOX Rrotated) {
+BOUNDIG_BOX MAPSMatching::finalBox(BOUNDIG_BOX original, BOUNDIG_BOX Lrotated, BOUNDIG_BOX Rrotated)
+{
 
 	BOUNDIG_BOX finalBox;
 	double x_min, x_max, y_min, y_max;
@@ -328,22 +327,26 @@ BOUNDIG_BOX MAPSMatching::finalBox(BOUNDIG_BOX original, BOUNDIG_BOX Lrotated, B
 	return finalBox;
 }
 
-void MAPSMatching::rotarBoundingBox(BOUNDIG_BOX* entrada, double angulo) {
+void MAPSMatching::rotarBoundingBox(BOUNDIG_BOX* entrada, double angulo)
+{
 	rotarPunto(&entrada->point[0], angulo);
 	rotarPunto(&entrada->point[1], angulo);
 	rotarPunto(&entrada->point[2], angulo);
 	rotarPunto(&entrada->point[3], angulo);
 }
 
-double MAPSMatching::rotarPunto(POINT *punto,double angulo ) {
+void MAPSMatching::rotarPunto(B_POINT *punto, double angulo)
+{
 	punto->x = punto->x * cos(angulo) - (punto->y * sin(angulo));
 	punto->y = punto->x * sin(angulo) + (punto->y * cos(angulo));
 }
 
 void MAPSMatching::clear_Matched()
 {
-	for (int i = 0; i < AUTO_MAX_NUM_OBJECTS; i++) {
-		for (int j = 0; j < AUTO_MAX_NUM_OBJECTS; j++) {
+	for (int i = 0; i < AUTO_MAX_NUM_OBJECTS; i++)
+	{
+		for (int j = 0; j < AUTO_MAX_NUM_OBJECTS; j++)
+		{
 			LaserMatched.Matrix_matched[i][j] = 0;
 			CameraMatched.Matrix_matched[i][j] = 0;
 		}

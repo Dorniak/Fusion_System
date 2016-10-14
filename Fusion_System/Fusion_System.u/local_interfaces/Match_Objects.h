@@ -10,7 +10,8 @@ typedef struct {
 typedef struct {
 	double x;
 	double y;
-}POINT;
+}B_POINT;
+
 typedef struct {
-	POINT point[4];
+	B_POINT point[4];
 }BOUNDIG_BOX;

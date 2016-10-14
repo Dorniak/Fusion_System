@@ -33,7 +33,7 @@ private :
 	void ampliarBowndingBox(BOUNDIG_BOX * entrada, double x, double y);
 	BOUNDIG_BOX finalBox(BOUNDIG_BOX original, BOUNDIG_BOX Lrotated, BOUNDIG_BOX Rrotated);
 	void rotarBoundingBox(BOUNDIG_BOX *entrada, double angulo);
-	double rotarPunto(POINT *punto, double angulo);
+	void rotarPunto(B_POINT *punto, double angulo);
 	void clear_Matched();
 };
 #endif
