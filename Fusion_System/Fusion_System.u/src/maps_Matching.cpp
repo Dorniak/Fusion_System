@@ -11,14 +11,14 @@
 const MAPSTypeFilterBase ValeoStructure = MAPS_FILTER_USER_STRUCTURE(AUTO_Objects); 
 // Use the macros to declare the inputs
 MAPS_BEGIN_INPUTS_DEFINITION(MAPSMatching)
-    //MAPS_INPUT("iName",MAPS::FilterInteger32,MAPS::FifoReader)
-	MAPS_INPUT("LaserObject", ValeoStructure, MAPS::FifoReader)
+    MAPS_INPUT("LaserObject", ValeoStructure, MAPS::FifoReader)
 	MAPS_INPUT("CameraObject", ValeoStructure, MAPS::FifoReader)
 MAPS_END_INPUTS_DEFINITION
 
 // Use the macros to declare the outputs
 MAPS_BEGIN_OUTPUTS_DEFINITION(MAPSMatching)
-    //MAPS_OUTPUT("oName",MAPS::Integer32,NULL,NULL,1)
+    MAPS_OUTPUT_USER_STRUCTURE("BBoxLaser", AUTO_Objects)
+	MAPS_OUTPUT_USER_STRUCTURE("BBoxCamera", AUTO_Objects)
 	MAPS_OUTPUT_USER_STRUCTURE("LaserObjects", AUTO_Objects)
 	MAPS_OUTPUT_USER_STRUCTURE("CameraObjects", AUTO_Objects)
 	MAPS_OUTPUT_USER_STRUCTURE("MatchedLaser", MATCH_OBJECTS)
@@ -55,6 +55,7 @@ void MAPSMatching::Core()
 	ArrayLaserObjects = nullptr;
 	ArrayCameraObjects = nullptr;
 	str.Clear();
+
 	//Read input objects
 	readInputs();
 
@@ -65,7 +66,7 @@ void MAPSMatching::Core()
 	findMatches(ArrayLaserObjects, ArrayCameraObjects);
 	printResults();
 	WriteOutputs();
-	//ReportInfo(str);
+	ReportInfo(str);
 }
 
 void MAPSMatching::Death()
@@ -83,6 +84,7 @@ void MAPSMatching::readInputs()
 		elt = StartReading(Input("LaserObject"));
 		ArrayLaserObjects = static_cast<AUTO_Objects*>(elt->Data());
 		StopReading(Input("LaserObject"));
+		output_LaserAmpliatedBox = *ArrayLaserObjects;
 	}
 	//Leer camara
 	if (DataAvailableInFIFO(Input("CameraObject")))
@@ -90,11 +92,22 @@ void MAPSMatching::readInputs()
 		elt = StartReading(Input("CameraObject"));
 		ArrayCameraObjects = static_cast<AUTO_Objects*>(elt->Data());
 		StopReading(Input("CameraObject"));
+		output_CameraAmpliatedBox = *ArrayCameraObjects;
 	}
 }
 
 void MAPSMatching::WriteOutputs()
 {
+	_ioOutput = StartWriting(Output("BBoxLaser"));
+	AUTO_Objects &list5 = *static_cast<AUTO_Objects*>(_ioOutput->Data());
+	list5 = output_LaserAmpliatedBox;
+	StopWriting(_ioOutput);
+
+	_ioOutput = StartWriting(Output("BBoxCamera"));
+	AUTO_Objects &list6 = *static_cast<AUTO_Objects*>(_ioOutput->Data());
+	list6 = output_CameraAmpliatedBox;
+	StopWriting(_ioOutput);
+
 	_ioOutput = StartWriting(Output("LaserObjects"));
 	AUTO_Objects &list = *static_cast<AUTO_Objects*>(_ioOutput->Data());
 	list = *ArrayLaserObjects;
@@ -152,14 +165,16 @@ void MAPSMatching::findMatches(AUTO_Objects* ArrayLaserObjects, AUTO_Objects* Ar
 	{
 		for (int j = 0; j < ArrayCameraObjects->number_of_objects; j++)
 		{
-			if (BoxMatching(ArrayLaserObjects->object[i], ArrayCameraObjects->object[j]))
+			if (BoxMatching(ArrayLaserObjects->object[i], ArrayCameraObjects->object[j], &output_LaserAmpliatedBox.object[i], &output_CameraAmpliatedBox.object[j]))
 			{
-
 				LaserMatched.Matrix_matched[i][LaserMatched.number_matched[i]] = ArrayCameraObjects->object[j].id;
 				LaserMatched.number_matched[i]++;
+				CameraMatched.Matrix_matched[j][CameraMatched.number_matched[j]] = ArrayLaserObjects->object[i].id;
+				CameraMatched.number_matched[j]++;
 			}
 		}
 	}
+	/*
 	//Comparar cada obstaculo del camara con cada uno de la laser
 	for (int i = 0; i < ArrayCameraObjects->number_of_objects; i++)
 	{
@@ -172,42 +187,57 @@ void MAPSMatching::findMatches(AUTO_Objects* ArrayLaserObjects, AUTO_Objects* Ar
 			}
 		}
 	}
+	*/
 }
 
-bool MAPSMatching::BoxMatching(AUTO_Object Object1, AUTO_Object Object2)
+bool MAPSMatching::BoxMatching(AUTO_Object Object1, AUTO_Object Object2, AUTO_Object* Output1, AUTO_Object* Output2)
 {
 	BOUNDIG_BOX original_ampliated_Object1, original_ampliated_Object2;
 	BOUNDIG_BOX ampliated_Lrotated_Object1, ampliated_Lrotated_Object2;
 	BOUNDIG_BOX ampliated_Rrotated_Object1, ampliated_Rrotated_Object2;
 	BOUNDIG_BOX final_BowndingBox_Object1, final_BowndingBox_Object2;
-
+	//TODO::CAMBIAR
 	calculateBoundingBox(Object1, &original_ampliated_Object1, &ampliated_Lrotated_Object1, &ampliated_Rrotated_Object1);
 	final_BowndingBox_Object1 = finalBox(original_ampliated_Object1, ampliated_Lrotated_Object1, ampliated_Rrotated_Object1);
+	copyBBox(original_ampliated_Object1, Output1);
+	//copyBBox(original_ampliated_Object1, Output1);
 
 	calculateBoundingBox(Object2, &original_ampliated_Object2, &ampliated_Lrotated_Object2, &ampliated_Rrotated_Object2);
 	final_BowndingBox_Object2 = finalBox(original_ampliated_Object2, ampliated_Lrotated_Object2, ampliated_Rrotated_Object2);
+	copyBBox(original_ampliated_Object2, Output2);
+	//copyBBox(original_ampliated_Object2, Output2);
+
 
 	//TODO::Cambiar calculo de interseccion
 
 	for (size_t i = 0; i < 4; i++)
 	{
-		if (final_BowndingBox_Object2.point[i].x > final_BowndingBox_Object1.point[0].x && final_BowndingBox_Object2.point[i].x < final_BowndingBox_Object1.point[2].x)
+		if (final_BowndingBox_Object2.point[i].x > final_BowndingBox_Object1.point[3].x && final_BowndingBox_Object2.point[i].x < final_BowndingBox_Object1.point[1].x)
 		{
-			if (final_BowndingBox_Object2.point[i].y > final_BowndingBox_Object1.point[0].y && final_BowndingBox_Object2.point[i].y < final_BowndingBox_Object1.point[2].y)
+			if (final_BowndingBox_Object2.point[i].y > final_BowndingBox_Object1.point[3].y && final_BowndingBox_Object2.point[i].y < final_BowndingBox_Object1.point[1].y)
 			{
 				return true;
 			}
 		}
 	}
 	//Calcular si el centro esta dentro de la bownding box
-	if (Object2.x_rel > final_BowndingBox_Object1.point[0].x && Object2.x_rel < final_BowndingBox_Object1.point[2].x)
+	if (Object2.x_rel > final_BowndingBox_Object1.point[3].x && Object2.x_rel < final_BowndingBox_Object1.point[1].x)
 	{
-		if (Object2.y_rel > final_BowndingBox_Object1.point[0].y && Object2.y_rel < final_BowndingBox_Object1.point[2].y)
+		if (Object2.y_rel > final_BowndingBox_Object1.point[3].y && Object2.y_rel < final_BowndingBox_Object1.point[1].y)
 		{
 			return true;
 		}
 	}
 	return false;
+}
+
+void MAPSMatching::copyBBox(BOUNDIG_BOX BBox, AUTO_Object* Output_ampliated) 
+{
+	for (size_t i = 0; i < 4; i++)
+	{
+		Output_ampliated->bounding_box_x_rel[i] = BBox.point[i].x;
+		Output_ampliated->bounding_box_y_rel[i] = BBox.point[i].y;
+	}
 }
 
 void MAPSMatching::calculateBoundingBox(AUTO_Object Object, BOUNDIG_BOX* original_ampliated, BOUNDIG_BOX* ampliated_Lrotated, BOUNDIG_BOX* ampliated_Rrotated)
@@ -268,23 +298,23 @@ void MAPSMatching::trasladarBowndingBox(BOUNDIG_BOX* entrada, double x, double y
 void MAPSMatching::ampliarBowndingBox(BOUNDIG_BOX* entrada, double x, double y)
 {
 
-	entrada->point[0].x = entrada->point[0].x - x;
+	entrada->point[0].x = entrada->point[0].x + x;
 	entrada->point[0].y = entrada->point[0].y - y;
 
-	entrada->point[1].x = entrada->point[1].x - x;
+	entrada->point[1].x = entrada->point[1].x + x;
 	entrada->point[1].y = entrada->point[1].y + y;
 
-	entrada->point[2].x = entrada->point[2].x + x;
+	entrada->point[2].x = entrada->point[2].x - x;
 	entrada->point[2].y = entrada->point[2].y + y;
 
-	entrada->point[3].x = entrada->point[3].x + x;
+	entrada->point[3].x = entrada->point[3].x - x;
 	entrada->point[3].y = entrada->point[3].y - y;
 
 }
 
 BOUNDIG_BOX MAPSMatching::finalBox(BOUNDIG_BOX original, BOUNDIG_BOX Lrotated, BOUNDIG_BOX Rrotated)
 {
-
+	//TODO::ALGO MAL
 	BOUNDIG_BOX finalBox;
 	double x_min, x_max, y_min, y_max;
 	double x_min_original, x_max_original, y_min_original, y_max_original;
@@ -312,16 +342,16 @@ BOUNDIG_BOX MAPSMatching::finalBox(BOUNDIG_BOX original, BOUNDIG_BOX Lrotated, B
 	y_min = min(min(y_min_original, y_min_Lrotated), y_min_Rrotated);
 	y_max = max(max(y_max_original, y_max_Lrotated), y_max_Rrotated);
 
-	finalBox.point[0].x = x_min;
+	finalBox.point[0].x = x_max;
 	finalBox.point[0].y = y_min;
 
-	finalBox.point[1].x = x_min;
+	finalBox.point[1].x = x_max;
 	finalBox.point[1].y = y_max;
 
-	finalBox.point[2].x = x_max;
+	finalBox.point[2].x = x_min;
 	finalBox.point[2].y = y_max;
 
-	finalBox.point[3].x = x_max;
+	finalBox.point[3].x = x_min;
 	finalBox.point[3].y = y_min;
 
 	return finalBox;

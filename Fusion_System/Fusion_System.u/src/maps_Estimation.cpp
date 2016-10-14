@@ -46,7 +46,7 @@ void MAPSEstimation::Birth()
 
 }
 
-void MAPSEstimation::Core() 
+void MAPSEstimation::Core()
 {
 	str.Clear();
 	readInputs();

@@ -50,7 +50,28 @@ MAPS_COMPONENT_DEFINITION(MAPSGating,"Gating","1.0",128,
 //TODO::Comprobado OK
 void MAPSGating::Birth()
 {
-
+	//p_laser_range = 100.0;
+	//p_laser_angular_resolution = 0.25;
+	//p_min_nb_impacts = 2.5;
+	//p_min_width = 0.5;
+	//p_sigma_laser = 0.02;
+	//p_tx_power = 24;
+	//p_ht = 0.5;
+	//p_hr = 0.7;
+	//p_lambda = 0.125;
+	//p_noise_dbm = -96.0;
+	p_perception_prob = 1.0;
+	p_communication_prob = 0.8;
+	p_gating = 4.61;//5.991
+	p_hypothesis_pruning = 0.1;
+	p_occlusion_ratio = 0.005;
+	//p_save_ass_objs = true;
+	//p_save_np_objs = true;
+	//p_save_nc_objs = true;
+	//p_save_perception_objs = true;
+	//p_save_communication_objs = true;
+	//p_save_hypothesis = true;
+	//p_save_gate_objects = true;
 }
 
 void MAPSGating::Core()
@@ -60,7 +81,7 @@ void MAPSGating::Core()
 	adaptation();
 	ProcessData();
 	writeOutputs();
-	ReportInfo(str);
+	//ReportInfo(str);
 }
 
 void MAPSGating::Death()
@@ -555,19 +576,21 @@ void MAPSGating::PruneHypothesis()
 			hypothesis_with_per = false;
 			for (int ass = 0; ass < m_hypothesis_tree[h].assoc_vec.size(); ass++)
 			{
-				if (m_hypothesis_tree[h].assoc_vec[ass].id_per>0)
+				if (m_hypothesis_tree[h].assoc_vec[ass].id_per > 0)
 				{
 					idx_com = GetIdxObstacle(m_hypothesis_tree[h].assoc_vec[ass].id_com, m_objects_com);
-					std::vector<int>::iterator it = m_ass_per_com_meas[idx_com].begin();
-					for (int i_p = 0; i_p < m_ass_per_com_meas[idx_com].size(); i_p++)
-					{
-						if (m_objects_per.object[m_ass_per_com_meas[idx_com][i_p]].id == m_hypothesis_tree[h].assoc_vec[ass].id_per)
+					if (idx_com != -1) {
+						std::vector<int>::iterator it = m_ass_per_com_meas[idx_com].begin();
+						for (int i_p = 0; i_p < m_ass_per_com_meas[idx_com].size(); i_p++)
 						{
-							m_ass_per_com_meas[idx_com].erase(it + i_p);
-							break;
+							if (m_objects_per.object[m_ass_per_com_meas[idx_com][i_p]].id == m_hypothesis_tree[h].assoc_vec[ass].id_per)
+							{
+								m_ass_per_com_meas[idx_com].erase(it + i_p);
+								break;
+							}
 						}
+						hypothesis_with_per = true;
 					}
-					hypothesis_with_per = true;
 				}
 			}
 			sum_prob += -m_hypothesis_tree[h].prob;

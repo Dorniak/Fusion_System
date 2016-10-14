@@ -16,6 +16,8 @@ class MAPSMatching : public MAPSComponent
 	// Use standard header definition macro
 	MAPS_COMPONENT_STANDARD_HEADER_CODE(MAPSMatching)
 private :
+	AUTO_Objects output_LaserAmpliatedBox;
+	AUTO_Objects output_CameraAmpliatedBox;
 	MAPSIOElt* elt;
 	MAPSIOElt *_ioOutput;
 	MAPSStreamedString str;
@@ -27,7 +29,8 @@ private :
 	void WriteOutputs();
 	void printResults();
 	void findMatches(AUTO_Objects* ArrayLaserObjects, AUTO_Objects* ArrayCameraObjects);
-	bool BoxMatching(AUTO_Object Object1, AUTO_Object Object2);
+	bool BoxMatching(AUTO_Object Object1, AUTO_Object Object2, AUTO_Object * Output1, AUTO_Object * Output2);
+	void copyBBox(BOUNDIG_BOX BBox, AUTO_Object * Output_ampliated);
 	void calculateBoundingBox(AUTO_Object Object, BOUNDIG_BOX * original_ampliated, BOUNDIG_BOX * ampliated_Lrotated, BOUNDIG_BOX * ampliated_Rrotated);
 	void trasladarBowndingBox(BOUNDIG_BOX * entrada, double x, double y);
 	void ampliarBowndingBox(BOUNDIG_BOX * entrada, double x, double y);
