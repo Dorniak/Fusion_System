@@ -6,3 +6,11 @@ typedef struct {
 	//Primer parametro tamaño numer_objects 
 	//Segundo parametro lista de identificadores asociados a cada objeto
 }MATCH_OBJECTS;
+
+typedef struct {
+	double x;
+	double y;
+}POINT;
+typedef struct {
+	POINT point[4];
+}BOUNDIG_BOX;
