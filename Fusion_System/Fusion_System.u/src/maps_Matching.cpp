@@ -66,7 +66,7 @@ void MAPSMatching::Core()
 	findMatches(ArrayLaserObjects, ArrayCameraObjects);
 	printResults();
 	WriteOutputs();
-	ReportInfo(str);
+	//ReportInfo(str);
 }
 
 void MAPSMatching::Death()
