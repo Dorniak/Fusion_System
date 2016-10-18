@@ -16,6 +16,7 @@
 #include "auto_objects.h"
 #include "Hipotesys.h"
 #include "Properties.h"
+#include "STATIC_VECTOR.h"
 
 // Declares a new MAPSComponent child class
 class MAPSGating : public MAPSComponent 
@@ -87,14 +88,14 @@ private :
 
 	std::vector<s_hypothesis> m_hypothesis_tree; /*!<current hypethesis tree*/
 	std::vector<s_hypothesis> m_prev_hypothesis; /*!<previous hypethesis tree*/
-	std::vector<int> m_already_seen_com; /*!<already seen communication tracks*/
-	std::vector<int> m_already_seen_per; /*!<already seen perception tracks*/
-	std::vector<int> m_idx_gate; /*!<index perception obstacles in gating windows*/
+	VECTOR_INT m_already_seen_com; /*!<already seen communication tracks*/
+	VECTOR_INT m_already_seen_per; /*!<already seen perception tracks*/
+	VECTOR_INT m_idx_gate; /*!<index perception obstacles in gating windows*/
 
 	std::stringstream m_ss; /*!<debugging string to display information in command window*/
 
-	std::vector<std::vector<int>> m_ass_per_com_meas; /*!<vector of perception obstacles indexes located inside every communication obstacle gating window*/
-	std::vector<std::vector<int>> m_prev_gate; /*!<list of perception obstacle which have already been inside the communication gating window*/
+	VVECTOR_INT m_ass_per_com_meas; /*!<vector of perception obstacles indexes located inside every communication obstacle gating window*/
+	VVECTOR_INT m_prev_gate; /*!<list of perception obstacle which have already been inside the communication gating window*/
 	int m_max_com_id; /*!<maximum communication identifier*/
 	int m_max_hyp_id; /*!<maximum perception identifier*/
 	double m_occluded_area_ratio[MAXIMUM_OBJECT_NUMBER]; /*!<occluded area ratio for every object*/
@@ -170,6 +171,7 @@ private:
 	* @return true if id is already seen, false otherwise
 	*/
 	bool IsAlreadyHere(int id, std::vector<int> & already_seen);
+	bool IsAlreadyHere(int id, VECTOR_INT & already_seen);
 	/*
 	* @function GetIdPer()
 	* @brief Get associated perception id

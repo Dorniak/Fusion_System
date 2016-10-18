@@ -18,6 +18,9 @@
     <ClCompile Include="src\maps_Matching.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\STATIC_VECTOR.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="local_interfaces\auto_common.h">
@@ -42,6 +45,9 @@
       <Filter>local_interfaces</Filter>
     </ClInclude>
     <ClInclude Include="local_interfaces\Match_Objects.h">
+      <Filter>local_interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="local_interfaces\STATIC_VECTOR.h">
       <Filter>local_interfaces</Filter>
     </ClInclude>
   </ItemGroup>

@@ -109,6 +109,7 @@
     <ClCompile Include="src\maps_Estimation.cpp" />
     <ClCompile Include="src\maps_Gating.cpp" />
     <ClCompile Include="src\maps_Matching.cpp" />
+    <ClCompile Include="src\STATIC_VECTOR.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="local_interfaces\auto_common.h" />
@@ -119,6 +120,7 @@
     <ClInclude Include="local_interfaces\maps_Matching.h" />
     <ClInclude Include="local_interfaces\Match_Objects.h" />
     <ClInclude Include="local_interfaces\Properties.h" />
+    <ClInclude Include="local_interfaces\STATIC_VECTOR.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

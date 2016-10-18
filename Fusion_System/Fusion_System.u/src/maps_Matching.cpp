@@ -165,12 +165,15 @@ void MAPSMatching::findMatches(AUTO_Objects* ArrayLaserObjects, AUTO_Objects* Ar
 	{
 		for (int j = 0; j < ArrayCameraObjects->number_of_objects; j++)
 		{
-			if (BoxMatching(ArrayLaserObjects->object[i], ArrayCameraObjects->object[j], &output_LaserAmpliatedBox.object[i], &output_CameraAmpliatedBox.object[j]))
+			if (ArrayLaserObjects->object[i].object_class == ArrayCameraObjects->object[j].object_class)
 			{
-				LaserMatched.Matrix_matched[i][LaserMatched.number_matched[i]] = ArrayCameraObjects->object[j].id;
-				LaserMatched.number_matched[i]++;
-				CameraMatched.Matrix_matched[j][CameraMatched.number_matched[j]] = ArrayLaserObjects->object[i].id;
-				CameraMatched.number_matched[j]++;
+				if (BoxMatching(ArrayLaserObjects->object[i], ArrayCameraObjects->object[j], &output_LaserAmpliatedBox.object[i], &output_CameraAmpliatedBox.object[j]))
+				{
+					LaserMatched.Matrix_matched[i][LaserMatched.number_matched[i]] = ArrayCameraObjects->object[j].id;
+					LaserMatched.number_matched[i]++;
+					CameraMatched.Matrix_matched[j][CameraMatched.number_matched[j]] = ArrayLaserObjects->object[i].id;
+					CameraMatched.number_matched[j]++;
+				}
 			}
 		}
 	}
@@ -199,31 +202,38 @@ bool MAPSMatching::BoxMatching(AUTO_Object Object1, AUTO_Object Object2, AUTO_Ob
 	//TODO::CAMBIAR
 	calculateBoundingBox(Object1, &original_ampliated_Object1, &ampliated_Lrotated_Object1, &ampliated_Rrotated_Object1);
 	final_BowndingBox_Object1 = finalBox(original_ampliated_Object1, ampliated_Lrotated_Object1, ampliated_Rrotated_Object1);
-	copyBBox(original_ampliated_Object1, Output1);
-	//copyBBox(original_ampliated_Object1, Output1);
+	copyBBox(final_BowndingBox_Object1, Output1);
+	//copyBBox(ampliated_Lrotated_Object1, Output1);
 
 	calculateBoundingBox(Object2, &original_ampliated_Object2, &ampliated_Lrotated_Object2, &ampliated_Rrotated_Object2);
 	final_BowndingBox_Object2 = finalBox(original_ampliated_Object2, ampliated_Lrotated_Object2, ampliated_Rrotated_Object2);
-	copyBBox(original_ampliated_Object2, Output2);
-	//copyBBox(original_ampliated_Object2, Output2);
+	copyBBox(final_BowndingBox_Object2, Output2);
+	//copyBBox(ampliated_Lrotated_Object2, Output2);
 
+	double x_max, x_min, y_max, y_min;
 
-	//TODO::Cambiar calculo de interseccion
+	for (int i = 0; i < 4; i++) {
+		x_max = max(final_BowndingBox_Object1.point[i].x, x_max);
+		x_min = min(final_BowndingBox_Object1.point[i].x, x_min);
+		y_max = max(final_BowndingBox_Object1.point[i].y, y_max);
+		y_min = min(final_BowndingBox_Object1.point[i].y, y_min);
+	}
 
 	for (size_t i = 0; i < 4; i++)
 	{
-		if (final_BowndingBox_Object2.point[i].x > final_BowndingBox_Object1.point[3].x && final_BowndingBox_Object2.point[i].x < final_BowndingBox_Object1.point[1].x)
+		if (final_BowndingBox_Object2.point[i].x > x_min && final_BowndingBox_Object2.point[i].x < x_max)
 		{
-			if (final_BowndingBox_Object2.point[i].y > final_BowndingBox_Object1.point[3].y && final_BowndingBox_Object2.point[i].y < final_BowndingBox_Object1.point[1].y)
+			if (final_BowndingBox_Object2.point[i].y > y_min && final_BowndingBox_Object2.point[i].y < y_max)
 			{
 				return true;
 			}
 		}
 	}
+
 	//Calcular si el centro esta dentro de la bownding box
-	if (Object2.x_rel > final_BowndingBox_Object1.point[3].x && Object2.x_rel < final_BowndingBox_Object1.point[1].x)
+	if (Object2.x_rel > x_min && Object2.x_rel < x_max)
 	{
-		if (Object2.y_rel > final_BowndingBox_Object1.point[3].y && Object2.y_rel < final_BowndingBox_Object1.point[1].y)
+		if (Object2.y_rel > y_min && Object2.y_rel < y_max)
 		{
 			return true;
 		}
@@ -267,8 +277,8 @@ void MAPSMatching::calculateBoundingBox(AUTO_Object Object, BOUNDIG_BOX* origina
 #pragma endregion
 #pragma endregion
 
-	ampliated_Lrotated = original_ampliated;
-	ampliated_Rrotated = original_ampliated;
+	*ampliated_Lrotated = *original_ampliated;
+	*ampliated_Rrotated = *original_ampliated;
 	//Centrar Bowndingbox
 	trasladarBowndingBox(ampliated_Lrotated, -Object.x_rel, -Object.y_rel);
 	//Rotar BowndingBox
@@ -320,7 +330,7 @@ BOUNDIG_BOX MAPSMatching::finalBox(BOUNDIG_BOX original, BOUNDIG_BOX Lrotated, B
 	double x_min_original, x_max_original, y_min_original, y_max_original;
 	double x_min_Lrotated, x_max_Lrotated, y_min_Lrotated, y_max_Lrotated;
 	double x_min_Rrotated, x_max_Rrotated, y_min_Rrotated, y_max_Rrotated;
-	//TODO::Buscar maximos y minimos y dar la BowndingBox final
+	
 	x_min_original = min(min(original.point[0].x, original.point[1].x), min(original.point[2].x, original.point[3].x));
 	x_min_Lrotated = min(min(Lrotated.point[0].x, Lrotated.point[1].x), min(Lrotated.point[2].x, Lrotated.point[3].x));
 	x_min_Rrotated = min(min(Rrotated.point[0].x, Rrotated.point[1].x), min(Rrotated.point[2].x, Rrotated.point[3].x));
@@ -367,8 +377,8 @@ void MAPSMatching::rotarBoundingBox(BOUNDIG_BOX* entrada, double angulo)
 
 void MAPSMatching::rotarPunto(B_POINT *punto, double angulo)
 {
-	punto->x = punto->x * cos(angulo) - (punto->y * sin(angulo));
-	punto->y = punto->x * sin(angulo) + (punto->y * cos(angulo));
+	punto->x = (punto->x * cos(angulo)) - (punto->y * sin(angulo));
+	punto->y = (punto->x * sin(angulo)) + (punto->y * cos(angulo));
 }
 
 void MAPSMatching::clear_Matched()
