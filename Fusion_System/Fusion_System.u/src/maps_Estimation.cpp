@@ -54,7 +54,6 @@ void MAPSEstimation::Core()
 	//ReportInfo(str);
 }
 
-//De-initialization: Death() will be called once at diagram execution shutdown.
 void MAPSEstimation::Death()
 { 
 }

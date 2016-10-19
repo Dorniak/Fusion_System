@@ -87,28 +87,16 @@ void MAPSGating::Core()
 
 void MAPSGating::Death()
 {
-	for (size_t i = 0; i < m_ass_per_com_meas.size(); i++)
+	for (size_t i = 0; i < m_ass_Cam_Las_meas.size(); i++)
 	{
-		m_ass_per_com_meas.vector[i].clear();
+		m_ass_Cam_Las_meas.vector[i].clear();
 	}
-	m_ass_per_com_meas.clear();
+	m_ass_Cam_Las_meas.clear();
 	m_hypothesis_tree.clear();
 	m_prev_gate.clear();
-	m_already_seen_com.clear();
-	m_already_seen_per.clear();
+//	m_already_seen_Laser.clear();
+	m_already_seen_Cam.clear();
 	m_prev_hypothesis.clear();
-
-	if (p_save_exp)
-	{
-		m_ass_objs_file.close();
-		m_np_objs_file.close();
-		m_nc_objs_file.close();
-		m_perception_objs_file.close();
-		m_communication_objs_file.close();
-		m_communication_objs_file.close();
-		m_gate_objs_file.close();
-		m_config_file.close();
-	}
 }
 
 void MAPSGating::readInputs()
@@ -119,18 +107,18 @@ void MAPSGating::readInputs()
 	if (DataAvailableInFIFO(Input("LaserObject")))
 	{
 		elt = StartReading(Input("LaserObject"));
-		m_objects_per2 = static_cast<AUTO_Objects*>(elt->Data());
+		m_objects_Cam2 = static_cast<AUTO_Objects*>(elt->Data());
 		StopReading(Input("LaserObject"));
-		m_objects_per = *m_objects_per2;
+		m_objects_Cam = *m_objects_Cam2;
 	}
 
 	//Leer objetos de la camara
 	if (DataAvailableInFIFO(Input("CameraObject")))
 	{
 		elt = StartReading(Input("CameraObject"));
-		m_objects_com2 = static_cast<AUTO_Objects*>(elt->Data());
+		m_objects_Laser2 = static_cast<AUTO_Objects*>(elt->Data());
 		StopReading(Input("CameraObject"));
-		m_objects_com = *m_objects_com2;
+		m_objects_Laser = *m_objects_Laser2;
 	}
 
 	//Leer vector de objetos de camara vistos en la gating window de cada objeto laser
@@ -155,25 +143,25 @@ void MAPSGating::readInputs()
 
 void MAPSGating::adaptation()
 {
-	for (size_t i = 0; i < m_ass_per_com_meas.size(); i++)
+	for (size_t i = 0; i < m_ass_Cam_Las_meas.size(); i++)
 	{
-		m_ass_per_com_meas.vector[i].clear();
+		m_ass_Cam_Las_meas.vector[i].clear();
 	}
 	m_idx_gate.clear();
-	m_ass_per_com_meas.resize(m_objects_com.number_of_objects);
+	m_ass_Cam_Las_meas.resize(m_objects_Laser.number_of_objects);
 	for (size_t i = 0; i < Laser_Matched.number_objects; i++)
 	{
 		for (size_t j = 0; j < Camera_Matched.number_matched[i]; j++)
 		{
-			m_ass_per_com_meas.vector[i].push_back(j);
+			m_ass_Cam_Las_meas.vector[i].push_back(j);
 			if (!IsAlreadyHere(j, m_idx_gate))
 			{
 				m_idx_gate.push_back(j);
 			}
 		}
-		if (m_objects_com.object[i].id > m_max_com_id)
+		if (m_objects_Laser.object[i].id > m_max_com_id)
 		{
-			m_max_com_id = m_objects_com.object[i].id;
+			m_max_com_id = m_objects_Laser.object[i].id;
 			m_prev_gate.resize(m_max_com_id);
 		}
 	}
@@ -183,35 +171,35 @@ void MAPSGating::writeOutputs()
 {
 	_ioOutput = StartWriting(Output("LaserObjects"));
 	AUTO_Objects &list = *static_cast<AUTO_Objects*>(_ioOutput->Data());
-	list = m_objects_per;
+	list = m_objects_Cam;
 	StopWriting(_ioOutput);
 
 	_ioOutput = StartWriting(Output("CameraObjects"));
 	AUTO_Objects &list2 = *static_cast<AUTO_Objects*>(_ioOutput->Data());
-	list2 = m_objects_com;
+	list2 = m_objects_Laser;
 	StopWriting(_ioOutput);
 }
 
 void MAPSGating::inicialization()
 {
-	m_objects_per.number_of_objects = 0;
-	m_objects_com.number_of_objects = 0;
+	m_objects_Cam.number_of_objects = 0;
+	m_objects_Laser.number_of_objects = 0;
 	m_objects_ass.number_of_objects = 0;
-	m_objects_np.number_of_objects = 0;
-	m_objects_nc.number_of_objects = 0;
+	m_objects_nC.number_of_objects = 0;
+	m_objects_nL.number_of_objects = 0;
 
 	m_max_com_id = 0;
 	m_max_hyp_id = 0;
 
-	for (int i = 0; i < m_ass_per_com_meas.size(); i++)
+	for (int i = 0; i < m_ass_Cam_Las_meas.size(); i++)
 	{
-		m_ass_per_com_meas.vector[i].clear();
+		m_ass_Cam_Las_meas.vector[i].clear();
 	}
-	m_ass_per_com_meas.clear();
+	m_ass_Cam_Las_meas.clear();
 	m_hypothesis_tree.clear();
 	m_prev_gate.clear();
-	m_already_seen_com.clear();
-	m_already_seen_per.clear();
+//	m_already_seen_Laser.clear();
+	m_already_seen_Cam.clear();
 	m_prev_hypothesis.clear();
 }
 
@@ -220,8 +208,8 @@ void MAPSGating::ProcessData()
 {
 
 	m_objects_ass.number_of_objects = 0;
-	m_objects_np.number_of_objects = 0;
-	m_objects_nc.number_of_objects = 0;
+	m_objects_nC.number_of_objects = 0;
+	m_objects_nL.number_of_objects = 0;
 
 	// Initialize hypothesis tree
 	IntializeTree();	//TODO::Comprobado OK
@@ -310,21 +298,21 @@ void MAPSGating::UpdateTree()
 
 	int idx_per, idx_com;
 	int n_nt_per(0);
-	m_already_seen_per.clear();
+	m_already_seen_Cam.clear();
 	float sum_prob(0);
 #pragma endregion
 #pragma region Predetected
 	// Set perception tracks which have already been detected, i.e., DT tracks
-	for (int i = 0; i < m_objects_com.number_of_objects; i++)
+	for (int i = 0; i < m_objects_Laser.number_of_objects; i++)
 	{
-		for (int i_p = 0; i_p < m_ass_per_com_meas.vector[i].size(); i_p++)
+		for (int i_p = 0; i_p < m_ass_Cam_Las_meas.vector[i].size(); i_p++)
 		{
-			idx_per = m_objects_per.object[m_ass_per_com_meas.vector[i].vector[i_p]].id;
-			if (!IsAlreadyHere(idx_per, m_already_seen_per) && !IsAlreadyHere(idx_per, m_prev_gate.vector[m_objects_com.object[i].id - 1]))
+			idx_per = m_objects_Cam.object[m_ass_Cam_Las_meas.vector[i].vector[i_p]].id;
+			if (!IsAlreadyHere(idx_per, m_already_seen_Cam) && !IsAlreadyHere(idx_per, m_prev_gate.vector[m_objects_Laser.object[i].id - 1]))
 			{
 				n_nt_per++;
-				m_already_seen_per.push_back(idx_per);
-				//m_prev_gate[this->m_objects_com.object[i].id-1].push_back(idx_per);
+				m_already_seen_Cam.push_back(idx_per);
+				//m_prev_gate[this->m_objects_Laser.object[i].id-1].push_back(idx_per);
 			}
 		}
 	}
@@ -341,10 +329,10 @@ void MAPSGating::UpdateTree()
 		std::vector<int> i_nt_com;
 
 		// Counting the number of associations and not perceived tracks at previous instant and the number of new communication tracks at current instant
-		for (int id_c = 0; id_c < m_objects_com.number_of_objects; id_c++)
+		for (int id_c = 0; id_c < m_objects_Laser.number_of_objects; id_c++)
 		{
 			update_hypothesis = true;
-			id_per = GetIdPer(m_objects_com.object[id_c].id, m_prev_hypothesis[i]);
+			id_per = GetIdPer(m_objects_Laser.object[id_c].id, m_prev_hypothesis[i]);
 			if (id_per > 0) {
 				if (IsInGate(id_per, id_c))
 				{
@@ -401,19 +389,19 @@ void MAPSGating::UpdateTree()
 		for (int i_np = 0; i_np < i_prev_np.size(); i_np++)
 		{
 			// Generate new hypothesis with perception obstacle located inside the gating window
-			for (int i_p = 0; i_p < m_ass_per_com_meas.vector[i_np].size(); i_p++)
+			for (int i_p = 0; i_p < m_ass_Cam_Las_meas.vector[i_np].size(); i_p++)
 			{
-				idx_per = m_objects_per.object[m_ass_per_com_meas.vector[i_np].vector[i_p]].id;
+				idx_per = m_objects_Cam.object[m_ass_Cam_Las_meas.vector[i_np].vector[i_p]].id;
 				i_inter = i_start_inter;
 				// Generate new hypothesis for every possible association inside the gating window
 				while (i_inter < i_end_inter)
 				{
 					if (!IsAlreadyHere(idx_per, m_hypothesis_tree[i_inter].already_seen_per) &&
-						!IsAlreadyHere(idx_per, m_prev_gate.vector[m_objects_com.object[i_np].id - 1]))
+						!IsAlreadyHere(idx_per, m_prev_gate.vector[m_objects_Laser.object[i_np].id - 1]))
 					{
 						// change the associated perception track id and increase hypothesis id
 						m_hypothesis_tree.push_back(m_hypothesis_tree[i_inter]);
-						int idx_com = GetIdxCom(m_objects_com.object[i_np].id, m_hypothesis_tree[i_end]);
+						int idx_com = GetIdxCom(m_objects_Laser.object[i_np].id, m_hypothesis_tree[i_end]);
 						if (idx_com >= 0)
 						{
 							m_hypothesis_tree[i_end].assoc_vec[idx_com].id_per = idx_per;
@@ -442,7 +430,7 @@ void MAPSGating::UpdateTree()
 		{
 			for (int i_nt = 0; i_nt < i_nt_com.size(); i_nt++)
 			{
-				ass_per_com.id_com = m_objects_com.object[i_nt].id;
+				ass_per_com.id_com = m_objects_Laser.object[i_nt].id;
 				ass_per_com.id_per = 0;
 				m_hypothesis_tree[h].n_nt_h++;
 				m_hypothesis_tree[h].assoc_vec.push_back(ass_per_com);
@@ -455,9 +443,9 @@ void MAPSGating::UpdateTree()
 		i_end_inter = i_end;
 		for (int i_nt = 0; i_nt < i_nt_com.size(); i_nt++)
 		{
-			for (int i_p = 0; i_p < m_ass_per_com_meas.vector[i_nt].size(); i_p++)
+			for (int i_p = 0; i_p < m_ass_Cam_Las_meas.vector[i_nt].size(); i_p++)
 			{
-				idx_per = m_objects_per.object[m_ass_per_com_meas.vector[i_nt].vector[i_p]].id;
+				idx_per = m_objects_Cam.object[m_ass_Cam_Las_meas.vector[i_nt].vector[i_p]].id;
 				i_inter = i_start_inter;
 				while (i_inter < i_end_inter)
 				{
@@ -465,12 +453,12 @@ void MAPSGating::UpdateTree()
 					{
 						m_hypothesis_tree.push_back(m_hypothesis_tree[i_inter]);
 
-						if (IsAlreadyHere(idx_per, m_prev_gate.vector[m_objects_com.object[i_nt].id - 1]))
+						if (IsAlreadyHere(idx_per, m_prev_gate.vector[m_objects_Laser.object[i_nt].id - 1]))
 						{
 							m_hypothesis_tree[i_end].n_nt_h--;
 						}
 
-						int idx_com = GetIdxCom(m_objects_com.object[i_nt].id, m_hypothesis_tree[i_end]);
+						int idx_com = GetIdxCom(m_objects_Laser.object[i_nt].id, m_hypothesis_tree[i_end]);
 						if (idx_com >= 0)
 						{
 							m_hypothesis_tree[i_end].assoc_vec[idx_com].id_per = idx_per;
@@ -498,16 +486,16 @@ void MAPSGating::UpdateTree()
 			// Calculate the product of measurement likelihood of every association
 			for (int ass = 0; ass < m_hypothesis_tree[h].assoc_vec.size(); ass++)
 			{
-				idx_com = GetIdxObstacle(m_hypothesis_tree[h].assoc_vec[ass].id_com, m_objects_com);
+				idx_com = GetIdxObstacle(m_hypothesis_tree[h].assoc_vec[ass].id_com, m_objects_Laser);
 				// Distinguish the likelihood for an associated track and a not perceived one
 				if (m_hypothesis_tree[h].assoc_vec[ass].id_per>0) {
-					idx_per = GetIdxObstacle(m_hypothesis_tree[h].assoc_vec[ass].id_per, m_objects_per);
+					idx_per = GetIdxObstacle(m_hypothesis_tree[h].assoc_vec[ass].id_per, m_objects_Cam);
 					if (idx_per >= 0 && idx_com >= 0)
 					{
 
-						likelihood_meas = LocationLikelihood(m_objects_per.object[idx_per].x_rel, m_objects_per.object[idx_per].y_rel, m_objects_com.object[idx_com].x_rel, m_objects_com.object[idx_com].y_rel,
-							m_objects_com.object[idx_com].x_sigma, m_objects_com.object[idx_com].y_sigma, 0);// this->m_objects_com.object[idx_com].xy_sigma
-						likelihood_meas *= m_objects_per.object[idx_per].class_confidence;
+						likelihood_meas = LocationLikelihood(m_objects_Cam.object[idx_per].x_rel, m_objects_Cam.object[idx_per].y_rel, m_objects_Laser.object[idx_com].x_rel, m_objects_Laser.object[idx_com].y_rel,
+							m_objects_Laser.object[idx_com].x_sigma, m_objects_Laser.object[idx_com].y_sigma, 0);// this->m_objects_Laser.object[idx_com].xy_sigma
+						likelihood_meas *= m_objects_Cam.object[idx_per].class_confidence;
 
 					}
 					else
@@ -522,7 +510,7 @@ void MAPSGating::UpdateTree()
 					m_hypothesis_tree[h].likelihood_meas *= p_occlusion_ratio;
 				}
 			}
-			m_hypothesis_tree[h].detection_prob *= pow(p_communication_prob, m_objects_com.number_of_objects);
+			m_hypothesis_tree[h].detection_prob *= pow(p_communication_prob, m_objects_Laser.number_of_objects);
 
 			// Calculate the branch likelihood given by combinatorial considerations
 			// Here, fixed detection probability is used, but it could be modify by a more sophisticated law
@@ -581,15 +569,15 @@ void MAPSGating::PruneHypothesis()
 			{
 				if (m_hypothesis_tree[h].assoc_vec[ass].id_per > 0)
 				{
-					idx_com = GetIdxObstacle(m_hypothesis_tree[h].assoc_vec[ass].id_com, m_objects_com);
+					idx_com = GetIdxObstacle(m_hypothesis_tree[h].assoc_vec[ass].id_com, m_objects_Laser);
 					if (idx_com != -1) {
-						//std::vector<int>::iterator it = m_ass_per_com_meas[idx_com].begin();
+						//std::vector<int>::iterator it = m_ass_Cam_Las_meas[idx_com].begin();
 						int it = 0;
-						for (int i_p = 0; i_p < m_ass_per_com_meas.vector[idx_com].size(); i_p++)
+						for (int i_p = 0; i_p < m_ass_Cam_Las_meas.vector[idx_com].size(); i_p++)
 						{
-							if (m_objects_per.object[m_ass_per_com_meas.vector[idx_com].vector[i_p]].id == m_hypothesis_tree[h].assoc_vec[ass].id_per)
+							if (m_objects_Cam.object[m_ass_Cam_Las_meas.vector[idx_com].vector[i_p]].id == m_hypothesis_tree[h].assoc_vec[ass].id_per)
 							{
-								m_ass_per_com_meas.vector[idx_com].erase(it + i_p);
+								m_ass_Cam_Las_meas.vector[idx_com].erase(it + i_p);
 								break;
 							}
 						}
@@ -634,8 +622,8 @@ void MAPSGating::FusedTracksEstimation()
 	associated_perception_tracks.clear();
 
 	m_objects_ass.number_of_objects = 0;
-	m_objects_np.number_of_objects = 0;
-	m_objects_nc.number_of_objects = 0;
+	m_objects_nC.number_of_objects = 0;
+	m_objects_nL.number_of_objects = 0;
 
 	if (!m_hypothesis_tree.empty())
 	{
@@ -654,35 +642,35 @@ void MAPSGating::FusedTracksEstimation()
 		{
 			if (m_hypothesis_tree[id_best_hyp].assoc_vec[ass].id_per>0)
 			{
-				idx_per = GetIdxObstacle(m_hypothesis_tree[id_best_hyp].assoc_vec[ass].id_per, m_objects_per);
-				idx_com = GetIdxObstacle(m_hypothesis_tree[id_best_hyp].assoc_vec[ass].id_com, m_objects_com);
+				idx_per = GetIdxObstacle(m_hypothesis_tree[id_best_hyp].assoc_vec[ass].id_per, m_objects_Cam);
+				idx_com = GetIdxObstacle(m_hypothesis_tree[id_best_hyp].assoc_vec[ass].id_com, m_objects_Laser);
 				if (idx_com >= 0 && idx_per >= 0 && m_objects_ass.number_of_objects < MAXIMUM_OBJECT_NUMBER)
 				{
-					m_objects_ass.object[m_objects_ass.number_of_objects] = m_objects_per.object[idx_per];
+					m_objects_ass.object[m_objects_ass.number_of_objects] = m_objects_Cam.object[idx_per];
 					associated_perception_tracks.push_back(idx_per);
-					m_objects_ass.object[m_objects_ass.number_of_objects].object_class = m_objects_com.object[idx_com].object_class;
+					m_objects_ass.object[m_objects_ass.number_of_objects].object_class = m_objects_Laser.object[idx_com].object_class;
 					m_objects_ass.number_of_objects++;
 				}
 			}
 			else
 			{
-				idx_com = GetIdxObstacle(m_hypothesis_tree[id_best_hyp].assoc_vec[ass].id_com, m_objects_com);
-				if (idx_com >= 0 && m_objects_np.number_of_objects < MAXIMUM_OBJECT_NUMBER)
+				idx_com = GetIdxObstacle(m_hypothesis_tree[id_best_hyp].assoc_vec[ass].id_com, m_objects_Laser);
+				if (idx_com >= 0 && m_objects_nC.number_of_objects < MAXIMUM_OBJECT_NUMBER)
 				{
-					m_objects_np.object[m_objects_np.number_of_objects] = m_objects_com.object[idx_com];
-					m_objects_np.number_of_objects++;
+					m_objects_nC.object[m_objects_nC.number_of_objects] = m_objects_Laser.object[idx_com];
+					m_objects_nC.number_of_objects++;
 				}
 			}
 		}
 	}
 
 	// Estimate not communication obstacles
-	for (int i_p = 0; i_p < m_objects_per.number_of_objects; i_p++)
+	for (int i_p = 0; i_p < m_objects_Cam.number_of_objects; i_p++)
 	{
-		if (!IsAlreadyHere(i_p, associated_perception_tracks) && m_objects_nc.number_of_objects < MAXIMUM_OBJECT_NUMBER)
+		if (!IsAlreadyHere(i_p, associated_perception_tracks) && m_objects_nL.number_of_objects < MAXIMUM_OBJECT_NUMBER)
 		{
-			m_objects_nc.object[m_objects_nc.number_of_objects] = m_objects_per.object[i_p];
-			m_objects_nc.number_of_objects++;
+			m_objects_nL.object[m_objects_nL.number_of_objects] = m_objects_Cam.object[i_p];
+			m_objects_nL.number_of_objects++;
 		}
 	}
 }
@@ -690,15 +678,15 @@ void MAPSGating::FusedTracksEstimation()
 void MAPSGating::UpdateGateTracks()
 {
 	int id_per;
-	for (int i = 0; i < m_objects_com.number_of_objects; i++)
+	for (int i = 0; i < m_objects_Laser.number_of_objects; i++)
 	{
 		// Clear previous perception obstacles in gate
-		m_prev_gate.vector[m_objects_com.object[i].id - 1].clear();
+		m_prev_gate.vector[m_objects_Laser.object[i].id - 1].clear();
 		// Add current perception obstacles in gate
-		for (int i_p = 0; i_p < m_ass_per_com_meas.vector[i].size(); i_p++)
+		for (int i_p = 0; i_p < m_ass_Cam_Las_meas.vector[i].size(); i_p++)
 		{
-			id_per = m_objects_per.object[m_ass_per_com_meas.vector[i].vector[i_p]].id;
-			m_prev_gate.vector[m_objects_com.object[i].id - 1].push_back(id_per);
+			id_per = m_objects_Cam.object[m_ass_Cam_Las_meas.vector[i].vector[i_p]].id;
+			m_prev_gate.vector[m_objects_Laser.object[i].id - 1].push_back(id_per);
 		}
 	}
 }
@@ -765,9 +753,9 @@ int MAPSGating::GetIdxObstacle(int id, AUTO_Objects objs)
 
 bool MAPSGating::IsInGate(int id_per, int i_com)
 {
-	for (int i = 0; i < m_ass_per_com_meas.vector[i_com].size(); i++)
+	for (int i = 0; i < m_ass_Cam_Las_meas.vector[i_com].size(); i++)
 	{
-		if (m_objects_per.object[m_ass_per_com_meas.vector[i_com].vector[i]].id == id_per)
+		if (m_objects_Cam.object[m_ass_Cam_Las_meas.vector[i_com].vector[i]].id == id_per)
 		{
 			return true;
 		}

@@ -10,7 +10,6 @@
 #include <fstream>
 #include <math.h>
 #include <vector>
-// Includes maps sdk library header
 #include "maps.hpp"
 #include "Match_Objects.h"
 #include "auto_objects.h"
@@ -24,81 +23,39 @@ class MAPSGating : public MAPSComponent
 	// Use standard header definition macro
 	MAPS_COMPONENT_STANDARD_HEADER_CODE(MAPSGating)
 private :
-	bool p_save_exp; /*!<boolean used to save experimental results*/
-	bool p_save_ass_objs; /*!<boolean used to save associated objects*/
-	bool p_save_np_objs; /*!<boolean used to save not perceived objects*/
-	bool p_save_nc_objs; /*!<boolean used to save not communicating objects*/
-	bool p_save_perception_objs; /*!<boolean used to perception objects*/
-	bool p_save_communication_objs; /*!<boolean used to communication objects*/
-	bool p_save_hypothesis; /*!<boolean used to save generated hypothesis*/
-	bool p_save_gate_objects; /*!<boolean used to save objects located inside gating window*/
 
-	std::ofstream m_ass_objs_file; /*!<file to save associated objects*/
-	std::ofstream m_np_objs_file; /*!<file to save not perceived objects*/
-	std::ofstream m_nc_objs_file; /*!<file to save not communicating objects*/
-	std::ofstream m_perception_objs_file; /*!<file to save perception objects*/
-	std::ofstream m_communication_objs_file; /*!<file to save communication objects*/
-	std::ofstream m_hypothesis_no_pruning_file; /*!<file to save hypothesis before pruning*/
-	std::ofstream m_hypothesis_pruning_file; /*!<file to save hypothesis after pruning*/
-	std::ofstream m_gate_objs_file; /*!<file to save objects located inside gating window*/
-	std::ofstream m_config_file; /*!<file to save experimental configuration, like important parameters*/
-
-	bool p_debug_report; /*!<boolean used to display debugging information in the console*/
-	float p_laser_range; /*!<laser range*/
-	float p_laser_angular_resolution; /*!<laser angular resolution*/
-	float p_min_nb_impacts; /*!<minimum number of impacts for obstacle dtection*/
-	float p_min_width; /*!<minimum width for obstacle dtection*/
-	float p_sigma_laser; /*!laser measurement noise value*/
-	float p_tx_power; /*!transmission power*/
-	float p_ht; /*!transmitter height*/
-	float p_hr; /*!receiver height*/
-	float p_lambda; /*!communication wavelength*/
-	float p_noise_dbm; /*!communication noise level*/
 	float p_gating; /*!size of gaiting window obtained from chi2 law applied with 95% of confidence value*/
 	float p_hypothesis_pruning; /*!minum probability for hypothesis pruning*/
 	float p_occlusion_ratio; /*!weight of the occlusion ratio*/
 	float p_communication_prob; /*!fixed communication detection probability*/
 	float p_perception_prob; /*!fixed perception detection probability*/
 
-	//int p_color_b; /*!<blue value for displaying objects*/
-	//int p_color_g; /*!<green value for displaying objects*/
-	//int p_color_r; /*!<red value for displaying objects*/
-
-	//int p_color_b_ass; /*!<blue value for displaying associated objects*/
-	//int p_color_g_ass; /*!<green value for displaying associated objects*/
-	//int p_color_r_ass; /*!<red value for displaying associated objects*/
-
-	//int p_color_b_np; /*!<blue value for displaying not perceived objects*/
-	//int p_color_g_np; /*!<green value for displaying not perceived objects*/
-	//int p_color_r_np; /*!<red value for displaying not perceived objects*/
-
 	MAPSIOElt* elt;
 	MAPSStreamedString str;
 	MATCH_OBJECTS* input_Laser_Matched;
 	MATCH_OBJECTS* input_Camera_Matched;
-	AUTO_Objects* m_objects_per2; /*!<perception objects*/
-	AUTO_Objects* m_objects_com2; /*!<communication objects*/
+	AUTO_Objects* m_objects_Cam2; /*!<Camera objects*/
+	AUTO_Objects* m_objects_Laser2; /*!<Laser objects*/
 	MATCH_OBJECTS Laser_Matched;
 	MATCH_OBJECTS Camera_Matched;
-	AUTO_Objects m_objects_per; /*!<perception objects*/	//Camara
-	AUTO_Objects m_objects_com; /*!<communication objects*/ //Laser
+	AUTO_Objects m_objects_Cam; /*!<Camera objects*/	//Camara
+	AUTO_Objects m_objects_Laser; /*!<Laser objects*/ //Laser
 	AUTO_Objects m_objects_ass; /*!<associated objects*/
-	AUTO_Objects m_objects_np; /*!<not perceived objects*/
-	AUTO_Objects m_objects_nc; /*!<not communicating objects*/
+	AUTO_Objects m_objects_nC; /*!<not Camera objects*/
+	AUTO_Objects m_objects_nL; /*!<not Laser objects*/
 
 	std::vector<s_hypothesis> m_hypothesis_tree; /*!<current hypethesis tree*/
 	std::vector<s_hypothesis> m_prev_hypothesis; /*!<previous hypethesis tree*/
-	VECTOR_INT m_already_seen_com; /*!<already seen communication tracks*/
-	VECTOR_INT m_already_seen_per; /*!<already seen perception tracks*/
+	//VECTOR_INT m_already_seen_Laser; /*!<already seen Laser tracks*/
+	VECTOR_INT m_already_seen_Cam; /*!<already seen Camera tracks*/
 	VECTOR_INT m_idx_gate; /*!<index perception obstacles in gating windows*/
 
 	std::stringstream m_ss; /*!<debugging string to display information in command window*/
 
-	VVECTOR_INT m_ass_per_com_meas; /*!<vector of perception obstacles indexes located inside every communication obstacle gating window*/
-	VVECTOR_INT m_prev_gate; /*!<list of perception obstacle which have already been inside the communication gating window*/
+	VVECTOR_INT m_ass_Cam_Las_meas; /*!<vector of Camera obstacles indexes located inside every Laser obstacle gating window*/
+	VVECTOR_INT m_prev_gate; /*!<list of Camera obstacle which have already been inside the Laser gating window*/
 	int m_max_com_id; /*!<maximum communication identifier*/
 	int m_max_hyp_id; /*!<maximum perception identifier*/
-	double m_occluded_area_ratio[MAXIMUM_OBJECT_NUMBER]; /*!<occluded area ratio for every object*/
 public:
 	//Constructors and Destructors
 	//////////////////////////////
