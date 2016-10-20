@@ -56,7 +56,10 @@ void MAPSMatching::Core()
 	{
 		return;
 	}
-	
+	for (size_t i = 0; i < numInputs; i++)
+	{
+		readed[i] = false;
+	}
 	str << '\n' << "Box Matchig " << ArrayLaserObjects->number_of_objects << " " << ArrayCameraObjects->number_of_objects;
 	
 	//Buscamos objetos en el gating window de cada obstaculo
@@ -99,28 +102,6 @@ bool MAPSMatching::readInputs()
 		break;
 	}
 	return true;
-	Rest(100);
-
-	
-
-	//while (!DataAvailableInFIFO(Input("LaserObject")) || !DataAvailableInFIFO(Input("CameraObject"))) {}
-	//str << '\n' << "Objects detected";
-	////Leer laser
-	//if (DataAvailableInFIFO(Input("LaserObject")))
-	//{
-	//	elt = StartReading(Input("LaserObject"));
-	//	ArrayLaserObjects = static_cast<AUTO_Objects*>(elt->Data());
-	//	StopReading(Input("LaserObject"));
-	//	output_LaserAmpliatedBox = *ArrayLaserObjects;
-	//}
-	////Leer camara
-	//if (DataAvailableInFIFO(Input("CameraObject")))
-	//{
-	//	elt = StartReading(Input("CameraObject"));
-	//	ArrayCameraObjects = static_cast<AUTO_Objects*>(elt->Data());
-	//	StopReading(Input("CameraObject"));
-	//	output_CameraAmpliatedBox = *ArrayCameraObjects;
-	//}
 }
 
 void MAPSMatching::WriteOutputs()

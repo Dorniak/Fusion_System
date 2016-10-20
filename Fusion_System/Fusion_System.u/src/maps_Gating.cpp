@@ -137,52 +137,7 @@ void MAPSGating::readInputs()
 	default:
 		break;
 	}
-	Rest(100);
 }
-
-
-
-//
-//
-//	while (!DataAvailableInFIFO(Input("LaserObject")) || !DataAvailableInFIFO(Input("CameraObject"))) {}
-//#pragma region Lectura
-//	//Leer objetos del laser
-//	if (DataAvailableInFIFO(Input("LaserObject")))
-//	{
-//		elt = StartReading(Input("LaserObject"));
-//		m_objects_Cam2 = static_cast<AUTO_Objects*>(elt->Data());
-//		StopReading(Input("LaserObject"));
-//		m_objects_Cam = *m_objects_Cam2;
-//	}
-//
-//	//Leer objetos de la camara
-//	if (DataAvailableInFIFO(Input("CameraObject")))
-//	{
-//		elt = StartReading(Input("CameraObject"));
-//		m_objects_Laser2 = static_cast<AUTO_Objects*>(elt->Data());
-//		StopReading(Input("CameraObject"));
-//		m_objects_Laser = *m_objects_Laser2;
-//	}
-//
-//	//Leer vector de objetos de camara vistos en la gating window de cada objeto laser
-//	if (DataAvailableInFIFO(Input("MatchedLaser")))
-//	{
-//		elt = StartReading(Input("MatchedLaser"));
-//		input_Laser_Matched = static_cast<MATCH_OBJECTS*>(elt->Data());
-//		StopReading(Input("MatchedLaser"));
-//		Laser_Matched = *input_Laser_Matched;
-//	}
-//
-//	//Leer vector de objetos de camara vistos en la gating window de cada objeto laser
-//	if (DataAvailableInFIFO(Input("MatchedCamera")))
-//	{
-//		elt = StartReading(Input("MatchedCamera"));
-//		input_Camera_Matched = static_cast<MATCH_OBJECTS*>(elt->Data());
-//		StopReading(Input("MatchedCamera"));
-//		Camera_Matched = *input_Camera_Matched;
-//	}
-//#pragma endregion
-//}
 
 void MAPSGating::adaptation()
 {
@@ -214,12 +169,12 @@ void MAPSGating::writeOutputs()
 {
 	_ioOutput = StartWriting(Output("LaserObjects"));
 	AUTO_Objects &list = *static_cast<AUTO_Objects*>(_ioOutput->Data());
-	list = m_objects_Cam;
+	list = m_objects_Laser;
 	StopWriting(_ioOutput);
 
 	_ioOutput = StartWriting(Output("CameraObjects"));
 	AUTO_Objects &list2 = *static_cast<AUTO_Objects*>(_ioOutput->Data());
-	list2 = m_objects_Laser;
+	list2 = m_objects_Cam;
 	StopWriting(_ioOutput);
 }
 

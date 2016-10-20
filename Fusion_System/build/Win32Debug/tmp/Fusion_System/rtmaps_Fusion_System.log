@@ -1,4 +1,27 @@
-﻿  maps_synchronizer.cpp
+﻿  maps_Gating.cpp
+d:\documentos\github\fusion_system\fusion_system\fusion_system.u\src\maps_gating.cpp(95): warning C4018: '<': signed/unsigned mismatch
+d:\documentos\github\fusion_system\fusion_system\fusion_system.u\src\maps_gating.cpp(144): warning C4018: '<': signed/unsigned mismatch
+d:\documentos\github\fusion_system\fusion_system\fusion_system.u\src\maps_gating.cpp(150): warning C4018: '<': signed/unsigned mismatch
+d:\documentos\github\fusion_system\fusion_system\fusion_system.u\src\maps_gating.cpp(152): warning C4018: '<': signed/unsigned mismatch
+d:\documentos\github\fusion_system\fusion_system\fusion_system.u\src\maps_gating.cpp(218): warning C4018: '<': signed/unsigned mismatch
+d:\documentos\github\fusion_system\fusion_system\fusion_system.u\src\maps_gating.cpp(221): warning C4018: '<': signed/unsigned mismatch
+d:\documentos\github\fusion_system\fusion_system\fusion_system.u\src\maps_gating.cpp(241): warning C4018: '<': signed/unsigned mismatch
+d:\documentos\github\fusion_system\fusion_system\fusion_system.u\src\maps_gating.cpp(261): warning C4018: '<': signed/unsigned mismatch
+d:\documentos\github\fusion_system\fusion_system\fusion_system.u\src\maps_gating.cpp(320): warning C4018: '<': signed/unsigned mismatch
+d:\documentos\github\fusion_system\fusion_system\fusion_system.u\src\maps_gating.cpp(387): warning C4018: '<': signed/unsigned mismatch
+d:\documentos\github\fusion_system\fusion_system\fusion_system.u\src\maps_gating.cpp(429): warning C4018: '<': signed/unsigned mismatch
+d:\documentos\github\fusion_system\fusion_system\fusion_system.u\src\maps_gating.cpp(442): warning C4018: '<': signed/unsigned mismatch
+d:\documentos\github\fusion_system\fusion_system\fusion_system.u\src\maps_gating.cpp(485): warning C4018: '<': signed/unsigned mismatch
+d:\documentos\github\fusion_system\fusion_system\fusion_system.u\src\maps_gating.cpp(511): warning C4244: '*=': conversion from 'double' to 'float', possible loss of data
+d:\documentos\github\fusion_system\fusion_system\fusion_system.u\src\maps_gating.cpp(533): warning C4018: '<': signed/unsigned mismatch
+d:\documentos\github\fusion_system\fusion_system\fusion_system.u\src\maps_gating.cpp(558): warning C4018: '<': signed/unsigned mismatch
+d:\documentos\github\fusion_system\fusion_system\fusion_system.u\src\maps_gating.cpp(566): warning C4018: '<': signed/unsigned mismatch
+d:\documentos\github\fusion_system\fusion_system\fusion_system.u\src\maps_gating.cpp(600): warning C4018: '<': signed/unsigned mismatch
+d:\documentos\github\fusion_system\fusion_system\fusion_system.u\src\maps_gating.cpp(629): warning C4018: '<': signed/unsigned mismatch
+d:\documentos\github\fusion_system\fusion_system\fusion_system.u\src\maps_gating.cpp(639): warning C4018: '<': signed/unsigned mismatch
+d:\documentos\github\fusion_system\fusion_system\fusion_system.u\src\maps_gating.cpp(706): warning C4018: '<': signed/unsigned mismatch
+d:\documentos\github\fusion_system\fusion_system\fusion_system.u\src\maps_gating.cpp(718): warning C4018: '<': signed/unsigned mismatch
+d:\documentos\github\fusion_system\fusion_system\fusion_system.u\src\maps_gating.cpp(730): warning C4018: '<': signed/unsigned mismatch
   LINK : D:\Documentos\GitHub\Fusion_System\Fusion_System\packages\debug\Fusion_System.pck not found or not built by the last incremental link; performing full link
      Creating library D:\Documentos\GitHub\Fusion_System\Fusion_System\build\Win32Debug\tmp\Fusion_System\Fusion_System.lib and object D:\Documentos\GitHub\Fusion_System\Fusion_System\build\Win32Debug\tmp\Fusion_System\Fusion_System.exp
   rtmaps_Fusion_System.vcxproj -> D:\Documentos\GitHub\Fusion_System\Fusion_System\packages\debug\Fusion_System.pck

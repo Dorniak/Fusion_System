@@ -66,7 +66,6 @@ void MAPSEstimation::Death()
 
 void MAPSEstimation::readInputs()
 {
-
 	MAPSInput* inputs[2] = { &Input("LaserObject"), &Input("CameraObject") };
 	int inputThatAnswered;
 	MAPSIOElt* ioeltin = StartReading(2, inputs, &inputThatAnswered);
@@ -86,30 +85,6 @@ void MAPSEstimation::readInputs()
 	default:
 		break;
 	}
-
-
-
-
-
-
-
-	
-
-	//while (!DataAvailableInFIFO(Input("LaserObject")) || !DataAvailableInFIFO(Input("CameraObject"))) {}
-	////Leer laser
-	//if (DataAvailableInFIFO(Input("LaserObject"))) 
-	//{
-	//	elt = StartReading(Input("LaserObject"));
-	//	ArrayLaserObjects = static_cast<AUTO_Objects*>(elt->Data());
-	//	StopReading(Input("LaserObject"));
-	//}
-	////Leer camara
-	//if (DataAvailableInFIFO(Input("CameraObject"))) 
-	//{
-	//	elt = StartReading(Input("CameraObject"));
-	//	ArrayCameraObjects = static_cast<AUTO_Objects*>(elt->Data());
-	//	StopReading(Input("CameraObject"));
-	//}
 }
 
 void MAPSEstimation::WriteOutputs()
