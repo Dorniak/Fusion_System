@@ -18,21 +18,7 @@ private :
 	MAPSIOElt* elt;
 	MAPSIOElt *_ioOutput;
 
-	AUTO_Objects* LBBox;
-	AUTO_Objects* LBBox2;
-	AUTO_Objects* LBBox3;
-
-	AUTO_Objects* CBBox;
-	AUTO_Objects* CBBox2;
-	AUTO_Objects* CBBox3;
-
-	AUTO_Objects* LObjects;
-	AUTO_Objects* LObjects2;
-	AUTO_Objects* LObjects3;
-
-	AUTO_Objects* CObjects;
-	AUTO_Objects* CObjects2;
-	AUTO_Objects* CObjects3;
+	AUTO_Objects* Object_I;
 
 	AUTO_Objects* Result;
 

@@ -54,8 +54,8 @@ private :
 
 	VVECTOR_INT m_ass_Cam_Las_meas; /*!<vector of Camera obstacles indexes located inside every Laser obstacle gating window*/
 	VVECTOR_INT m_prev_gate; /*!<list of Camera obstacle which have already been inside the Laser gating window*/
-	int m_max_com_id; /*!<maximum communication identifier*/
-	int m_max_hyp_id; /*!<maximum perception identifier*/
+	int m_max_Las_id; /*!<maximum Laser identifier*/
+	int m_max_hyp_id; /*!<maximum camera identifier*/
 public:
 	//Constructors and Destructors
 	//////////////////////////////
@@ -89,6 +89,8 @@ public:
 
 	//Private methods
 private:
+	int numReaded=0;
+	int numInputs = 4;
 	MAPSIOElt *_ioOutput;
 	void readInputs();
 	void adaptation();

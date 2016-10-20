@@ -48,10 +48,16 @@ void MAPSEstimation::Birth()
 
 void MAPSEstimation::Core()
 {
-	str.Clear();
+	readInputs();
+	if (numReaded < numInputs)
+	{
+		return;
+	}
+	numReaded = 0;
 	readInputs();
 	WriteOutputs();
 	//ReportInfo(str);
+	str.Clear();
 }
 
 void MAPSEstimation::Death()
@@ -60,21 +66,50 @@ void MAPSEstimation::Death()
 
 void MAPSEstimation::readInputs()
 {
-	while (!DataAvailableInFIFO(Input("LaserObject")) || !DataAvailableInFIFO(Input("CameraObject"))) {}
-	//Leer laser
-	if (DataAvailableInFIFO(Input("LaserObject"))) 
-	{
-		elt = StartReading(Input("LaserObject"));
-		ArrayLaserObjects = static_cast<AUTO_Objects*>(elt->Data());
-		StopReading(Input("LaserObject"));
+
+	MAPSInput* inputs[2] = { &Input("LaserObject"), &Input("CameraObject") };
+	int inputThatAnswered;
+	MAPSIOElt* ioeltin = StartReading(2, inputs, &inputThatAnswered);
+	if (ioeltin == NULL) {
+		return;
 	}
-	//Leer camara
-	if (DataAvailableInFIFO(Input("CameraObject"))) 
+	switch (inputThatAnswered)
 	{
-		elt = StartReading(Input("CameraObject"));
-		ArrayCameraObjects = static_cast<AUTO_Objects*>(elt->Data());
-		StopReading(Input("CameraObject"));
+	case 0:
+		numReaded++;
+		ArrayLaserObjects = static_cast<AUTO_Objects*>(ioeltin->Data());
+		break;
+	case 1:
+		numReaded++;
+		ArrayCameraObjects = static_cast<AUTO_Objects*>(ioeltin->Data());
+		break;
+	default:
+		break;
 	}
+
+
+
+
+
+
+
+	
+
+	//while (!DataAvailableInFIFO(Input("LaserObject")) || !DataAvailableInFIFO(Input("CameraObject"))) {}
+	////Leer laser
+	//if (DataAvailableInFIFO(Input("LaserObject"))) 
+	//{
+	//	elt = StartReading(Input("LaserObject"));
+	//	ArrayLaserObjects = static_cast<AUTO_Objects*>(elt->Data());
+	//	StopReading(Input("LaserObject"));
+	//}
+	////Leer camara
+	//if (DataAvailableInFIFO(Input("CameraObject"))) 
+	//{
+	//	elt = StartReading(Input("CameraObject"));
+	//	ArrayCameraObjects = static_cast<AUTO_Objects*>(elt->Data());
+	//	StopReading(Input("CameraObject"));
+	//}
 }
 
 void MAPSEstimation::WriteOutputs()

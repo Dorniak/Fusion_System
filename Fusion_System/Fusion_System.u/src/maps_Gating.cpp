@@ -76,13 +76,18 @@ void MAPSGating::Birth()
 
 void MAPSGating::Core()
 {
-	str.Clear();
-	str << '\n';
 	readInputs();
+	if (numReaded < numInputs)
+	{
+		return;
+	}
+	numReaded = 0;
 	adaptation();
 	ProcessData();
 	writeOutputs();
 	//ReportInfo(str);
+	str.Clear();
+	str << '\n';
 }
 
 void MAPSGating::Death()
@@ -101,45 +106,83 @@ void MAPSGating::Death()
 
 void MAPSGating::readInputs()
 {
-	while (!DataAvailableInFIFO(Input("LaserObject")) || !DataAvailableInFIFO(Input("CameraObject"))) {}
-#pragma region Lectura
-	//Leer objetos del laser
-	if (DataAvailableInFIFO(Input("LaserObject")))
-	{
-		elt = StartReading(Input("LaserObject"));
-		m_objects_Cam2 = static_cast<AUTO_Objects*>(elt->Data());
-		StopReading(Input("LaserObject"));
-		m_objects_Cam = *m_objects_Cam2;
+	MAPSInput* inputs[4] = { &Input("LaserObject"), &Input("CameraObject"),&Input("MatchedLaser"), &Input("MatchedCamera") };
+	int inputThatAnswered;
+	MAPSIOElt* ioeltin = StartReading(4, inputs, &inputThatAnswered);
+	if (ioeltin == NULL) {
+		return;
 	}
-
-	//Leer objetos de la camara
-	if (DataAvailableInFIFO(Input("CameraObject")))
+	switch (inputThatAnswered)
 	{
-		elt = StartReading(Input("CameraObject"));
-		m_objects_Laser2 = static_cast<AUTO_Objects*>(elt->Data());
-		StopReading(Input("CameraObject"));
+	case 0:
+		numReaded++;
+		m_objects_Laser2 = static_cast<AUTO_Objects*>(ioeltin->Data());
 		m_objects_Laser = *m_objects_Laser2;
-	}
-
-	//Leer vector de objetos de camara vistos en la gating window de cada objeto laser
-	if (DataAvailableInFIFO(Input("MatchedLaser")))
-	{
-		elt = StartReading(Input("MatchedLaser"));
-		input_Laser_Matched = static_cast<MATCH_OBJECTS*>(elt->Data());
-		StopReading(Input("MatchedLaser"));
+		break;
+	case 1:
+		numReaded++;
+		m_objects_Cam2 = static_cast<AUTO_Objects*>(ioeltin->Data());
+		m_objects_Cam = *m_objects_Cam2;
+		break;
+	case 2:
+		numReaded++;
+		input_Laser_Matched = static_cast<MATCH_OBJECTS*>(ioeltin->Data());
 		Laser_Matched = *input_Laser_Matched;
-	}
-
-	//Leer vector de objetos de camara vistos en la gating window de cada objeto laser
-	if (DataAvailableInFIFO(Input("MatchedCamera")))
-	{
-		elt = StartReading(Input("MatchedCamera"));
-		input_Camera_Matched = static_cast<MATCH_OBJECTS*>(elt->Data());
-		StopReading(Input("MatchedCamera"));
+		break;
+	case 3:
+		numReaded++;
+		input_Camera_Matched = static_cast<MATCH_OBJECTS*>(ioeltin->Data());
 		Camera_Matched = *input_Camera_Matched;
+		break;
+	default:
+		break;
 	}
-#pragma endregion
+	Rest(100);
 }
+
+
+
+//
+//
+//	while (!DataAvailableInFIFO(Input("LaserObject")) || !DataAvailableInFIFO(Input("CameraObject"))) {}
+//#pragma region Lectura
+//	//Leer objetos del laser
+//	if (DataAvailableInFIFO(Input("LaserObject")))
+//	{
+//		elt = StartReading(Input("LaserObject"));
+//		m_objects_Cam2 = static_cast<AUTO_Objects*>(elt->Data());
+//		StopReading(Input("LaserObject"));
+//		m_objects_Cam = *m_objects_Cam2;
+//	}
+//
+//	//Leer objetos de la camara
+//	if (DataAvailableInFIFO(Input("CameraObject")))
+//	{
+//		elt = StartReading(Input("CameraObject"));
+//		m_objects_Laser2 = static_cast<AUTO_Objects*>(elt->Data());
+//		StopReading(Input("CameraObject"));
+//		m_objects_Laser = *m_objects_Laser2;
+//	}
+//
+//	//Leer vector de objetos de camara vistos en la gating window de cada objeto laser
+//	if (DataAvailableInFIFO(Input("MatchedLaser")))
+//	{
+//		elt = StartReading(Input("MatchedLaser"));
+//		input_Laser_Matched = static_cast<MATCH_OBJECTS*>(elt->Data());
+//		StopReading(Input("MatchedLaser"));
+//		Laser_Matched = *input_Laser_Matched;
+//	}
+//
+//	//Leer vector de objetos de camara vistos en la gating window de cada objeto laser
+//	if (DataAvailableInFIFO(Input("MatchedCamera")))
+//	{
+//		elt = StartReading(Input("MatchedCamera"));
+//		input_Camera_Matched = static_cast<MATCH_OBJECTS*>(elt->Data());
+//		StopReading(Input("MatchedCamera"));
+//		Camera_Matched = *input_Camera_Matched;
+//	}
+//#pragma endregion
+//}
 
 void MAPSGating::adaptation()
 {
@@ -159,10 +202,10 @@ void MAPSGating::adaptation()
 				m_idx_gate.push_back(j);
 			}
 		}
-		if (m_objects_Laser.object[i].id > m_max_com_id)
+		if (m_objects_Laser.object[i].id > m_max_Las_id)
 		{
-			m_max_com_id = m_objects_Laser.object[i].id;
-			m_prev_gate.resize(m_max_com_id);
+			m_max_Las_id = m_objects_Laser.object[i].id;
+			m_prev_gate.resize(m_max_Las_id);
 		}
 	}
 }
@@ -188,7 +231,7 @@ void MAPSGating::inicialization()
 	m_objects_nC.number_of_objects = 0;
 	m_objects_nL.number_of_objects = 0;
 
-	m_max_com_id = 0;
+	m_max_Las_id = 0;
 	m_max_hyp_id = 0;
 
 	for (int i = 0; i < m_ass_Cam_Las_meas.size(); i++)

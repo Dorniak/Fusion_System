@@ -15,6 +15,8 @@ class MAPSEstimation : public MAPSComponent
 	// Use standard header definition macro
 	MAPS_COMPONENT_STANDARD_HEADER_CODE(MAPSEstimation)
 private :
+	int numReaded = 0;
+	int numInputs = 2;
 	MAPSIOElt* elt;
 	MAPSStreamedString str;
 	MAPSIOElt *_ioOutput;

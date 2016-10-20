@@ -51,21 +51,24 @@ void MAPSMatching::Birth()
 
 void MAPSMatching::Core()
 {
-	clear_Matched();
-	ArrayLaserObjects = nullptr;
-	ArrayCameraObjects = nullptr;
-	str.Clear();
-
 	//Read input objects
-	readInputs();
-
+	if (readInputs() && (!readed[0] || !readed [1]))
+	{
+		return;
+	}
+	
 	str << '\n' << "Box Matchig " << ArrayLaserObjects->number_of_objects << " " << ArrayCameraObjects->number_of_objects;
-
+	
 	//Buscamos objetos en el gating window de cada obstaculo
 	//We look for objects inside the gating window of each object
 	findMatches(ArrayLaserObjects, ArrayCameraObjects);
 	printResults();
 	WriteOutputs();
+
+	clear_Matched();
+	//ArrayLaserObjects = nullptr;
+	//ArrayCameraObjects = nullptr;
+	str.Clear();
 	//ReportInfo(str);
 }
 
@@ -74,26 +77,50 @@ void MAPSMatching::Death()
 
 }
 
-void MAPSMatching::readInputs()
+bool MAPSMatching::readInputs()
 {
-	while (!DataAvailableInFIFO(Input("LaserObject")) || !DataAvailableInFIFO(Input("CameraObject"))) {}
-	str << '\n' << "Objects detected";
-	//Leer laser
-	if (DataAvailableInFIFO(Input("LaserObject")))
-	{
-		elt = StartReading(Input("LaserObject"));
-		ArrayLaserObjects = static_cast<AUTO_Objects*>(elt->Data());
-		StopReading(Input("LaserObject"));
-		output_LaserAmpliatedBox = *ArrayLaserObjects;
+	MAPSInput* inputs[2] = { &Input("LaserObject"), &Input("CameraObject") };
+	int inputThatAnswered;
+	MAPSIOElt* ioeltin = StartReading(2, inputs, &inputThatAnswered);
+	if (ioeltin == NULL) {
+		return false;
 	}
-	//Leer camara
-	if (DataAvailableInFIFO(Input("CameraObject")))
+	switch (inputThatAnswered)
 	{
-		elt = StartReading(Input("CameraObject"));
-		ArrayCameraObjects = static_cast<AUTO_Objects*>(elt->Data());
-		StopReading(Input("CameraObject"));
-		output_CameraAmpliatedBox = *ArrayCameraObjects;
+	case 0:
+		ArrayLaserObjects = static_cast<AUTO_Objects*>(ioeltin->Data());
+		readed[0] = true;
+		break;
+	case 1:
+		ArrayCameraObjects = static_cast<AUTO_Objects*>(ioeltin->Data());
+		readed[1] = true;
+		break;
+	default:
+		break;
 	}
+	return true;
+	Rest(100);
+
+	
+
+	//while (!DataAvailableInFIFO(Input("LaserObject")) || !DataAvailableInFIFO(Input("CameraObject"))) {}
+	//str << '\n' << "Objects detected";
+	////Leer laser
+	//if (DataAvailableInFIFO(Input("LaserObject")))
+	//{
+	//	elt = StartReading(Input("LaserObject"));
+	//	ArrayLaserObjects = static_cast<AUTO_Objects*>(elt->Data());
+	//	StopReading(Input("LaserObject"));
+	//	output_LaserAmpliatedBox = *ArrayLaserObjects;
+	//}
+	////Leer camara
+	//if (DataAvailableInFIFO(Input("CameraObject")))
+	//{
+	//	elt = StartReading(Input("CameraObject"));
+	//	ArrayCameraObjects = static_cast<AUTO_Objects*>(elt->Data());
+	//	StopReading(Input("CameraObject"));
+	//	output_CameraAmpliatedBox = *ArrayCameraObjects;
+	//}
 }
 
 void MAPSMatching::WriteOutputs()

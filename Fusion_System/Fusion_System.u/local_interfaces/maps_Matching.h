@@ -16,6 +16,8 @@ class MAPSMatching : public MAPSComponent
 	// Use standard header definition macro
 	MAPS_COMPONENT_STANDARD_HEADER_CODE(MAPSMatching)
 private :
+	int numInputs = 2;
+	bool readed[2];
 	AUTO_Objects output_LaserAmpliatedBox;
 	AUTO_Objects output_CameraAmpliatedBox;
 	MAPSIOElt* elt;
@@ -25,7 +27,7 @@ private :
 	AUTO_Objects* ArrayCameraObjects;
 	MATCH_OBJECTS LaserMatched;
 	MATCH_OBJECTS CameraMatched;
-	void readInputs();
+	bool readInputs();
 	void WriteOutputs();
 	void printResults();
 	void findMatches(AUTO_Objects* ArrayLaserObjects, AUTO_Objects* ArrayCameraObjects);
