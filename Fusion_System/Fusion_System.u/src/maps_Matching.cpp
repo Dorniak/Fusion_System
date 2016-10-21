@@ -179,6 +179,8 @@ void MAPSMatching::findMatches(AUTO_Objects* ArrayLaserObjects, AUTO_Objects* Ar
 					CameraMatched.Matrix_matched[j][CameraMatched.number_matched[j]] = ArrayLaserObjects->object[i].id;
 					CameraMatched.number_matched[j]++;
 				}
+				output_LaserAmpliatedBox.number_of_objects++;
+				output_CameraAmpliatedBox.number_of_objects++;
 			}
 		}
 	}
@@ -201,7 +203,7 @@ bool MAPSMatching::BoxMatching(AUTO_Object Object1, AUTO_Object Object2, AUTO_Ob
 	copyBBox(final_BowndingBox_Object2, Output2);
 	//copyBBox(ampliated_Lrotated_Object2, Output2);
 
-	double x_max(-DBL_MAX), x_min(DBL_MAX), y_max(-DBL_MAX), y_min(DBL_MAX);
+	double x_max, x_min, y_max, y_min;
 
 	for (int i = 0; i < 4; i++) {
 		x_max = max(final_BowndingBox_Object1.point[i].x, x_max);

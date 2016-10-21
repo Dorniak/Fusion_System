@@ -30,7 +30,7 @@ void VVECTOR_INT::clear() {
 }
 
 void VECTOR_INT::push_back(int input) {
-	if (useful_tam == tamaño)
+	if (useful_tam == tamano)
 	{
 		throw 0;
 	}
@@ -42,7 +42,7 @@ void VECTOR_INT::push_back(int input) {
 
 void VVECTOR_INT::push_back(int input)
 {
-	if (useful_tam < tamaño) {
+	if (useful_tam < tamano) {
 		useful_tam++;
 	}
 	else
@@ -58,7 +58,7 @@ int VVECTOR_INT::size()
 
 void VVECTOR_INT::resize(int tam)
 {
-	if (tam < tamaño) {
+	if (tam < tamano) {
 		while (useful_tam < tam)
 		{
 			vector[useful_tam].clear();

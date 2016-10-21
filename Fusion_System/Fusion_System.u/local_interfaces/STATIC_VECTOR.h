@@ -1,8 +1,7 @@
 #pragma once
 
 #include "Hipotesys.h"
-#define tamaño 10000
-#define max_size 5000
+#define tamano 1000
 
 class VECTOR_INT
 {
@@ -12,7 +11,7 @@ public:
 
 	void erase(int posicion);
 	size_t size();
-	int vector[tamaño];
+	int vector[tamano];
 
 	void clear();
 	void push_back(int input);
@@ -25,7 +24,7 @@ class VVECTOR_INT
 public:
 	int useful_tam;
 
-	VECTOR_INT vector[tamaño];
+	VECTOR_INT vector[tamano];
 
 	void clear();
 
