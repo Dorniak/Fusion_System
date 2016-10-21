@@ -218,7 +218,7 @@ bool MAPSMatching::BoxMatching(AUTO_Object Object1, AUTO_Object Object2, AUTO_Ob
 	copyBBox(final_BowndingBox_Object2, Output2);
 	//copyBBox(ampliated_Lrotated_Object2, Output2);
 
-	double x_max(DBL_MAX), x_min(-DBL_MAX), y_max(DBL_MAX), y_min(-DBL_MAX);
+	double x_max(-1000), x_min(1000), y_max(-1000), y_min(1000);
 
 	for (int i = 0; i < 4; i++) {
 		x_max = max(final_BowndingBox_Object1.point[i].x, x_max);
