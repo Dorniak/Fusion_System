@@ -1,12 +1,12 @@
 #include "STATIC_VECTOR.h"
 
-int VECTOR_INT::size()
+size_t VECTOR_INT::size()
 {
 	return useful_tam;
 }
 
 void VECTOR_INT::clear() {
-	for (size_t i = 0; i < useful_tam; i++)
+	for (int i = 0; i < useful_tam; i++)
 	{
 		vector[i] = 0;
 	}
@@ -15,7 +15,7 @@ void VECTOR_INT::clear() {
 
 void VECTOR_INT::erase(int posicion)
 {
-	for (size_t posicion = 0; posicion < useful_tam; posicion++)
+	for (int posicion = 0; posicion < useful_tam; posicion++)
 	{
 		vector[posicion] = vector[posicion + 1];
 	}
@@ -23,7 +23,7 @@ void VECTOR_INT::erase(int posicion)
 }
 
 void VVECTOR_INT::clear() {
-	for (size_t i = 0; i < useful_tam; i++)
+	for (int i = 0; i < useful_tam; i++)
 	{
 		useful_tam = 0;
 	}

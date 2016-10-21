@@ -11,7 +11,7 @@ public:
 	//~VECTOR_INT();
 
 	void erase(int posicion);
-	int size();
+	size_t size();
 	int vector[tamaño];
 
 	void clear();

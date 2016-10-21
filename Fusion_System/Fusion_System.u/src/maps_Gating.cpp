@@ -92,7 +92,7 @@ void MAPSGating::Core()
 
 void MAPSGating::Death()
 {
-	for (size_t i = 0; i < m_ass_Cam_Las_meas.size(); i++)
+	for (int i = 0; i < m_ass_Cam_Las_meas.size(); i++)
 	{
 		m_ass_Cam_Las_meas.vector[i].clear();
 	}
@@ -141,15 +141,15 @@ void MAPSGating::readInputs()
 
 void MAPSGating::adaptation()
 {
-	for (size_t i = 0; i < m_ass_Cam_Las_meas.size(); i++)
+	for (int i = 0; i < m_ass_Cam_Las_meas.size(); i++)
 	{
 		m_ass_Cam_Las_meas.vector[i].clear();
 	}
 	m_idx_gate.clear();
 	m_ass_Cam_Las_meas.resize(m_objects_Laser.number_of_objects);
-	for (size_t i = 0; i < Laser_Matched.number_objects; i++)
+	for (int i = 0; i < Laser_Matched.number_objects; i++)
 	{
-		for (size_t j = 0; j < Camera_Matched.number_matched[i]; j++)
+		for (int j = 0; j < Camera_Matched.number_matched[i]; j++)
 		{
 			m_ass_Cam_Las_meas.vector[i].push_back(j);
 			if (!IsAlreadyHere(j, m_idx_gate))
@@ -215,10 +215,10 @@ void MAPSGating::ProcessData()
 	// Update hypothesis tree
 	UpdateTree();
 
-	for (int h = 0; h < m_hypothesis_tree.size(); h++)
+	for (size_t h = 0; h < m_hypothesis_tree.size(); h++)
 	{
 		str << "Hypothesis " << m_hypothesis_tree[h].id << "(";
-		for (int ass = 0; ass < m_hypothesis_tree[h].assoc_vec.size(); ass++)
+		for (size_t ass = 0; ass < m_hypothesis_tree[h].assoc_vec.size(); ass++)
 		{
 			str << "Laser_" << m_hypothesis_tree[h].assoc_vec[ass].id_com << "-Camera_" << m_hypothesis_tree[h].assoc_vec[ass].id_per;
 		}
@@ -238,7 +238,7 @@ void MAPSGating::ProcessData()
 	PruneHypothesis();
 
 	str << "Hypothesis after pruning \n";
-	for (int h = 0; h < m_hypothesis_tree.size(); h++)
+	for (size_t h = 0; h < m_hypothesis_tree.size(); h++)
 	{
 		str << "Hypothesis " << m_hypothesis_tree[h].id << " with probability " << m_hypothesis_tree[h].prob << "\n";
 	}
@@ -258,7 +258,7 @@ void MAPSGating::IntializeTree()
 	m_prev_hypothesis.clear();
 
 	// Copy hypothesis to previous hypothesis
-	for (int i = 0; i < m_hypothesis_tree.size(); i++)
+	for (size_t i = 0; i < m_hypothesis_tree.size(); i++)
 	{
 		m_prev_hypothesis.push_back(m_hypothesis_tree[i]);
 	}
@@ -303,7 +303,7 @@ void MAPSGating::UpdateTree()
 	// Set perception tracks which have already been detected, i.e., DT tracks
 	for (int i = 0; i < m_objects_Laser.number_of_objects; i++)
 	{
-		for (int i_p = 0; i_p < m_ass_Cam_Las_meas.vector[i].size(); i_p++)
+		for (size_t i_p = 0; i_p < m_ass_Cam_Las_meas.vector[i].size(); i_p++)
 		{
 			idx_per = m_objects_Cam.object[m_ass_Cam_Las_meas.vector[i].vector[i_p]].id;
 			if (!IsAlreadyHere(idx_per, m_already_seen_Cam) && !IsAlreadyHere(idx_per, m_prev_gate.vector[m_objects_Laser.object[i].id - 1]))
@@ -317,7 +317,7 @@ void MAPSGating::UpdateTree()
 #pragma endregion
 #pragma region Hypotesys_generator
 	// Generate the new hypothesis tree from the previous hypothesis tree 
-	for (int i = 0; i < m_prev_hypothesis.size(); i++)
+	for (size_t i = 0; i < m_prev_hypothesis.size(); i++)
 	{
 		int n_prev_com_ass(0), n_prev_com_np(0), n_nt_com(0);
 		int id_per;
@@ -384,10 +384,10 @@ void MAPSGating::UpdateTree()
 		// Generate new hypothesis from not perceived obstacles
 		// These three loops are supposed to generate all the possible combinations from a given hypothesis a previous instant
 		// This should be tested more carefully and intensivelly
-		for (int i_np = 0; i_np < i_prev_np.size(); i_np++)
+		for (size_t i_np = 0; i_np < i_prev_np.size(); i_np++)
 		{
 			// Generate new hypothesis with perception obstacle located inside the gating window
-			for (int i_p = 0; i_p < m_ass_Cam_Las_meas.vector[i_np].size(); i_p++)
+			for (size_t i_p = 0; i_p < m_ass_Cam_Las_meas.vector[i_np].size(); i_p++)
 			{
 				idx_per = m_objects_Cam.object[m_ass_Cam_Las_meas.vector[i_np].vector[i_p]].id;
 				i_inter = i_start_inter;
@@ -426,7 +426,7 @@ void MAPSGating::UpdateTree()
 		// These tracks are intiated as not perceived
 		for (int h = i_start; h < i_end; h++)
 		{
-			for (int i_nt = 0; i_nt < i_nt_com.size(); i_nt++)
+			for (size_t i_nt = 0; i_nt < i_nt_com.size(); i_nt++)
 			{
 				ass_per_com.id_com = m_objects_Laser.object[i_nt].id;
 				ass_per_com.id_per = 0;
@@ -439,9 +439,9 @@ void MAPSGating::UpdateTree()
 		// Calculate all the possible association for the new communicating tracks and generate new possibilities from this point
 		i_start_inter = i_start;
 		i_end_inter = i_end;
-		for (int i_nt = 0; i_nt < i_nt_com.size(); i_nt++)
+		for (size_t i_nt = 0; i_nt < i_nt_com.size(); i_nt++)
 		{
-			for (int i_p = 0; i_p < m_ass_Cam_Las_meas.vector[i_nt].size(); i_p++)
+			for (size_t i_p = 0; i_p < m_ass_Cam_Las_meas.vector[i_nt].size(); i_p++)
 			{
 				idx_per = m_objects_Cam.object[m_ass_Cam_Las_meas.vector[i_nt].vector[i_p]].id;
 				i_inter = i_start_inter;
@@ -482,7 +482,7 @@ void MAPSGating::UpdateTree()
 		for (int h = i_start; h < i_end; h++)
 		{
 			// Calculate the product of measurement likelihood of every association
-			for (int ass = 0; ass < m_hypothesis_tree[h].assoc_vec.size(); ass++)
+			for (size_t ass = 0; ass < m_hypothesis_tree[h].assoc_vec.size(); ass++)
 			{
 				idx_com = GetIdxObstacle(m_hypothesis_tree[h].assoc_vec[ass].id_com, m_objects_Laser);
 				// Distinguish the likelihood for an associated track and a not perceived one
@@ -508,7 +508,7 @@ void MAPSGating::UpdateTree()
 					m_hypothesis_tree[h].likelihood_meas *= p_occlusion_ratio;
 				}
 			}
-			m_hypothesis_tree[h].detection_prob *= pow(p_communication_prob, m_objects_Laser.number_of_objects);
+			m_hypothesis_tree[h].detection_prob *= (float)pow(p_communication_prob, m_objects_Laser.number_of_objects);
 
 			// Calculate the branch likelihood given by combinatorial considerations
 			// Here, fixed detection probability is used, but it could be modify by a more sophisticated law
@@ -530,7 +530,7 @@ void MAPSGating::UpdateTree()
 	//TODO::Modificar hasta aqui
 #pragma region Normalise
 	// Normalise each hypothesis probability to sum to 1
-	for (int h = 0; h < m_hypothesis_tree.size(); h++)
+	for (size_t h = 0; h < m_hypothesis_tree.size(); h++)
 	{
 		if (sum_prob != 0)
 		{
@@ -546,7 +546,7 @@ void MAPSGating::UpdateTree()
 
 void MAPSGating::PruneHypothesis()
 {
-	int h = 0;
+	size_t h = 0;
 	int idx_com;
 	float sum_prob(1.0f);
 	bool hypothesis_with_per(false);
@@ -563,7 +563,7 @@ void MAPSGating::PruneHypothesis()
 		}
 		else {
 			hypothesis_with_per = false;
-			for (int ass = 0; ass < m_hypothesis_tree[h].assoc_vec.size(); ass++)
+			for (size_t ass = 0; ass < m_hypothesis_tree[h].assoc_vec.size(); ass++)
 			{
 				if (m_hypothesis_tree[h].assoc_vec[ass].id_per > 0)
 				{
@@ -571,7 +571,7 @@ void MAPSGating::PruneHypothesis()
 					if (idx_com != -1) {
 						//std::vector<int>::iterator it = m_ass_Cam_Las_meas[idx_com].begin();
 						int it = 0;
-						for (int i_p = 0; i_p < m_ass_Cam_Las_meas.vector[idx_com].size(); i_p++)
+						for (size_t i_p = 0; i_p < m_ass_Cam_Las_meas.vector[idx_com].size(); i_p++)
 						{
 							if (m_objects_Cam.object[m_ass_Cam_Las_meas.vector[idx_com].vector[i_p]].id == m_hypothesis_tree[h].assoc_vec[ass].id_per)
 							{
@@ -597,7 +597,7 @@ void MAPSGating::PruneHypothesis()
 	}
 
 	// Normalise each hypothesis probability to sum to 1
-	for (int h = 0; h < m_hypothesis_tree.size(); h++)
+	for (size_t h = 0; h < m_hypothesis_tree.size(); h++)
 	{
 		if (sum_prob != 0)
 		{
@@ -626,7 +626,7 @@ void MAPSGating::FusedTracksEstimation()
 	if (!m_hypothesis_tree.empty())
 	{
 		// Pick the best hypothesis
-		for (int h = 0; h < m_hypothesis_tree.size(); h++)
+		for (size_t h = 0; h < m_hypothesis_tree.size(); h++)
 		{
 			if (m_hypothesis_tree[h].prob > prob_best_hyp)
 			{
@@ -636,7 +636,7 @@ void MAPSGating::FusedTracksEstimation()
 		}
 
 		// Estimate association and not perceived obstacles
-		for (int ass = 0; ass < m_hypothesis_tree[id_best_hyp].assoc_vec.size(); ass++)
+		for (size_t ass = 0; ass < m_hypothesis_tree[id_best_hyp].assoc_vec.size(); ass++)
 		{
 			if (m_hypothesis_tree[id_best_hyp].assoc_vec[ass].id_per>0)
 			{
@@ -681,7 +681,7 @@ void MAPSGating::UpdateGateTracks()
 		// Clear previous perception obstacles in gate
 		m_prev_gate.vector[m_objects_Laser.object[i].id - 1].clear();
 		// Add current perception obstacles in gate
-		for (int i_p = 0; i_p < m_ass_Cam_Las_meas.vector[i].size(); i_p++)
+		for (size_t i_p = 0; i_p < m_ass_Cam_Las_meas.vector[i].size(); i_p++)
 		{
 			id_per = m_objects_Cam.object[m_ass_Cam_Las_meas.vector[i].vector[i_p]].id;
 			m_prev_gate.vector[m_objects_Laser.object[i].id - 1].push_back(id_per);
@@ -715,7 +715,7 @@ bool MAPSGating::IsAlreadyHere(int id, VECTOR_INT & already_seen)
 
 int MAPSGating::GetIdPer(int id_com, s_hypothesis hyp)
 {
-	for (int i = 0; i < hyp.assoc_vec.size(); i++)
+	for (size_t i = 0; i < hyp.assoc_vec.size(); i++)
 	{
 		if (hyp.assoc_vec[i].id_com == id_com)
 		{
@@ -727,7 +727,7 @@ int MAPSGating::GetIdPer(int id_com, s_hypothesis hyp)
 
 int MAPSGating::GetIdxCom(int id_com, s_hypothesis hyp)
 {
-	for (int i = 0; i < hyp.assoc_vec.size(); i++)
+	for (size_t i = 0; i < hyp.assoc_vec.size(); i++)
 	{
 		if (hyp.assoc_vec[i].id_com == id_com)
 		{
@@ -751,7 +751,7 @@ int MAPSGating::GetIdxObstacle(int id, AUTO_Objects objs)
 
 bool MAPSGating::IsInGate(int id_per, int i_com)
 {
-	for (int i = 0; i < m_ass_Cam_Las_meas.vector[i_com].size(); i++)
+	for (size_t i = 0; i < m_ass_Cam_Las_meas.vector[i_com].size(); i++)
 	{
 		if (m_objects_Cam.object[m_ass_Cam_Las_meas.vector[i_com].vector[i]].id == id_per)
 		{

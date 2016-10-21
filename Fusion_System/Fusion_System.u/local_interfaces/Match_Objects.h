@@ -10,8 +10,8 @@ typedef struct {
 }MATCH_OBJECTS;
 
 typedef struct {
-	double x;
-	double y;
+	float32_t x;
+	float32_t y;
 }B_POINT;
 
 typedef struct {

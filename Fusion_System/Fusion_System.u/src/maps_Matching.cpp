@@ -56,7 +56,7 @@ void MAPSMatching::Core()
 	{
 		return;
 	}
-	for (size_t i = 0; i < numInputs; i++)
+	for (int i = 0; i < numInputs; i++)
 	{
 		readed[i] = false;
 	}
@@ -218,7 +218,7 @@ bool MAPSMatching::BoxMatching(AUTO_Object Object1, AUTO_Object Object2, AUTO_Ob
 	copyBBox(final_BowndingBox_Object2, Output2);
 	//copyBBox(ampliated_Lrotated_Object2, Output2);
 
-	double x_max, x_min, y_max, y_min;
+	double x_max(DBL_MAX), x_min(-DBL_MAX), y_max(DBL_MAX), y_min(-DBL_MAX);
 
 	for (int i = 0; i < 4; i++) {
 		x_max = max(final_BowndingBox_Object1.point[i].x, x_max);
@@ -300,33 +300,33 @@ void MAPSMatching::calculateBoundingBox(AUTO_Object Object, BOUNDIG_BOX* origina
 
 void MAPSMatching::trasladarBowndingBox(BOUNDIG_BOX* entrada, double x, double y)
 {
-	entrada->point[0].x = entrada->point[0].x + x;
-	entrada->point[0].y = entrada->point[0].y + y;
+	entrada->point[0].x = entrada->point[0].x + (float32_t)x;
+	entrada->point[0].y = entrada->point[0].y + (float32_t)y;
 
-	entrada->point[1].x = entrada->point[1].x + x;
-	entrada->point[1].y = entrada->point[1].y + y;
+	entrada->point[1].x = entrada->point[1].x + (float32_t)x;
+	entrada->point[1].y = entrada->point[1].y + (float32_t)y;
 
-	entrada->point[2].x = entrada->point[2].x + x;
-	entrada->point[2].y = entrada->point[2].y + y;
+	entrada->point[2].x = entrada->point[2].x + (float32_t)x;
+	entrada->point[2].y = entrada->point[2].y + (float32_t)y;
 
-	entrada->point[3].x = entrada->point[3].x + x;
-	entrada->point[3].y = entrada->point[3].y + y;
+	entrada->point[3].x = entrada->point[3].x + (float32_t)x;
+	entrada->point[3].y = entrada->point[3].y + (float32_t)y;
 }
 
 void MAPSMatching::ampliarBowndingBox(BOUNDIG_BOX* entrada, double x, double y)
 {
 
-	entrada->point[0].x = entrada->point[0].x + x;
-	entrada->point[0].y = entrada->point[0].y - y;
+	entrada->point[0].x = entrada->point[0].x + (float32_t)x;
+	entrada->point[0].y = entrada->point[0].y - (float32_t)y;
 
-	entrada->point[1].x = entrada->point[1].x + x;
-	entrada->point[1].y = entrada->point[1].y + y;
+	entrada->point[1].x = entrada->point[1].x + (float32_t)x;
+	entrada->point[1].y = entrada->point[1].y + (float32_t)y;
 
-	entrada->point[2].x = entrada->point[2].x - x;
-	entrada->point[2].y = entrada->point[2].y + y;
+	entrada->point[2].x = entrada->point[2].x - (float32_t)x;
+	entrada->point[2].y = entrada->point[2].y + (float32_t)y;
 
-	entrada->point[3].x = entrada->point[3].x - x;
-	entrada->point[3].y = entrada->point[3].y - y;
+	entrada->point[3].x = entrada->point[3].x - (float32_t)x;
+	entrada->point[3].y = entrada->point[3].y - (float32_t)y;
 
 }
 
@@ -334,10 +334,10 @@ BOUNDIG_BOX MAPSMatching::finalBox(BOUNDIG_BOX original, BOUNDIG_BOX Lrotated, B
 {
 	//TODO::ALGO MAL
 	BOUNDIG_BOX finalBox;
-	double x_min, x_max, y_min, y_max;
-	double x_min_original, x_max_original, y_min_original, y_max_original;
-	double x_min_Lrotated, x_max_Lrotated, y_min_Lrotated, y_max_Lrotated;
-	double x_min_Rrotated, x_max_Rrotated, y_min_Rrotated, y_max_Rrotated;
+	float32_t x_min, x_max, y_min, y_max;
+	float32_t x_min_original, x_max_original, y_min_original, y_max_original;
+	float32_t x_min_Lrotated, x_max_Lrotated, y_min_Lrotated, y_max_Lrotated;
+	float32_t x_min_Rrotated, x_max_Rrotated, y_min_Rrotated, y_max_Rrotated;
 	
 	x_min_original = min(min(original.point[0].x, original.point[1].x), min(original.point[2].x, original.point[3].x));
 	x_min_Lrotated = min(min(Lrotated.point[0].x, Lrotated.point[1].x), min(Lrotated.point[2].x, Lrotated.point[3].x));
@@ -385,8 +385,8 @@ void MAPSMatching::rotarBoundingBox(BOUNDIG_BOX* entrada, double angulo)
 
 void MAPSMatching::rotarPunto(B_POINT *punto, double angulo)
 {
-	punto->x = (punto->x * cos(angulo)) - (punto->y * sin(angulo));
-	punto->y = (punto->x * sin(angulo)) + (punto->y * cos(angulo));
+	punto->x = (punto->x * (float32_t)cos(angulo)) - (punto->y * (float32_t)sin(angulo));
+	punto->y = (punto->x * (float32_t)sin(angulo)) + (punto->y * (float32_t)cos(angulo));
 }
 
 void MAPSMatching::clear_Matched()
