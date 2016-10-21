@@ -166,13 +166,25 @@ void MAPSMatching::findMatches(AUTO_Objects* ArrayLaserObjects, AUTO_Objects* Ar
 {
 	LaserMatched.number_objects = ArrayLaserObjects->number_of_objects;
 	CameraMatched.number_objects = ArrayCameraObjects->number_of_objects;
+	output_LaserAmpliatedBox = *ArrayLaserObjects;
+	output_CameraAmpliatedBox = *ArrayCameraObjects;
+
+	for (int a = 0; a < output_LaserAmpliatedBox.number_of_objects; a++) 
+	{
+		calculateBoundingBox(&output_LaserAmpliatedBox.object[a]);
+	}
+	for (int b = 0; b < output_CameraAmpliatedBox.number_of_objects; b++)
+	{
+		calculateBoundingBox(&output_CameraAmpliatedBox.object[b]);
+	}
+
 	for (int i = 0; i < ArrayLaserObjects->number_of_objects; i++)
 	{
 		for (int j = 0; j < ArrayCameraObjects->number_of_objects; j++)
 		{
 			if (ArrayLaserObjects->object[i].object_class == ArrayCameraObjects->object[j].object_class)
 			{
-				if (BoxMatching(ArrayLaserObjects->object[i], ArrayCameraObjects->object[j], &output_LaserAmpliatedBox.object[i], &output_CameraAmpliatedBox.object[j]))
+				if (BoxMatching(output_LaserAmpliatedBox.object[i], output_CameraAmpliatedBox.object[j]))
 				{
 					LaserMatched.Matrix_matched[i][LaserMatched.number_matched[i]] = ArrayCameraObjects->object[j].id;
 					LaserMatched.number_matched[i]++;
@@ -186,37 +198,22 @@ void MAPSMatching::findMatches(AUTO_Objects* ArrayLaserObjects, AUTO_Objects* Ar
 	}
 }
 
-bool MAPSMatching::BoxMatching(AUTO_Object Object1, AUTO_Object Object2, AUTO_Object* Output1, AUTO_Object* Output2)
+bool MAPSMatching::BoxMatching(AUTO_Object Object1, AUTO_Object Object2)
 {
-	BOUNDIG_BOX original_ampliated_Object1, original_ampliated_Object2;
-	BOUNDIG_BOX ampliated_Lrotated_Object1, ampliated_Lrotated_Object2;
-	BOUNDIG_BOX ampliated_Rrotated_Object1, ampliated_Rrotated_Object2;
-	BOUNDIG_BOX final_BowndingBox_Object1, final_BowndingBox_Object2;
-	//TODO::CAMBIAR
-	calculateBoundingBox(Object1, &original_ampliated_Object1, &ampliated_Lrotated_Object1, &ampliated_Rrotated_Object1);
-	final_BowndingBox_Object1 = finalBox(original_ampliated_Object1, ampliated_Lrotated_Object1, ampliated_Rrotated_Object1);
-	copyBBox(final_BowndingBox_Object1, Output1);
-	//copyBBox(ampliated_Lrotated_Object1, Output1);
-
-	calculateBoundingBox(Object2, &original_ampliated_Object2, &ampliated_Lrotated_Object2, &ampliated_Rrotated_Object2);
-	final_BowndingBox_Object2 = finalBox(original_ampliated_Object2, ampliated_Lrotated_Object2, ampliated_Rrotated_Object2);
-	copyBBox(final_BowndingBox_Object2, Output2);
-	//copyBBox(ampliated_Lrotated_Object2, Output2);
-
 	double x_max, x_min, y_max, y_min;
 
 	for (int i = 0; i < 4; i++) {
-		x_max = max(final_BowndingBox_Object1.point[i].x, x_max);
-		x_min = min(final_BowndingBox_Object1.point[i].x, x_min);
-		y_max = max(final_BowndingBox_Object1.point[i].y, y_max);
-		y_min = min(final_BowndingBox_Object1.point[i].y, y_min);
+		x_max = max(Object1.bounding_box_x_rel[i], x_max);
+		x_min = min(Object1.bounding_box_x_rel[i], x_min);
+		y_max = max(Object1.bounding_box_y_rel[i], y_max);
+		y_min = min(Object1.bounding_box_y_rel[i], y_min);
 	}
 
 	for (size_t i = 0; i < 4; i++)
 	{
-		if (final_BowndingBox_Object2.point[i].x > x_min && final_BowndingBox_Object2.point[i].x < x_max)
+		if (Object1.bounding_box_x_rel[i] > x_min && Object1.bounding_box_x_rel[i] < x_max)
 		{
-			if (final_BowndingBox_Object2.point[i].y > y_min && final_BowndingBox_Object2.point[i].y < y_max)
+			if (Object1.bounding_box_y_rel[i] > y_min && Object1.bounding_box_y_rel[i] < y_max)
 			{
 				return true;
 			}
@@ -243,44 +240,52 @@ void MAPSMatching::copyBBox(BOUNDIG_BOX BBox, AUTO_Object* Output_ampliated)
 	}
 }
 
-void MAPSMatching::calculateBoundingBox(AUTO_Object Object, BOUNDIG_BOX* original_ampliated, BOUNDIG_BOX* ampliated_Lrotated, BOUNDIG_BOX* ampliated_Rrotated)
+void MAPSMatching::calculateBoundingBox(AUTO_Object *Object)
 {
+	BOUNDIG_BOX original_ampliated;
+	BOUNDIG_BOX ampliated_Lrotated;
+	BOUNDIG_BOX ampliated_Rrotated;
+	BOUNDIG_BOX final_BowndingBox;
+
 #pragma region Calculate Original_ampliated
 #pragma region Copiar a local
-	original_ampliated->point[0].x = Object.bounding_box_x_rel[0];
-	original_ampliated->point[0].y = Object.bounding_box_y_rel[0];
-	original_ampliated->point[1].x = Object.bounding_box_x_rel[1];
-	original_ampliated->point[1].y = Object.bounding_box_y_rel[1];
-	original_ampliated->point[2].x = Object.bounding_box_x_rel[2];
-	original_ampliated->point[2].y = Object.bounding_box_y_rel[2];
-	original_ampliated->point[3].x = Object.bounding_box_x_rel[3];
-	original_ampliated->point[3].y = Object.bounding_box_y_rel[3];
+	original_ampliated.point[0].x = Object->bounding_box_x_rel[0];
+	original_ampliated.point[0].y = Object->bounding_box_y_rel[0];
+	original_ampliated.point[1].x = Object->bounding_box_x_rel[1];
+	original_ampliated.point[1].y = Object->bounding_box_y_rel[1];
+	original_ampliated.point[2].x = Object->bounding_box_x_rel[2];
+	original_ampliated.point[2].y = Object->bounding_box_y_rel[2];
+	original_ampliated.point[3].x = Object->bounding_box_x_rel[3];
+	original_ampliated.point[3].y = Object->bounding_box_y_rel[3];
 #pragma endregion
 
 #pragma region rotacion a 0
-	rotarBoundingBox(original_ampliated, -Object.yaw_rel);
+	rotarBoundingBox(&original_ampliated, -Object->yaw_rel);
 #pragma endregion
 
 #pragma region ampliacion
-	ampliarBowndingBox(original_ampliated, Object.x_sigma, Object.y_sigma);
+	ampliarBowndingBox(&original_ampliated, Object->x_sigma, Object->y_sigma);
 #pragma endregion
 
 #pragma region devolver a angulo
-	rotarBoundingBox(original_ampliated, Object.yaw_rel);
+	rotarBoundingBox(&original_ampliated, Object->yaw_rel);
 #pragma endregion
 #pragma endregion
 
-	*ampliated_Lrotated = *original_ampliated;
-	*ampliated_Rrotated = *original_ampliated;
+	ampliated_Lrotated = original_ampliated;
+	ampliated_Rrotated = original_ampliated;
 	//Centrar Bowndingbox
-	trasladarBowndingBox(ampliated_Lrotated, -Object.x_rel, -Object.y_rel);
+	trasladarBowndingBox(&ampliated_Lrotated, -Object->x_rel, -Object->y_rel);
 	//Rotar BowndingBox
-	rotarBoundingBox(ampliated_Lrotated, -Object.yaw_sigma);
+	rotarBoundingBox(&ampliated_Lrotated, -Object->yaw_sigma);
 	//Devolver a su posicion
-	trasladarBowndingBox(ampliated_Lrotated, Object.x_rel, Object.y_rel);
-	trasladarBowndingBox(ampliated_Rrotated, -Object.x_rel, -Object.y_rel);
-	rotarBoundingBox(ampliated_Rrotated, Object.yaw_sigma);
-	trasladarBowndingBox(ampliated_Rrotated, Object.x_rel, Object.y_rel);
+	trasladarBowndingBox(&ampliated_Lrotated, Object->x_rel, Object->y_rel);
+	trasladarBowndingBox(&ampliated_Rrotated, -Object->x_rel, -Object->y_rel);
+	rotarBoundingBox(&ampliated_Rrotated, Object->yaw_sigma);
+	trasladarBowndingBox(&ampliated_Rrotated, Object->x_rel, Object->y_rel);
+
+	final_BowndingBox = finalBox(original_ampliated, ampliated_Lrotated, ampliated_Rrotated);
+	copyBBox(final_BowndingBox, Object);
 }
 
 void MAPSMatching::trasladarBowndingBox(BOUNDIG_BOX* entrada, double x, double y)
