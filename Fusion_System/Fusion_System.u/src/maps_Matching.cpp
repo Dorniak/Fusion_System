@@ -43,7 +43,6 @@ MAPS_COMPONENT_DEFINITION(MAPSMatching,"Matching","1.0",128,
 			  -1, // Nb of properties. Leave -1 to use the number of declared property definitions
 			  -1) // Nb of actions. Leave -1 to use the number of declared action definitions
 
-//Initialization: Birth() will be called once at diagram execution startup.			  
 void MAPSMatching::Birth()
 {
 	
@@ -69,8 +68,6 @@ void MAPSMatching::Core()
 	WriteOutputs();
 
 	clear_Matched();
-	//ArrayLaserObjects = nullptr;
-	//ArrayCameraObjects = nullptr;
 	str.Clear();
 	//ReportInfo(str);
 }
@@ -185,20 +182,6 @@ void MAPSMatching::findMatches(AUTO_Objects* ArrayLaserObjects, AUTO_Objects* Ar
 			}
 		}
 	}
-	/*
-	//Comparar cada obstaculo del camara con cada uno de la laser
-	for (int i = 0; i < ArrayCameraObjects->number_of_objects; i++)
-	{
-		for (int j = 0; j < ArrayLaserObjects->number_of_objects; j++)
-		{
-			if (BoxMatching(ArrayLaserObjects->object[j], ArrayCameraObjects->object[i]))
-			{
-				CameraMatched.Matrix_matched[i][CameraMatched.number_matched[i]] = ArrayLaserObjects->object[j].id;
-				CameraMatched.number_matched[i]++;
-			}
-		}
-	}
-	*/
 }
 
 bool MAPSMatching::BoxMatching(AUTO_Object Object1, AUTO_Object Object2, AUTO_Object* Output1, AUTO_Object* Output2)
@@ -218,7 +201,7 @@ bool MAPSMatching::BoxMatching(AUTO_Object Object1, AUTO_Object Object2, AUTO_Ob
 	copyBBox(final_BowndingBox_Object2, Output2);
 	//copyBBox(ampliated_Lrotated_Object2, Output2);
 
-	double x_max(DBL_MAX), x_min(-DBL_MAX), y_max(DBL_MAX), y_min(-DBL_MAX);
+	double x_max(-DBL_MAX), x_min(DBL_MAX), y_max(-DBL_MAX), y_min(DBL_MAX);
 
 	for (int i = 0; i < 4; i++) {
 		x_max = max(final_BowndingBox_Object1.point[i].x, x_max);
