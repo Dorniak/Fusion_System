@@ -13,11 +13,6 @@ void VECTOR_INT::clear() {
 	useful_tam = 0;
 }
 
-void VECTOR_INT::actualizarm()
-{
-	maximo = max(maximo, useful_tam);
-}
-
 void VECTOR_INT::erase(int posicion)
 {
 	for (int posicion = 0; posicion < useful_tam; posicion++)
@@ -53,15 +48,6 @@ void VVECTOR_INT::push_back(int input)
 	else
 	{
 		throw 0;
-	}
-}
-
-void VVECTOR_INT::actualizarmaximos()
-{
-	num_maximo = max(num_maximo, useful_tam);
-	for (int i = 0; i < useful_tam; i++)
-	{
-		tam_maximo_interno = max((int)vector[i].size(), tam_maximo_interno);
 	}
 }
 

@@ -50,7 +50,7 @@ private :
 	VECTOR_INT m_already_seen_Cam; /*!<already seen Camera tracks*/
 	VECTOR_INT m_idx_gate; /*!<index perception obstacles in gating windows*/
 
-	std::stringstream m_ss; /*!<debugging string to display information in command window*/
+	//std::stringstream m_ss; /*!<debugging string to display information in command window*/
 
 	VVECTOR_INT m_ass_Cam_Las_meas; /*!<vector of Camera obstacles indexes located inside every Laser obstacle gating window*/
 	VVECTOR_INT m_prev_gate; /*!<list of Camera obstacle which have already been inside the Laser gating window*/
@@ -72,20 +72,6 @@ public:
 	* @param system_time: sytem time
 	*/
 	void ProcessData();
-
-	/*
-	* @function SetMessage()
-	* @brief Set debuggung information message
-	* @param s: debugging message
-	*/
-	void SetMessage(std::string s) { m_ss.str(s); };
-
-	/*
-	* @function GetMessage()
-	* @brief Get debiggung information message
-	* @return the debugging message
-	*/
-	std::string GetMessage() { return m_ss.str(); };
 
 	//Private methods
 private:

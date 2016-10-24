@@ -60,7 +60,6 @@ void MAPSMatching::Core()
 		readed[i] = false;
 	}
 	str << '\n' << "Box Matchig " << ArrayLaserObjects->number_of_objects << " " << ArrayCameraObjects->number_of_objects;
-	
 	//Buscamos objetos en el gating window de cada obstaculo
 	//We look for objects inside the gating window of each object
 	findMatches(ArrayLaserObjects, ArrayCameraObjects);

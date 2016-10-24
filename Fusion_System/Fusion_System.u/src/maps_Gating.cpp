@@ -47,45 +47,17 @@ MAPS_COMPONENT_DEFINITION(MAPSGating,"Gating","1.0",128,
 
 //Initialization: Birth() will be called once at diagram execution startup.
 
-//TODO::Comprobado OK
 void MAPSGating::Birth()
-{
-	//p_laser_range = 100.0;
-	//p_laser_angular_resolution = 0.25;
-	//p_min_nb_impacts = 2.5;
-	//p_min_width = 0.5;
-	//p_sigma_laser = 0.02;
-	//p_tx_power = 24;
-	//p_ht = 0.5;
-	//p_hr = 0.7;
-	//p_lambda = 0.125;
-	//p_noise_dbm = -96.0;
+{	
 	p_perception_prob = (float)1.0;
 	p_communication_prob = (float)0.8;
 	p_gating = (float)4.61;//5.991
 	p_hypothesis_pruning = (float)0.1;
 	p_occlusion_ratio = (float)0.005;
-	//p_save_ass_objs = true;
-	//p_save_np_objs = true;
-	//p_save_nc_objs = true;
-	//p_save_perception_objs = true;
-	//p_save_communication_objs = true;
-	//p_save_hypothesis = true;
-	//p_save_gate_objects = true;
 }
 
 void MAPSGating::Core()
 {
-	m_already_seen_Cam.actualizarm();
-	m_idx_gate.actualizarm();
-	m_ass_Cam_Las_meas.actualizarmaximos();
-	m_prev_gate.actualizarmaximos();
-	MAPSStreamedString maximo;
-	maximo << '\n' << "m_ass_Cam_Las_meas: " << '\n' << m_ass_Cam_Las_meas.num_maximo << " x " << m_ass_Cam_Las_meas.tam_maximo_interno;
-	maximo << '\n' << "m_prev_gate: " << '\n' << m_prev_gate.num_maximo << " x " << m_prev_gate.tam_maximo_interno;
-	maximo << '\n' << "m_already_seen_Cam: " << '\n' << m_already_seen_Cam.maximo ;
-	maximo << '\n' << "m_idx_gate: " << '\n' << m_idx_gate.maximo;
-	ReportInfo(maximo);
 	readInputs();
 	if (numReaded < numInputs)
 	{
@@ -109,7 +81,6 @@ void MAPSGating::Death()
 	m_ass_Cam_Las_meas.clear();
 	m_hypothesis_tree.clear();
 	m_prev_gate.clear();
-//	m_already_seen_Laser.clear();
 	m_already_seen_Cam.clear();
 	m_prev_hypothesis.clear();
 }
@@ -211,7 +182,6 @@ void MAPSGating::inicialization()
 	m_prev_hypothesis.clear();
 }
 
-//ProcessData
 void MAPSGating::ProcessData()
 {
 

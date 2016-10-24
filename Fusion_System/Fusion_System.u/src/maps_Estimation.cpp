@@ -66,7 +66,7 @@ void MAPSEstimation::Death()
 
 void MAPSEstimation::readInputs()
 {
-	MAPSInput* inputs[2] = { &Input("LaserObject"), &Input("CameraObject") };
+	MAPSInput* inputs[2] = { &Input("LaserObject"), &Input("CameraObject")};
 	int inputThatAnswered;
 	MAPSIOElt* ioeltin = StartReading(2, inputs, &inputThatAnswered);
 	if (ioeltin == NULL) {
