@@ -13,6 +13,11 @@ void VECTOR_INT::clear() {
 	useful_tam = 0;
 }
 
+void VECTOR_INT::actualizarm()
+{
+	maximo = max(maximo, useful_tam);
+}
+
 void VECTOR_INT::erase(int posicion)
 {
 	for (int posicion = 0; posicion < useful_tam; posicion++)
@@ -23,7 +28,7 @@ void VECTOR_INT::erase(int posicion)
 }
 
 void VECTOR_INT::push_back(int input) {
-	if (useful_tam == tamano)
+	if (useful_tam == tamanoV)
 	{
 		throw 0;
 	}
@@ -42,7 +47,7 @@ void VVECTOR_INT::clear() {
 
 void VVECTOR_INT::push_back(int input)
 {
-	if (useful_tam < tamano) {
+	if (useful_tam < tamanoVV) {
 		useful_tam++;
 	}
 	else
@@ -67,7 +72,7 @@ int VVECTOR_INT::size()
 
 void VVECTOR_INT::resize(int tam)
 {
-	if (tam < tamano) {
+	if (tam < tamanoVV) {
 		while (useful_tam < tam)
 		{
 			vector[useful_tam].clear();

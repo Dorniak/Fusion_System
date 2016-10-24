@@ -76,11 +76,15 @@ void MAPSGating::Birth()
 
 void MAPSGating::Core()
 {
+	m_already_seen_Cam.actualizarm();
+	m_idx_gate.actualizarm();
 	m_ass_Cam_Las_meas.actualizarmaximos();
 	m_prev_gate.actualizarmaximos();
 	MAPSStreamedString maximo;
 	maximo << '\n' << "m_ass_Cam_Las_meas: " << '\n' << m_ass_Cam_Las_meas.num_maximo << " x " << m_ass_Cam_Las_meas.tam_maximo_interno;
 	maximo << '\n' << "m_prev_gate: " << '\n' << m_prev_gate.num_maximo << " x " << m_prev_gate.tam_maximo_interno;
+	maximo << '\n' << "m_already_seen_Cam: " << '\n' << m_already_seen_Cam.maximo ;
+	maximo << '\n' << "m_idx_gate: " << '\n' << m_idx_gate.maximo;
 	ReportInfo(maximo);
 	readInputs();
 	if (numReaded < numInputs)

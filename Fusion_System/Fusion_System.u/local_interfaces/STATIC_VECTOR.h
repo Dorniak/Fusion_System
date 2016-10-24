@@ -2,19 +2,19 @@
 
 #include "Hipotesys.h"
 #include <algorithm>
-#define tamano 1000
+#define tamanoVV 300
+#define tamanoV 50
 
 using namespace std;
 
 class VECTOR_INT
 {
 public:
-	//VECTOR_INT();
-	//~VECTOR_INT();
-
+	int maximo = 0;
+	void actualizarm();
 	void erase(int posicion);
 	size_t size();
-	int vector[tamano];
+	int vector[tamanoV];
 
 	void clear();
 	void push_back(int input);
@@ -29,7 +29,7 @@ public:
 	int num_maximo = 0;
 	int tam_maximo_interno = 0;
 		
-	VECTOR_INT vector[tamano];
+	VECTOR_INT vector[tamanoVV];
 
 	void clear();
 
