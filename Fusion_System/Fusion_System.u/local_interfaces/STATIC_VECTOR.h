@@ -1,7 +1,10 @@
 #pragma once
 
 #include "Hipotesys.h"
+#include <algorithm>
 #define tamano 1000
+
+using namespace std;
 
 class VECTOR_INT
 {
@@ -23,7 +26,9 @@ class VVECTOR_INT
 {
 public:
 	int useful_tam;
-
+	int num_maximo = 0;
+	int tam_maximo_interno = 0;
+		
 	VECTOR_INT vector[tamano];
 
 	void clear();
@@ -33,5 +38,9 @@ public:
 	void resize(int tam);
 	
 	void push_back(int input);
+	void actualizarmaximos();
+private:
+	
+	
 
 };
