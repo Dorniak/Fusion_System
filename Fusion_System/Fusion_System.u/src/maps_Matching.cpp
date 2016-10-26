@@ -72,7 +72,7 @@ void MAPSMatching::Core()
 	WriteOutputs();
 
 	clear_Matched();
-	ReportInfo(times);
+//	ReportInfo(times);
 	//ReportInfo(str);
 }
 

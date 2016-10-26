@@ -24,7 +24,6 @@ private :
 	bool readed[2];
 	AUTO_Objects output_LaserAmpliatedBox;
 	AUTO_Objects output_CameraAmpliatedBox;
-	MAPSIOElt* elt;
 	MAPSIOElt *_ioOutput;
 	MAPSStreamedString str;
 	AUTO_Objects* ArrayLaserObjects;

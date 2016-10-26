@@ -5,8 +5,12 @@
 #ifndef _Maps_Predictor_H
 #define _Maps_Predictor_H
 
+#define framerate 50
+
 // Includes maps sdk library header
 #include "maps.hpp"
+#include "auto_objects.h"
+
 
 // Declares a new MAPSComponent child class
 class MAPSPredictor : public MAPSComponent 
@@ -14,7 +18,34 @@ class MAPSPredictor : public MAPSComponent
 	// Use standard header definition macro
 	MAPS_COMPONENT_STANDARD_HEADER_CODE(MAPSPredictor)
 private :
-	// Place here your specific methods and attributes
+	LARGE_INTEGER Frecuency, StartingTime, EndingTime;
+	double ElapsedTime;
+	MAPSStreamedString str;
+
+
+	int timestamp;
+	MAPSIOElt *_ioOutput;
+	bool predicted=false;
+	bool updated[2];
+	//Control de llenado de estructuras
+	bool ready = false;
+	bool completedL[2];
+	bool completedC[2];
+	//Inputs
+	AUTO_Objects* ArrayLaserObjects;
+	AUTO_Objects* ArrayCameraObjects;
+	//Objetos internos
+	//LaserObjects[0]=t-2
+	//LaserObjects[1]=t-1
+	AUTO_Objects LaserObjects[2];
+	AUTO_Objects CameraObjects[2];
+
+	AUTO_Objects LaserObjectsOutput, CameraObjectsOutput;
+
+	//Funciones
+	void readInputs();
+	void WriteOutputs();
+	void predecir();
 };
 
 #endif
