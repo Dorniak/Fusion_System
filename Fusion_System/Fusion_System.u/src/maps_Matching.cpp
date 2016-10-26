@@ -50,6 +50,8 @@ void MAPSMatching::Birth()
 
 void MAPSMatching::Core()
 {
+	str.Clear();
+	times.Clear();
 	//Read input objects
 	if (readInputs() && (!readed[0] || !readed [1]))
 	{
@@ -60,6 +62,9 @@ void MAPSMatching::Core()
 		readed[i] = false;
 	}
 	str << '\n' << "Box Matchig " << ArrayLaserObjects->number_of_objects << " " << ArrayCameraObjects->number_of_objects;
+	distancia = ArrayLaserObjects->timestamp - timestamp;
+	timestamp = ArrayLaserObjects->timestamp;
+	times << "Frame rate Laser: " << distancia;
 	//Buscamos objetos en el gating window de cada obstaculo
 	//We look for objects inside the gating window of each object
 	findMatches(ArrayLaserObjects, ArrayCameraObjects);
@@ -67,7 +72,7 @@ void MAPSMatching::Core()
 	WriteOutputs();
 
 	clear_Matched();
-	str.Clear();
+	ReportInfo(times);
 	//ReportInfo(str);
 }
 

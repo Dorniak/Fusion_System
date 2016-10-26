@@ -1,4 +1,8 @@
-﻿  maps_Estimation.cpp
+﻿  maps_Matching.cpp
+d:\documentos\github\fusion_system\fusion_system\fusion_system.u\src\maps_matching.cpp(210): warning C4700: uninitialized local variable 'x_max' used
+d:\documentos\github\fusion_system\fusion_system\fusion_system.u\src\maps_matching.cpp(211): warning C4700: uninitialized local variable 'x_min' used
+d:\documentos\github\fusion_system\fusion_system\fusion_system.u\src\maps_matching.cpp(212): warning C4700: uninitialized local variable 'y_max' used
+d:\documentos\github\fusion_system\fusion_system\fusion_system.u\src\maps_matching.cpp(213): warning C4700: uninitialized local variable 'y_min' used
   LINK : D:\Documentos\GitHub\Fusion_System\Fusion_System\packages\debug\Fusion_System.pck not found or not built by the last incremental link; performing full link
      Creating library D:\Documentos\GitHub\Fusion_System\Fusion_System\build\Win32Debug\tmp\Fusion_System\Fusion_System.lib and object D:\Documentos\GitHub\Fusion_System\Fusion_System\build\Win32Debug\tmp\Fusion_System\Fusion_System.exp
   rtmaps_Fusion_System.vcxproj -> D:\Documentos\GitHub\Fusion_System\Fusion_System\packages\debug\Fusion_System.pck
