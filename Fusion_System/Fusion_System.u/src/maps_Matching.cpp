@@ -53,7 +53,8 @@ void MAPSMatching::Core()
 	str.Clear();
 	times.Clear();
 	//Read input objects
-	if (readInputs() && (!readed[0] || !readed [1]))
+	readInputs();
+	if ( !readed[0] || !readed [1])
 	{
 		return;
 	}
@@ -81,13 +82,13 @@ void MAPSMatching::Death()
 
 }
 
-bool MAPSMatching::readInputs()
+void MAPSMatching::readInputs()
 {
 	MAPSInput* inputs[2] = { &Input("LaserObject"), &Input("CameraObject") };
 	int inputThatAnswered;
 	MAPSIOElt* ioeltin = StartReading(2, inputs, &inputThatAnswered);
 	if (ioeltin == NULL) {
-		return false;
+		return ;
 	}
 	switch (inputThatAnswered)
 	{
@@ -102,7 +103,6 @@ bool MAPSMatching::readInputs()
 	default:
 		break;
 	}
-	return true;
 }
 
 void MAPSMatching::WriteOutputs()

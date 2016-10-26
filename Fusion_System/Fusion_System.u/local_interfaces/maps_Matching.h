@@ -30,7 +30,7 @@ private :
 	AUTO_Objects* ArrayCameraObjects;
 	MATCH_OBJECTS LaserMatched;
 	MATCH_OBJECTS CameraMatched;
-	bool readInputs();
+	void readInputs();
 	void WriteOutputs();
 	void printResults();
 	void findMatches(AUTO_Objects* ArrayLaserObjects, AUTO_Objects* ArrayCameraObjects);

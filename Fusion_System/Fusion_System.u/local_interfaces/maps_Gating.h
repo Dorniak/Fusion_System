@@ -23,6 +23,10 @@ class MAPSGating : public MAPSComponent
 	// Use standard header definition macro
 	MAPS_COMPONENT_STANDARD_HEADER_CODE(MAPSGating)
 private :
+	bool readed[4];
+	int numInputs = 4;
+	MAPSIOElt *_ioOutput;
+
 
 	float p_gating; /*!size of gaiting window obtained from chi2 law applied with 95% of confidence value*/
 	float p_hypothesis_pruning; /*!minum probability for hypothesis pruning*/
@@ -75,9 +79,7 @@ public:
 
 	//Private methods
 private:
-	int numReaded=0;
-	int numInputs = 4;
-	MAPSIOElt *_ioOutput;
+	
 	void readInputs();
 	void adaptation();
 	void writeOutputs();

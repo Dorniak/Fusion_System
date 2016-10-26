@@ -99,6 +99,10 @@ void MAPSPredictor::readInputs()
 			completedL[0] = completedL[1];
 			completedL[1] = true;
 		}
+		if (firsttime) {
+			timestamp = ArrayLaserObjects->timestamp;
+			firsttime = false;
+		}
 		break;
 	case 1:
 		ArrayCameraObjects = static_cast<AUTO_Objects*>(ioeltin->Data());
@@ -109,7 +113,12 @@ void MAPSPredictor::readInputs()
 			completedC[0] = completedC[1];
 			completedC[1] = true;
 		}
+		if (firsttime) {
+			timestamp = ArrayCameraObjects->timestamp;
+			firsttime = false;
+		}
 		break;
+
 	default:
 		break;
 	}
@@ -132,22 +141,87 @@ void MAPSPredictor::WriteOutputs()
 
 void MAPSPredictor::predecir()
 {
-
+	while (timestamp < max(LaserObjects[1].timestamp, CameraObjects[1].timestamp))
+	{
+		timestamp += framerate;
+	}
 	//Predecir porsicion de obstaculos 
 	if (updated[0]) 
 	{
 		LaserObjectsOutput = LaserObjects[1];
-
-
+		for (size_t i = 0; i < LaserObjectsOutput.number_of_objects; i++)
+		{
+			int pos = findPosition(LaserObjects[0],LaserObjectsOutput.object[i].id);
+			if (pos != -1)
+			{
+				//Calcular el vector de avance
+				Point vector;
+				Point puntoAnterior;
+				vector.x = LaserObjects[1].object[i].x_rel - LaserObjects[0].object[pos].x_rel;
+				vector.y = LaserObjects[1].object[i].y_rel - LaserObjects[0].object[pos].y_rel;
+				vector.z = LaserObjects[1].object[i].z_rel - LaserObjects[0].object[pos].z_rel;
+				//mover el obstaculo segun el vector de avance
+				moveObstacle(&LaserObjectsOutput.object[i], vector, abs(LaserObjects[1].timestamp - LaserObjects[0].timestamp), LaserObjectsOutput.timestamp);
+			}
+		}
+		
 		//TODO::Predecir posicion de obstaculos del laser
 		updated[0] = false;
 	}
 	if (updated[1])
 	{
 		CameraObjectsOutput = CameraObjects[1];
+		for (size_t i = 0; i < CameraObjectsOutput.number_of_objects; i++)
+		{
+			int pos = findPosition(CameraObjects[0], CameraObjectsOutput.object[i].id);
+			if (pos != -1)
+			{
+				//Calcular el vector de avance
+				Point vector;
+				Point puntoAnterior;
+				vector.x = CameraObjects[1].object[i].x_rel - CameraObjects[0].object[pos].x_rel;
+				vector.y = CameraObjects[1].object[i].y_rel - CameraObjects[0].object[pos].y_rel;
+				vector.z = CameraObjects[1].object[i].z_rel - CameraObjects[0].object[pos].z_rel;
+				//mover el obstaculo segun el vector de avance
+				moveObstacle(&CameraObjectsOutput.object[i], vector, abs(CameraObjects[1].timestamp - CameraObjects[0].timestamp), CameraObjectsOutput.timestamp);
+			}
+		}
+
 
 		//TODO::Predecir posicion de obstaculos de la camara
 		updated[1] = false;
 	}
 	predicted = true;	
+}
+
+int MAPSPredictor::findPosition(AUTO_Objects objects, int id)
+{
+	for (size_t i = 0; i < objects.number_of_objects; i++)
+	{
+		if (objects.object[i].id == id)
+		{
+			return i;
+		}
+	}
+	return -1;
+}
+
+void MAPSPredictor::moveObstacle(AUTO_Object * obstacle, Point vector, int Distancetime, int timestamp)
+{
+	vector.x = (int)(((double)vector.x / (double)Distancetime) *(timestamp));
+	vector.y = (int)(((double)vector.y / (double)Distancetime) *(timestamp));
+	vector.z = (int)(((double)vector.z / (double)Distancetime) *(timestamp));
+
+	obstacle->x_rel += vector.x;
+	obstacle->y_rel += vector.y;
+	obstacle->z_rel += vector.z;
+
+	for (size_t i = 0; i < 4; i++)
+	{
+		obstacle->bounding_box_x_rel[i] += vector.x;
+		obstacle->bounding_box_y_rel[i] += vector.y;
+	}
+
+	obstacle->distance = sqrt(pow(obstacle->x_rel, 2) + pow(obstacle->y_rel, 2) + pow(obstacle->z_rel, 2));
+	
 }

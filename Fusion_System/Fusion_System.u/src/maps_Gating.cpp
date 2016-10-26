@@ -59,11 +59,14 @@ void MAPSGating::Birth()
 void MAPSGating::Core()
 {
 	readInputs();
-	if (numReaded < numInputs)
+	if (!readed[0] || !readed[1] || !readed[2] || !readed[3])
 	{
 		return;
 	}
-	numReaded = 0;
+	for (int i = 0; i < numInputs; i++)
+	{
+		readed[i] = false;
+	}
 	adaptation();
 	ProcessData();
 	writeOutputs();
@@ -96,24 +99,24 @@ void MAPSGating::readInputs()
 	switch (inputThatAnswered)
 	{
 	case 0:
-		numReaded++;
 		m_objects_Laser2 = static_cast<AUTO_Objects*>(ioeltin->Data());
 		m_objects_Laser = *m_objects_Laser2;
+		readed[0] = true;
 		break;
 	case 1:
-		numReaded++;
 		m_objects_Cam2 = static_cast<AUTO_Objects*>(ioeltin->Data());
 		m_objects_Cam = *m_objects_Cam2;
+		readed[1] = true;
 		break;
 	case 2:
-		numReaded++;
 		input_Laser_Matched = static_cast<MATCH_OBJECTS*>(ioeltin->Data());
 		Laser_Matched = *input_Laser_Matched;
+		readed[2] = true;
 		break;
 	case 3:
-		numReaded++;
 		input_Camera_Matched = static_cast<MATCH_OBJECTS*>(ioeltin->Data());
 		Camera_Matched = *input_Camera_Matched;
+		readed[3] = true;
 		break;
 	default:
 		break;

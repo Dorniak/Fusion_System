@@ -10,7 +10,7 @@
 // Includes maps sdk library header
 #include "maps.hpp"
 #include "auto_objects.h"
-
+#include <math.h>
 
 // Declares a new MAPSComponent child class
 class MAPSPredictor : public MAPSComponent 
@@ -22,8 +22,7 @@ private :
 	double ElapsedTime;
 	MAPSStreamedString str;
 
-
-	int timestamp;
+	uint32_t timestamp;
 	MAPSIOElt *_ioOutput;
 	bool predicted=false;
 	bool updated[2];
@@ -31,6 +30,7 @@ private :
 	bool ready = false;
 	bool completedL[2];
 	bool completedC[2];
+	bool firsttime=true;
 	//Inputs
 	AUTO_Objects* ArrayLaserObjects;
 	AUTO_Objects* ArrayCameraObjects;
@@ -46,6 +46,8 @@ private :
 	void readInputs();
 	void WriteOutputs();
 	void predecir();
+	int findPosition(AUTO_Objects objects, int id);
+	void moveObstacle(AUTO_Object* obstacle, Point vector, int Distancetime,int timestamp);
 };
 
 #endif
