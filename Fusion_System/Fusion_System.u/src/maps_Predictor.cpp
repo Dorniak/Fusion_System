@@ -65,7 +65,7 @@ void MAPSPredictor::Core()
 			predecir();
 		}
 		QueryPerformanceCounter(&EndingTime);
-		ElapsedTime = (EndingTime.QuadPart - StartingTime.QuadPart) * 1000 / Frecuency.QuadPart;
+		ElapsedTime = (double)(EndingTime.QuadPart - StartingTime.QuadPart) * 1000 / Frecuency.QuadPart;
 		if (ElapsedTime>framerate)
 		{
 			StartingTime = EndingTime;
@@ -155,8 +155,7 @@ void MAPSPredictor::predecir()
 			if (pos != -1)
 			{
 				//Calcular el vector de avance
-				Point vector;
-				Point puntoAnterior;
+				Point3D vector;
 				vector.x = LaserObjects[1].object[i].x_rel - LaserObjects[0].object[pos].x_rel;
 				vector.y = LaserObjects[1].object[i].y_rel - LaserObjects[0].object[pos].y_rel;
 				vector.z = LaserObjects[1].object[i].z_rel - LaserObjects[0].object[pos].z_rel;
@@ -177,8 +176,7 @@ void MAPSPredictor::predecir()
 			if (pos != -1)
 			{
 				//Calcular el vector de avance
-				Point vector;
-				Point puntoAnterior;
+				Point3D vector;
 				vector.x = CameraObjects[1].object[i].x_rel - CameraObjects[0].object[pos].x_rel;
 				vector.y = CameraObjects[1].object[i].y_rel - CameraObjects[0].object[pos].y_rel;
 				vector.z = CameraObjects[1].object[i].z_rel - CameraObjects[0].object[pos].z_rel;
@@ -206,11 +204,11 @@ int MAPSPredictor::findPosition(AUTO_Objects objects, int id)
 	return -1;
 }
 
-void MAPSPredictor::moveObstacle(AUTO_Object * obstacle, Point vector, int Distancetime, int timestamp)
+void MAPSPredictor::moveObstacle(AUTO_Object * obstacle, Point3D vector, int Distancetime, int timestamp)
 {
-	vector.x = (int)(((double)vector.x / (double)Distancetime) *(timestamp));
-	vector.y = (int)(((double)vector.y / (double)Distancetime) *(timestamp));
-	vector.z = (int)(((double)vector.z / (double)Distancetime) *(timestamp));
+	vector.x = (float32_t)(((double)vector.x / (double)Distancetime) *(timestamp));
+	vector.y = (float32_t)(((double)vector.y / (double)Distancetime) *(timestamp));
+	vector.z = (float32_t)(((double)vector.z / (double)Distancetime) *(timestamp));
 
 	obstacle->x_rel += vector.x;
 	obstacle->y_rel += vector.y;
@@ -222,6 +220,6 @@ void MAPSPredictor::moveObstacle(AUTO_Object * obstacle, Point vector, int Dista
 		obstacle->bounding_box_y_rel[i] += vector.y;
 	}
 
-	obstacle->distance = sqrt(pow(obstacle->x_rel, 2) + pow(obstacle->y_rel, 2) + pow(obstacle->z_rel, 2));
+	obstacle->distance = (float32_t)sqrt(pow(obstacle->x_rel, 2) + pow(obstacle->y_rel, 2) + pow(obstacle->z_rel, 2));
 	
 }

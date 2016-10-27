@@ -12,6 +12,12 @@
 #include "auto_objects.h"
 #include <math.h>
 
+typedef struct {
+	float32_t x;
+	float32_t y;
+	float32_t z;
+} Point3D;
+
 // Declares a new MAPSComponent child class
 class MAPSPredictor : public MAPSComponent 
 {
@@ -47,7 +53,7 @@ private :
 	void WriteOutputs();
 	void predecir();
 	int findPosition(AUTO_Objects objects, int id);
-	void moveObstacle(AUTO_Object* obstacle, Point vector, int Distancetime,int timestamp);
+	void moveObstacle(AUTO_Object* obstacle, Point3D vector, int Distancetime,int timestamp);
 };
 
 #endif
