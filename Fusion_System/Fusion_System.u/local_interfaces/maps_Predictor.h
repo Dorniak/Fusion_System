@@ -5,7 +5,7 @@
 #ifndef _Maps_Predictor_H
 #define _Maps_Predictor_H
 
-#define framerate 50
+#define framerate 100
 
 // Includes maps sdk library header
 #include "maps.hpp"

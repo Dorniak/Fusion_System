@@ -264,7 +264,7 @@ void MAPSMatching::calculateBoundingBox(AUTO_Object *Object)
 #pragma endregion
 
 #pragma region rotacion a 0
-	rotarBoundingBox(&original_ampliated, -Object->yaw_rel);
+	//rotarBoundingBox(&original_ampliated, -Object->yaw_rel);
 #pragma endregion
 
 #pragma region ampliacion
@@ -272,7 +272,7 @@ void MAPSMatching::calculateBoundingBox(AUTO_Object *Object)
 #pragma endregion
 
 #pragma region devolver a angulo
-	rotarBoundingBox(&original_ampliated, Object->yaw_rel);
+	//rotarBoundingBox(&original_ampliated, Object->yaw_rel);
 #pragma endregion
 #pragma endregion
 

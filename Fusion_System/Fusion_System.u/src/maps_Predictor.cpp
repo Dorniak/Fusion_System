@@ -164,7 +164,6 @@ void MAPSPredictor::predecir()
 			}
 		}
 		
-		//TODO::Predecir posicion de obstaculos del laser
 		updated[0] = false;
 	}
 	if (updated[1])
@@ -185,8 +184,6 @@ void MAPSPredictor::predecir()
 			}
 		}
 
-
-		//TODO::Predecir posicion de obstaculos de la camara
 		updated[1] = false;
 	}
 	predicted = true;	
@@ -206,9 +203,9 @@ int MAPSPredictor::findPosition(AUTO_Objects objects, int id)
 
 void MAPSPredictor::moveObstacle(AUTO_Object * obstacle, Point3D vector, int Distancetime, int timestamp)
 {
-	vector.x = (float32_t)(((double)vector.x / (double)Distancetime) *(timestamp));
-	vector.y = (float32_t)(((double)vector.y / (double)Distancetime) *(timestamp));
-	vector.z = (float32_t)(((double)vector.z / (double)Distancetime) *(timestamp));
+	vector.x = (float32_t)(((double)vector.x / (double)Distancetime) *(this->timestamp-timestamp));
+	vector.y = (float32_t)(((double)vector.y / (double)Distancetime) *(this->timestamp-timestamp));
+	vector.z = (float32_t)(((double)vector.z / (double)Distancetime) *(this->timestamp-timestamp));
 
 	obstacle->x_rel += vector.x;
 	obstacle->y_rel += vector.y;
@@ -221,5 +218,5 @@ void MAPSPredictor::moveObstacle(AUTO_Object * obstacle, Point3D vector, int Dis
 	}
 
 	obstacle->distance = (float32_t)sqrt(pow(obstacle->x_rel, 2) + pow(obstacle->y_rel, 2) + pow(obstacle->z_rel, 2));
-	
+		
 }
