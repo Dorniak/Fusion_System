@@ -23,7 +23,7 @@ MAPS_END_OUTPUTS_DEFINITION
 
 // Use the macros to declare the properties
 MAPS_BEGIN_PROPERTIES_DEFINITION(MAPSPredictor)
-    //MAPS_PROPERTY("pName",128,false,false)
+    MAPS_PROPERTY("framerate",100,false,true)
 MAPS_END_PROPERTIES_DEFINITION
 
 // Use the macros to declare the actions
@@ -51,19 +51,21 @@ void MAPSPredictor::Core()
 {
 	str.Clear();
 	readInputs();
-
+	// We must check if we have minimun 2 frames for that we can do a prediction
 	if (!ready)
 	{
 		if (completedL[0] && completedL[1] && completedC[0] && completedC[1])
 		{
 			ready = true;
 		}
-	}
+	}// When we have 2 frames the algorith start
 	else {
+		//Here we check if there are any change in the previus data if not is not necesary to recalculate.
 		//If not has been predicted previusly 
 		if (!predicted || updated[0] || updated[1]) {
 			predecir();
 		}
+		// We use this function to alculate how  much time have been passed
 		QueryPerformanceCounter(&EndingTime);
 		ElapsedTime = (double)(EndingTime.QuadPart - StartingTime.QuadPart) * 1000 / Frecuency.QuadPart;
 		if (ElapsedTime>framerate)
@@ -82,6 +84,7 @@ void MAPSPredictor::Death()
 
 void MAPSPredictor::readInputs()
 {
+	//We read the inputs with the  reactive metod
 	MAPSInput* inputs[2] = { &Input("LaserObject"), &Input("CameraObject") };
 	int inputThatAnswered;
 	MAPSIOElt* ioeltin = StartReading(2, inputs, &inputThatAnswered);
@@ -126,6 +129,7 @@ void MAPSPredictor::readInputs()
 
 void MAPSPredictor::WriteOutputs()
 {
+	// When we write the output we put the variable predicted to false to predict the next frame
 	predicted = false;
 
 	_ioOutput = StartWriting(Output("LaserObjects"));
@@ -141,11 +145,12 @@ void MAPSPredictor::WriteOutputs()
 
 void MAPSPredictor::predecir()
 {
+	
 	while (timestamp < max(LaserObjects[1].timestamp, CameraObjects[1].timestamp))
 	{
 		timestamp += framerate;
 	}
-	//Predecir porsicion de obstaculos 
+	//Predict the position of the obstacles
 	if (updated[0]) 
 	{
 		LaserObjectsOutput = LaserObjects[1];
@@ -154,12 +159,12 @@ void MAPSPredictor::predecir()
 			int pos = findPosition(LaserObjects[0],LaserObjectsOutput.object[i].id);
 			if (pos != -1)
 			{
-				//Calcular el vector de avance
+				//Calculate the advance vector
 				Point3D vector;
 				vector.x = LaserObjects[1].object[i].x_rel - LaserObjects[0].object[pos].x_rel;
 				vector.y = LaserObjects[1].object[i].y_rel - LaserObjects[0].object[pos].y_rel;
 				vector.z = LaserObjects[1].object[i].z_rel - LaserObjects[0].object[pos].z_rel;
-				//mover el obstaculo segun el vector de avance
+				//Move the obstacle
 				moveObstacle(&LaserObjectsOutput.object[i], vector, abs(LaserObjects[1].timestamp - LaserObjects[0].timestamp), LaserObjectsOutput.timestamp);
 			}
 		}
@@ -174,12 +179,12 @@ void MAPSPredictor::predecir()
 			int pos = findPosition(CameraObjects[0], CameraObjectsOutput.object[i].id);
 			if (pos != -1)
 			{
-				//Calcular el vector de avance
+				//Calculate the advance vector
 				Point3D vector;
 				vector.x = CameraObjects[1].object[i].x_rel - CameraObjects[0].object[pos].x_rel;
 				vector.y = CameraObjects[1].object[i].y_rel - CameraObjects[0].object[pos].y_rel;
 				vector.z = CameraObjects[1].object[i].z_rel - CameraObjects[0].object[pos].z_rel;
-				//mover el obstaculo segun el vector de avance
+				//Move the obstacle
 				moveObstacle(&CameraObjectsOutput.object[i], vector, abs(CameraObjects[1].timestamp - CameraObjects[0].timestamp), CameraObjectsOutput.timestamp);
 			}
 		}
@@ -191,6 +196,7 @@ void MAPSPredictor::predecir()
 
 int MAPSPredictor::findPosition(AUTO_Objects objects, int id)
 {
+	//Calculate the position of this object in the array
 	for (size_t i = 0; i < objects.number_of_objects; i++)
 	{
 		if (objects.object[i].id == id)
@@ -203,9 +209,21 @@ int MAPSPredictor::findPosition(AUTO_Objects objects, int id)
 
 void MAPSPredictor::moveObstacle(AUTO_Object * obstacle, Point3D vector, int Distancetime, int timestamp)
 {
-	vector.x = (float32_t)(((double)vector.x / (double)Distancetime) *(this->timestamp-timestamp));
+	//Move the position and the bounding box to the predicted position
+	/*vector.x = (float32_t)(((double)vector.x / (double)Distancetime) *(this->timestamp-timestamp));
 	vector.y = (float32_t)(((double)vector.y / (double)Distancetime) *(this->timestamp-timestamp));
-	vector.z = (float32_t)(((double)vector.z / (double)Distancetime) *(this->timestamp-timestamp));
+	vector.z = (float32_t)(((double)vector.z / (double)Distancetime) *(this->timestamp-timestamp));*/
+
+	//Prueba
+	vector.x = (float32_t)((obstacle->speed_x_rel / 1000) * (this->timestamp - timestamp));
+	vector.y = (float32_t)((obstacle->speed_y_rel / 1000) * (this->timestamp - timestamp));
+	vector.z = (float32_t)(((double)vector.z / (double)Distancetime) * (this->timestamp - timestamp));
+
+	//Fin prueba
+
+
+
+
 
 	obstacle->x_rel += vector.x;
 	obstacle->y_rel += vector.y;

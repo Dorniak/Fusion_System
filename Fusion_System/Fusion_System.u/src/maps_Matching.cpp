@@ -51,7 +51,6 @@ void MAPSMatching::Birth()
 void MAPSMatching::Core()
 {
 	str.Clear();
-	times.Clear();
 	//Read input objects
 	readInputs();
 	if ( !readed[0] || !readed [1])
@@ -63,17 +62,12 @@ void MAPSMatching::Core()
 		readed[i] = false;
 	}
 	str << '\n' << "Box Matchig " << ArrayLaserObjects->number_of_objects << " " << ArrayCameraObjects->number_of_objects;
-	distancia = ArrayLaserObjects->timestamp - timestamp;
-	timestamp = ArrayLaserObjects->timestamp;
-	times << "Frame rate Laser: " << distancia;
-	//Buscamos objetos en el gating window de cada obstaculo
 	//We look for objects inside the gating window of each object
 	findMatches(ArrayLaserObjects, ArrayCameraObjects);
 	printResults();
 	WriteOutputs();
 
 	clear_Matched();
-//	ReportInfo(times);
 	//ReportInfo(str);
 }
 
@@ -168,6 +162,7 @@ void MAPSMatching::printResults()
 
 void MAPSMatching::findMatches(AUTO_Objects* ArrayLaserObjects, AUTO_Objects* ArrayCameraObjects)
 {
+	//We look for coincidences between bounding box of 2 objects
 	LaserMatched.number_objects = ArrayLaserObjects->number_of_objects;
 	CameraMatched.number_objects = ArrayCameraObjects->number_of_objects;
 	output_LaserAmpliatedBox = *ArrayLaserObjects;
@@ -204,7 +199,7 @@ void MAPSMatching::findMatches(AUTO_Objects* ArrayLaserObjects, AUTO_Objects* Ar
 
 bool MAPSMatching::BoxMatching(AUTO_Object Object1, AUTO_Object Object2)
 {
-	double x_max, x_min, y_max, y_min;
+	double x_max(-DBL_MAX), x_min(DBL_MAX), y_max(-DBL_MAX), y_min(DBL_MAX);
 
 	for (int i = 0; i < 4; i++) {
 		x_max = max(Object1.bounding_box_x_rel[i], x_max);
@@ -237,6 +232,7 @@ bool MAPSMatching::BoxMatching(AUTO_Object Object1, AUTO_Object Object2)
 
 void MAPSMatching::copyBBox(BOUNDIG_BOX BBox, AUTO_Object* Output_ampliated) 
 {
+	//This is only to see the extended bounding box in the bird view
 	for (size_t i = 0; i < 4; i++)
 	{
 		Output_ampliated->bounding_box_x_rel[i] = BBox.point[i].x;
@@ -263,26 +259,18 @@ void MAPSMatching::calculateBoundingBox(AUTO_Object *Object)
 	original_ampliated.point[3].y = Object->bounding_box_y_rel[3];
 #pragma endregion
 
-#pragma region rotacion a 0
-	//rotarBoundingBox(&original_ampliated, -Object->yaw_rel);
-#pragma endregion
-
 #pragma region ampliacion
 	ampliarBowndingBox(&original_ampliated, Object->x_sigma, Object->y_sigma);
-#pragma endregion
-
-#pragma region devolver a angulo
-	//rotarBoundingBox(&original_ampliated, Object->yaw_rel);
 #pragma endregion
 #pragma endregion
 
 	ampliated_Lrotated = original_ampliated;
 	ampliated_Rrotated = original_ampliated;
-	//Centrar Bowndingbox
+	//Center Bowndingbox to 0
 	trasladarBowndingBox(&ampliated_Lrotated, -Object->x_rel, -Object->y_rel);
-	//Rotar BowndingBox
+	//Rotate BowndingBox
 	rotarBoundingBox(&ampliated_Lrotated, -Object->yaw_sigma);
-	//Devolver a su posicion
+	//Return to the real position
 	trasladarBowndingBox(&ampliated_Lrotated, Object->x_rel, Object->y_rel);
 	trasladarBowndingBox(&ampliated_Rrotated, -Object->x_rel, -Object->y_rel);
 	rotarBoundingBox(&ampliated_Rrotated, Object->yaw_sigma);
@@ -294,6 +282,7 @@ void MAPSMatching::calculateBoundingBox(AUTO_Object *Object)
 
 void MAPSMatching::trasladarBowndingBox(BOUNDIG_BOX* entrada, double x, double y)
 {
+	//Move bounding box
 	entrada->point[0].x = entrada->point[0].x + (float32_t)x;
 	entrada->point[0].y = entrada->point[0].y + (float32_t)y;
 
@@ -309,7 +298,7 @@ void MAPSMatching::trasladarBowndingBox(BOUNDIG_BOX* entrada, double x, double y
 
 void MAPSMatching::ampliarBowndingBox(BOUNDIG_BOX* entrada, double x, double y)
 {
-
+	//Ampliate bownding box
 	entrada->point[0].x = entrada->point[0].x + (float32_t)x;
 	entrada->point[0].y = entrada->point[0].y - (float32_t)y;
 
@@ -326,7 +315,7 @@ void MAPSMatching::ampliarBowndingBox(BOUNDIG_BOX* entrada, double x, double y)
 
 BOUNDIG_BOX MAPSMatching::finalBox(BOUNDIG_BOX original, BOUNDIG_BOX Lrotated, BOUNDIG_BOX Rrotated)
 {
-	//TODO::ALGO MAL
+	//Calculate the final extended bounding box
 	BOUNDIG_BOX finalBox;
 	float32_t x_min, x_max, y_min, y_max;
 	float32_t x_min_original, x_max_original, y_min_original, y_max_original;
@@ -371,6 +360,7 @@ BOUNDIG_BOX MAPSMatching::finalBox(BOUNDIG_BOX original, BOUNDIG_BOX Lrotated, B
 
 void MAPSMatching::rotarBoundingBox(BOUNDIG_BOX* entrada, double angulo)
 {
+	//Rotate bounding box
 	rotarPunto(&entrada->point[0], angulo);
 	rotarPunto(&entrada->point[1], angulo);
 	rotarPunto(&entrada->point[2], angulo);
@@ -379,12 +369,14 @@ void MAPSMatching::rotarBoundingBox(BOUNDIG_BOX* entrada, double angulo)
 
 void MAPSMatching::rotarPunto(B_POINT *punto, double angulo)
 {
+	//Rotate point in the plane 
 	punto->x = (punto->x * (float32_t)cos(angulo)) - (punto->y * (float32_t)sin(angulo));
 	punto->y = (punto->x * (float32_t)sin(angulo)) + (punto->y * (float32_t)cos(angulo));
 }
 
 void MAPSMatching::clear_Matched()
 {
+	//Clear the arrays of the matched objects
 	for (int i = 0; i < AUTO_MAX_NUM_OBJECTS; i++)
 	{
 		for (int j = 0; j < AUTO_MAX_NUM_OBJECTS; j++)

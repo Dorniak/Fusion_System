@@ -30,9 +30,9 @@ private :
 
 	uint32_t timestamp;
 	MAPSIOElt *_ioOutput;
+	//Fill control of the structures
 	bool predicted=false;
 	bool updated[2];
-	//Control de llenado de estructuras
 	bool ready = false;
 	bool completedL[2];
 	bool completedC[2];
@@ -40,15 +40,12 @@ private :
 	//Inputs
 	AUTO_Objects* ArrayLaserObjects;
 	AUTO_Objects* ArrayCameraObjects;
-	//Objetos internos
-	//LaserObjects[0]=t-2
-	//LaserObjects[1]=t-1
 	AUTO_Objects LaserObjects[2];
 	AUTO_Objects CameraObjects[2];
 
 	AUTO_Objects LaserObjectsOutput, CameraObjectsOutput;
 
-	//Funciones
+	//Functions
 	void readInputs();
 	void WriteOutputs();
 	void predecir();

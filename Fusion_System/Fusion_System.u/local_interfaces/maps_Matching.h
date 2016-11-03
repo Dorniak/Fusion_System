@@ -17,8 +17,6 @@ class MAPSMatching : public MAPSComponent
 	MAPS_COMPONENT_STANDARD_HEADER_CODE(MAPSMatching)
 private :
 	int timestamp;
-	int distancia=0;
-	MAPSStreamedString times;
 
 	int numInputs = 2;
 	bool readed[2];

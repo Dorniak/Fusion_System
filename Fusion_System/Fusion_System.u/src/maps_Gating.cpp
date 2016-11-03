@@ -193,7 +193,7 @@ void MAPSGating::ProcessData()
 	m_objects_nL.number_of_objects = 0;
 
 	// Initialize hypothesis tree
-	IntializeTree();	//TODO::Comprobado OK
+	IntializeTree();	
 
 	// Update hypothesis tree
 	UpdateTree();
@@ -417,9 +417,7 @@ void MAPSGating::UpdateTree()
 				m_hypothesis_tree[h].assoc_vec.push_back(ass_per_com);
 			}
 		}
-		//TODO::Comprobado OK (Añadir entradas del gatting ya calculadas)
-
-		// Calculate all the possible association for the new communicating tracks and generate new possibilities from this point
+				// Calculate all the possible association for the new communicating tracks and generate new possibilities from this point
 		i_start_inter = i_start;
 		i_end_inter = i_end;
 		for (size_t i_nt = 0; i_nt < i_nt_com.size(); i_nt++)
@@ -456,9 +454,6 @@ void MAPSGating::UpdateTree()
 			}
 		}
 #pragma endregion
-		//TODO::Comprobado OK
-
-		//TODO::Modificar calculo de probabilidades
 #pragma region Probabilidad
 		// Calculate the measurement likeihood for every hypothesis of the tree
 		float likelihood_meas;
@@ -509,8 +504,6 @@ void MAPSGating::UpdateTree()
 		}
 #pragma endregion
 	}
-
-	//TODO::Modificar hasta aqui
 #pragma region Normalise
 	// Normalise each hypothesis probability to sum to 1
 	for (size_t h = 0; h < m_hypothesis_tree.size(); h++)
