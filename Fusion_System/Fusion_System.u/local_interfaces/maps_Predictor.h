@@ -50,7 +50,7 @@ private :
 	void WriteOutputs();
 	void predecir();
 	int findPosition(AUTO_Objects objects, int id);
-	void moveObstacle(AUTO_Object* obstacle, Point3D vector, int Distancetime,int timestamp);
+	void moveObstacle(AUTO_Object * obstacle, int timestamp);
 };
 
 #endif

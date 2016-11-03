@@ -159,13 +159,8 @@ void MAPSPredictor::predecir()
 			int pos = findPosition(LaserObjects[0],LaserObjectsOutput.object[i].id);
 			if (pos != -1)
 			{
-				//Calculate the advance vector
-				Point3D vector;
-				vector.x = LaserObjects[1].object[i].x_rel - LaserObjects[0].object[pos].x_rel;
-				vector.y = LaserObjects[1].object[i].y_rel - LaserObjects[0].object[pos].y_rel;
-				vector.z = LaserObjects[1].object[i].z_rel - LaserObjects[0].object[pos].z_rel;
 				//Move the obstacle
-				moveObstacle(&LaserObjectsOutput.object[i], vector, abs(LaserObjects[1].timestamp - LaserObjects[0].timestamp), LaserObjectsOutput.timestamp);
+				moveObstacle(&LaserObjectsOutput.object[i], LaserObjectsOutput.timestamp);
 			}
 		}
 		
@@ -179,13 +174,8 @@ void MAPSPredictor::predecir()
 			int pos = findPosition(CameraObjects[0], CameraObjectsOutput.object[i].id);
 			if (pos != -1)
 			{
-				//Calculate the advance vector
-				Point3D vector;
-				vector.x = CameraObjects[1].object[i].x_rel - CameraObjects[0].object[pos].x_rel;
-				vector.y = CameraObjects[1].object[i].y_rel - CameraObjects[0].object[pos].y_rel;
-				vector.z = CameraObjects[1].object[i].z_rel - CameraObjects[0].object[pos].z_rel;
 				//Move the obstacle
-				moveObstacle(&CameraObjectsOutput.object[i], vector, abs(CameraObjects[1].timestamp - CameraObjects[0].timestamp), CameraObjectsOutput.timestamp);
+				moveObstacle(&CameraObjectsOutput.object[i], CameraObjectsOutput.timestamp);
 			}
 		}
 
@@ -207,27 +197,17 @@ int MAPSPredictor::findPosition(AUTO_Objects objects, int id)
 	return -1;
 }
 
-void MAPSPredictor::moveObstacle(AUTO_Object * obstacle, Point3D vector, int Distancetime, int timestamp)
+void MAPSPredictor::moveObstacle(AUTO_Object * obstacle, int timestamp)
 {
+	
+	Point3D vector;
 	//Move the position and the bounding box to the predicted position
-	/*vector.x = (float32_t)(((double)vector.x / (double)Distancetime) *(this->timestamp-timestamp));
-	vector.y = (float32_t)(((double)vector.y / (double)Distancetime) *(this->timestamp-timestamp));
-	vector.z = (float32_t)(((double)vector.z / (double)Distancetime) *(this->timestamp-timestamp));*/
 
-	//Prueba
 	vector.x = (float32_t)((obstacle->speed_x_rel / 1000) * (this->timestamp - timestamp));
 	vector.y = (float32_t)((obstacle->speed_y_rel / 1000) * (this->timestamp - timestamp));
-	vector.z = (float32_t)(((double)vector.z / (double)Distancetime) * (this->timestamp - timestamp));
-
-	//Fin prueba
-
-
-
-
 
 	obstacle->x_rel += vector.x;
 	obstacle->y_rel += vector.y;
-	obstacle->z_rel += vector.z;
 
 	for (size_t i = 0; i < 4; i++)
 	{
