@@ -110,7 +110,6 @@
     <ClCompile Include="src\maps_Gating.cpp" />
     <ClCompile Include="src\maps_Matching.cpp" />
     <ClCompile Include="src\maps_Predictor.cpp" />
-    <ClCompile Include="src\maps_synchronizer.cpp" />
     <ClCompile Include="src\STATIC_VECTOR.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -121,7 +120,6 @@
     <ClInclude Include="local_interfaces\maps_Gating.h" />
     <ClInclude Include="local_interfaces\maps_Matching.h" />
     <ClInclude Include="local_interfaces\maps_Predictor.h" />
-    <ClInclude Include="local_interfaces\maps_synchronizer.h" />
     <ClInclude Include="local_interfaces\Match_Objects.h" />
     <ClInclude Include="local_interfaces\Properties.h" />
     <ClInclude Include="local_interfaces\STATIC_VECTOR.h" />

@@ -18,9 +18,6 @@
     <ClCompile Include="src\STATIC_VECTOR.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\maps_synchronizer.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="src\maps_Gating.cpp">
       <Filter>src</Filter>
     </ClCompile>
@@ -51,9 +48,6 @@
       <Filter>local_interfaces</Filter>
     </ClInclude>
     <ClInclude Include="local_interfaces\STATIC_VECTOR.h">
-      <Filter>local_interfaces</Filter>
-    </ClInclude>
-    <ClInclude Include="local_interfaces\maps_synchronizer.h">
       <Filter>local_interfaces</Filter>
     </ClInclude>
     <ClInclude Include="local_interfaces\maps_Gating.h">
