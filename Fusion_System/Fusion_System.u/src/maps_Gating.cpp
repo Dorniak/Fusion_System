@@ -53,7 +53,7 @@ void MAPSGating::Birth()
 	p_perception_prob = (float)1.0;
 	p_communication_prob = (float)0.8;
 	p_gating = (float)4.61;//5.991
-	p_hypothesis_pruning = (float)0.1;
+	p_hypothesis_pruning = (float)0.5;
 	p_occlusion_ratio = (float)0.005;
 }
 
@@ -88,7 +88,7 @@ void MAPSGating::Core()
 	ReportInfo(prueba);
 	prueba.Clear();
 	writeOutputs();
-	//ReportInfo(str);
+	ReportInfo(str);
 	str.Clear();
 	str << '\n';
 }
@@ -164,14 +164,6 @@ void MAPSGating::adaptation()
 			}
 
 		}
-
-
-		//Esta mal
-		/*if (m_objects_Laser.object[i].id > m_max_Las_id)
-		{
-			m_max_Las_id = m_objects_Laser.object[i].id;
-			m_prev_gate.resize(m_max_Las_id);
-		}*/
 	}
 	m_prev_gate.resize(Laser_Matched.number_objects);
 }
@@ -668,6 +660,8 @@ void MAPSGating::FusedTracksEstimation()
 			}
 			else
 			{
+
+			//TODO::No tiene sentido 
 				idx_com = GetIdxObstacle(m_hypothesis_tree[id_best_hyp].assoc_vec[ass].id_com, m_objects_Laser);
 				if (idx_com >= 0 && m_objects_nC.number_of_objects < MAXIMUM_OBJECT_NUMBER)
 				{
@@ -683,6 +677,7 @@ void MAPSGating::FusedTracksEstimation()
 	{
 		if (!IsAlreadyHere(i_p, associated_perception_tracks) && m_objects_nL.number_of_objects < MAXIMUM_OBJECT_NUMBER)
 		{
+			//TODO:no tiene sentido
 			m_objects_nL.object[m_objects_nL.number_of_objects] = m_objects_Cam.object[i_p];
 			m_objects_nL.number_of_objects++;
 		}

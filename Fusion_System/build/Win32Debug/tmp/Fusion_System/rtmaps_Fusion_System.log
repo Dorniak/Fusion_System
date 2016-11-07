@@ -1,2 +1,4 @@
-﻿     Creating library D:\Documentos\GitHub\Fusion_System\Fusion_System\build\Win32Debug\tmp\Fusion_System\Fusion_System.lib and object D:\Documentos\GitHub\Fusion_System\Fusion_System\build\Win32Debug\tmp\Fusion_System\Fusion_System.exp
+﻿  maps_Gating.cpp
+  LINK : D:\Documentos\GitHub\Fusion_System\Fusion_System\packages\debug\Fusion_System.pck not found or not built by the last incremental link; performing full link
+     Creating library D:\Documentos\GitHub\Fusion_System\Fusion_System\build\Win32Debug\tmp\Fusion_System\Fusion_System.lib and object D:\Documentos\GitHub\Fusion_System\Fusion_System\build\Win32Debug\tmp\Fusion_System\Fusion_System.exp
   rtmaps_Fusion_System.vcxproj -> D:\Documentos\GitHub\Fusion_System\Fusion_System\packages\debug\Fusion_System.pck
