@@ -36,6 +36,7 @@ private :
 
 	MAPSIOElt* elt;
 	MAPSStreamedString str;
+	MAPSStreamedString prueba;
 	MATCH_OBJECTS* input_Laser_Matched;
 	MATCH_OBJECTS* input_Camera_Matched;
 	AUTO_Objects* m_objects_Cam2; /*!<Camera objects*/
@@ -52,7 +53,7 @@ private :
 	std::vector<s_hypothesis> m_prev_hypothesis; /*!<previous hypethesis tree*/
 	//VECTOR_INT m_already_seen_Laser; /*!<already seen Laser tracks*/
 	VECTOR_INT m_already_seen_Cam; /*!<already seen Camera tracks*/
-	VECTOR_INT m_idx_gate; /*!<index perception obstacles in gating windows*/
+	VECTOR_INT m_idx_gate; /*!<index Camera obstacles in gating windows*/
 
 	//std::stringstream m_ss; /*!<debugging string to display information in command window*/
 
@@ -84,6 +85,7 @@ private:
 	void adaptation();
 	void writeOutputs();
 	void inicialization();
+	int findPos(AUTO_Objects vector, int id);
 	/*
 	* @function IntializeTree()
 	* @brief Initialize hypothesis tree

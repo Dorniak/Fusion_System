@@ -176,7 +176,6 @@ void MAPSMatching::findMatches(AUTO_Objects* ArrayLaserObjects, AUTO_Objects* Ar
 	{
 		calculateBoundingBox(&output_CameraAmpliatedBox.object[b]);
 	}
-
 	for (int i = 0; i < ArrayLaserObjects->number_of_objects; i++)
 	{
 		for (int j = 0; j < ArrayCameraObjects->number_of_objects; j++)
@@ -189,6 +188,7 @@ void MAPSMatching::findMatches(AUTO_Objects* ArrayLaserObjects, AUTO_Objects* Ar
 					LaserMatched.number_matched[i]++;
 					CameraMatched.Matrix_matched[j][CameraMatched.number_matched[j]] = ArrayLaserObjects->object[i].id;
 					CameraMatched.number_matched[j]++;
+					overlap(output_LaserAmpliatedBox.object[i], output_CameraAmpliatedBox.object[j]);
 				}
 				output_LaserAmpliatedBox.number_of_objects++;
 				output_CameraAmpliatedBox.number_of_objects++;
@@ -249,14 +249,7 @@ void MAPSMatching::calculateBoundingBox(AUTO_Object *Object)
 
 #pragma region Calculate Original_ampliated
 #pragma region Copiar a local
-	original_ampliated.point[0].x = Object->bounding_box_x_rel[0];
-	original_ampliated.point[0].y = Object->bounding_box_y_rel[0];
-	original_ampliated.point[1].x = Object->bounding_box_x_rel[1];
-	original_ampliated.point[1].y = Object->bounding_box_y_rel[1];
-	original_ampliated.point[2].x = Object->bounding_box_x_rel[2];
-	original_ampliated.point[2].y = Object->bounding_box_y_rel[2];
-	original_ampliated.point[3].x = Object->bounding_box_x_rel[3];
-	original_ampliated.point[3].y = Object->bounding_box_y_rel[3];
+	original_ampliated = calculateBBox(*Object);
 #pragma endregion
 
 #pragma region ampliacion
@@ -390,3 +383,101 @@ void MAPSMatching::clear_Matched()
 	LaserMatched.number_objects = 0;
 	CameraMatched.number_objects = 0;
 }
+
+void MAPSMatching::overlap(AUTO_Object objeto1, AUTO_Object objeto2)
+{
+
+	BOUNDIG_BOX finalBox, BBox1, BBox2;
+	BBox1 = calculateBBox(objeto1);
+	BBox2 = calculateBBox(objeto2);
+	float32_t x_min, x_max, y_min, y_max;
+	x_max = min(max(max(BBox1.point[0].x, BBox1.point[1].x), max(BBox1.point[2].x, BBox1.point[3].x)), max(max(BBox2.point[0].x, BBox2.point[1].x), max(BBox2.point[2].x, BBox2.point[3].x)));
+	y_max = min(max(max(BBox1.point[0].y, BBox1.point[1].y), max(BBox1.point[2].y, BBox1.point[3].y)), max(max(BBox2.point[0].y, BBox2.point[1].y), max(BBox2.point[2].y, BBox2.point[3].y)));
+	x_min = max(min(min(BBox1.point[0].x, BBox1.point[1].x), min(BBox1.point[2].x, BBox1.point[3].x)), min(min(BBox2.point[0].x, BBox2.point[1].x), min(BBox2.point[2].x, BBox2.point[3].x)));
+	y_min = max(min(min(BBox1.point[0].y, BBox1.point[1].y), min(BBox1.point[2].y, BBox1.point[3].y)), min(min(BBox2.point[0].y, BBox2.point[1].y), min(BBox2.point[2].y, BBox2.point[3].y)));
+
+	finalBox.point[0].x = x_max;
+	finalBox.point[0].y = y_min;
+
+	finalBox.point[1].x = x_max;
+	finalBox.point[1].y = y_max;
+
+	finalBox.point[2].x = x_min;
+	finalBox.point[2].y = y_max;
+
+	finalBox.point[3].x = x_min;
+	finalBox.point[3].y = y_min;
+
+
+	LaserMatched.overlap[findID(objeto1.id, LaserMatched)][findID(objeto1.id, objeto2.id, LaserMatched)][0] = compareArea(finalBox, BBox1);//Compare area between intersection box and Laser object box
+	LaserMatched.overlap[findID(objeto1.id, LaserMatched)][findID(objeto1.id, objeto2.id, LaserMatched)][1] = compareArea(finalBox, BBox2);//Compare area between intersection box and Camera object box
+
+	CameraMatched.overlap[findID(objeto2.id, CameraMatched)][findID(objeto2.id, objeto1.id, CameraMatched)][0] = LaserMatched.overlap[objeto1.id][findID(objeto1.id, objeto2.id, LaserMatched)][1];
+	CameraMatched.overlap[findID(objeto2.id, CameraMatched)][findID(objeto2.id, objeto1.id, CameraMatched)][1] = LaserMatched.overlap[objeto1.id][findID(objeto1.id, objeto2.id, LaserMatched)][0];
+
+}
+
+
+
+float MAPSMatching::compareArea(BOUNDIG_BOX BBox, BOUNDIG_BOX BBoxOriginal)
+{
+	double base, altura, area1, area2;
+	float32_t y_max = max(max(BBox.point[0].y, BBox.point[1].y), max(BBox.point[2].y, BBox.point[3].y));
+	float32_t y_min = min(min(BBox.point[0].y, BBox.point[1].y), min(BBox.point[2].y, BBox.point[3].y));
+	float32_t x_max = max(max(BBox.point[0].x, BBox.point[1].x), max(BBox.point[2].x, BBox.point[3].x));
+	float32_t x_min = min(min(BBox.point[0].x, BBox.point[1].x), min(BBox.point[2].x, BBox.point[3].x));
+	base = fabs(y_max- y_min);//y max - y min
+	altura = fabs(x_max - x_min);//x max - x min
+	area1 = base * altura;
+
+	y_max = max(max(BBoxOriginal.point[0].y, BBoxOriginal.point[1].y), max(BBoxOriginal.point[2].y, BBoxOriginal.point[3].y));
+	y_min = min(min(BBoxOriginal.point[0].y, BBoxOriginal.point[1].y), min(BBoxOriginal.point[2].y, BBoxOriginal.point[3].y));
+	x_max = max(max(BBoxOriginal.point[0].x, BBoxOriginal.point[1].x), max(BBoxOriginal.point[2].x, BBoxOriginal.point[3].x));
+	x_min = min(min(BBoxOriginal.point[0].x, BBoxOriginal.point[1].x), min(BBoxOriginal.point[2].x, BBoxOriginal.point[3].x));
+
+	base = fabs(y_max - y_min);//y max - y min
+	altura = fabs(x_max - x_min);//x max - x min
+	area2 = base * altura;
+	return (area1 * 100) / area2;//Porcentaje de coincidencia
+}
+
+int MAPSMatching::findID(int id_object, MATCH_OBJECTS vector)
+{
+	for (int i = 0; i < vector.number_objects; i++)
+	{
+		if (ArrayLaserObjects->object[i].id == id_object)
+		{
+			return i;
+		}
+	}
+	return -1;
+}
+
+int MAPSMatching::findID(int id_object, int id_target, MATCH_OBJECTS vector)
+{
+	int pos = findID(id_object, vector);
+
+	for (int j = 0; j < vector.number_matched[pos]; j++)
+	{
+		if (vector.Matrix_matched[pos][j] == id_target)
+		{
+			return j;
+		}
+	}
+}
+
+BOUNDIG_BOX MAPSMatching::calculateBBox(AUTO_Object obj)
+{
+	BOUNDIG_BOX BBox;
+	BBox.point[0].x = obj.bounding_box_x_rel[0];
+	BBox.point[0].y = obj.bounding_box_y_rel[0];
+	BBox.point[1].x = obj.bounding_box_x_rel[1];
+	BBox.point[1].y = obj.bounding_box_y_rel[1];
+	BBox.point[2].x = obj.bounding_box_x_rel[2];
+	BBox.point[2].y = obj.bounding_box_y_rel[2];
+	BBox.point[3].x = obj.bounding_box_x_rel[3];
+	BBox.point[3].y = obj.bounding_box_y_rel[3];
+
+	return BBox;
+}
+

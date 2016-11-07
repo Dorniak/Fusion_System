@@ -41,5 +41,13 @@ private :
 	void rotarBoundingBox(BOUNDIG_BOX *entrada, double angulo);
 	void rotarPunto(B_POINT *punto, double angulo);
 	void clear_Matched();
+
+
+	//Pruebas
+	void overlap(AUTO_Object objeto1, AUTO_Object objeto2);
+	float compareArea(BOUNDIG_BOX BBox, BOUNDIG_BOX BBoxOriginal);
+	int findID(int id_object, MATCH_OBJECTS vector);
+	int findID(int id_object,int id_target, MATCH_OBJECTS vector);
+	BOUNDIG_BOX calculateBBox(AUTO_Object obj);
 };
 #endif
