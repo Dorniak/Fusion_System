@@ -188,8 +188,9 @@ void MAPSMatching::findMatches(AUTO_Objects* ArrayLaserObjects, AUTO_Objects* Ar
 	{
 		for (int j = 0; j < ArrayCameraObjects->number_of_objects; j++)
 		{
-			if (ArrayLaserObjects->object[i].object_class == ArrayCameraObjects->object[j].object_class)
-			{
+			//TODO::
+			//if (ArrayLaserObjects->object[i].object_class == ArrayCameraObjects->object[j].object_class)
+			//{
 				if (BoxMatching(output_LaserAmpliatedBox.object[i], output_CameraAmpliatedBox.object[j]))
 				{
 					LaserMatched.Matrix_matched[i][LaserMatched.number_matched[i]] = ArrayCameraObjects->object[j].id;
@@ -200,7 +201,7 @@ void MAPSMatching::findMatches(AUTO_Objects* ArrayLaserObjects, AUTO_Objects* Ar
 				}
 				output_LaserAmpliatedBox.number_of_objects++;
 				output_CameraAmpliatedBox.number_of_objects++;
-			}
+			//}
 		}
 	}
 }

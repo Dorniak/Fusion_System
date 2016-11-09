@@ -10,8 +10,6 @@
 
 const MAPSTypeFilterBase ValeoStructure = MAPS_FILTER_USER_STRUCTURE(AUTO_Objects);
 const MAPSTypeFilterBase matchedVector = MAPS_FILTER_USER_STRUCTURE(MATCH_OBJECTS);
-const MAPSTypeFilterBase Associationvector = MAPS_FILTER_USER_STRUCTURE(vector<array<int,3>>);
-const MAPSTypeFilterBase NONAssociation = MAPS_FILTER_USER_STRUCTURE(vector<int>);
 
 // Use the macros to declare the inputs
 MAPS_BEGIN_INPUTS_DEFINITION(MAPSJoin)
@@ -25,9 +23,9 @@ MAPS_END_INPUTS_DEFINITION
 MAPS_BEGIN_OUTPUTS_DEFINITION(MAPSJoin)
 	MAPS_OUTPUT_USER_STRUCTURE("LaserObjects", AUTO_Objects)
 	MAPS_OUTPUT_USER_STRUCTURE("CameraObjects", AUTO_Objects)
-	MAPS_OUTPUT_USER_STRUCTURE("AObjects", Associationvector)
-	MAPS_OUTPUT_USER_STRUCTURE("NALaser", NONAssociation)
-	MAPS_OUTPUT_USER_STRUCTURE("NACamera", NONAssociation)
+	MAPS_OUTPUT_USER_STRUCTURE("AObjects", AssociatedObjs)
+	MAPS_OUTPUT_USER_STRUCTURE("NALaser", NonAssociated)
+	MAPS_OUTPUT_USER_STRUCTURE("NACamera", NonAssociated)
 MAPS_END_OUTPUTS_DEFINITION
 
 // Use the macros to declare the properties
@@ -67,24 +65,20 @@ void MAPSJoin::Core()
 	}
 #pragma endregion
 
-	ReportInfo("Fin ReadInputs");
 	cleanStructures();
+
 #pragma region Processing
 	ProcessData();
 #pragma endregion
 
-
-	ReportInfo("Fin Process Data");
-
 #pragma region Writing
-	//TODO::WriteOutputs();
+	WriteOutputs();
 #pragma endregion
 
-	ReportInfo("Fin WriteOutputs");
-
+	
 	str << '\n';
 	str << "Inputs:";
-	str << '\n' << "Box Matchig " << Laser_Objects.number_of_objects << " " << Camera_Objects.number_of_objects;
+	str << '\n' << "Laser: " << Laser_Objects.number_of_objects << " Camera: " << Camera_Objects.number_of_objects;
 	str << '\n' << "Outputs:";
 	str << '\n' << "Associated objects: " << joined.size();
 	str << '\n' << "Non Laser Associated objects: " << nonLaserJoined.size();
@@ -177,23 +171,23 @@ void MAPSJoin::ProcessData()
 	for (int i = 0; i < Laser_Matched.number_objects; i++)
 	{
 		//Clean list of joined
-		joined[i][0] = Laser_Matched.id[i];
-		joined[i][1] = -1;
-		joined[i][2] = 0;
+		joined.vector[i][0] = Laser_Matched.id[i];
+		joined.vector[i][1] = -1;
+		joined.vector[i][2] = 0;
 		for (int j = 0; j < Laser_Matched.number_matched[i]; j++)
 		{
 			score = 0;
 			score = calculateScore(Laser_Matched.id[i], Laser_Matched.Matrix_matched[i][j]);
 			if (score > 0) 
 			{
-				if (score == joined[i][3])
+				if (score == joined.vector[i][3])
 				{
 					//TODO::We have a problem
 				}
-				else if (score > joined[i][3])
+				else if (score > joined.vector[i][3])
 				{
-					joined[i][1] = Laser_Matched.Matrix_matched[i][j];
-					joined[i][2] = score;
+					joined.vector[i][1] = Laser_Matched.Matrix_matched[i][j];
+					joined.vector[i][2] = score;
 				}
 			}
 		}
@@ -201,19 +195,19 @@ void MAPSJoin::ProcessData()
 	//At the end of this for we will have a list of asociated objects
 	cleanAssociatedList();
 	//Now we can find the non calculated Laser objects
-	for (int i = 0; i < Laser_Objects.number_of_objects; i++)
+	for (int j = 0; j < Laser_Objects.number_of_objects; j++)
 	{
-		if (!findAssociatedLaser(Laser_Objects.object[i].id))
+		if (!findAssociatedLaser(Laser_Objects.object[j].id))
 		{
-			nonLaserJoined.push_back(Laser_Objects.object[i].id);
+			nonLaserJoined.push_back(Laser_Objects.object[j].id);
 		}
 	}
 	//Now we can find the non calculated Caemra objects
-	for (int i = 0; i < Camera_Objects.number_of_objects; i++)
+	for (int k = 0; k < Camera_Objects.number_of_objects; k++)
 	{
-		if (!findAssociatedCamera(Camera_Objects.object[i].id))
+		if (!findAssociatedCamera(Camera_Objects.object[k].id))
 		{
-			nonCameraJoined.push_back(Camera_Objects.object[i].id);
+			nonCameraJoined.push_back(Camera_Objects.object[k].id);
 		}
 	}
 }
@@ -231,23 +225,25 @@ void MAPSJoin::WriteOutputs()
 	StopWriting(_ioOutput);
 
 	_ioOutput = StartWriting(Output("AObjects"));
-	vector<array<int, 3>> &AssociatedObj = *static_cast<vector<array<int, 3>>*>(_ioOutput->Data());
+	AssociatedObjs &AssociatedObj = *static_cast<AssociatedObjs*>(_ioOutput->Data());
 	AssociatedObj = joined;
 	StopWriting(_ioOutput);
 
 	_ioOutput = StartWriting(Output("NALaser"));
-	vector<int> &NALObj = *static_cast<vector<int>*>(_ioOutput->Data());
+	NonAssociated &NALObj = *static_cast<NonAssociated*>(_ioOutput->Data());
 	NALObj = nonLaserJoined;
 	StopWriting(_ioOutput);
 
 	_ioOutput = StartWriting(Output("NACamera"));
-	vector<int> &NACObj = *static_cast<vector<int>*>(_ioOutput->Data());
+	NonAssociated &NACObj = *static_cast<NonAssociated*>(_ioOutput->Data());
 	NACObj = nonCameraJoined;
 	StopWriting(_ioOutput);
 }
 
 int MAPSJoin::calculateScore(int id_Laser, int id_Camera)
 {
+
+	//TODO::Calculate score
 	return 30;
 }
 
@@ -267,7 +263,7 @@ bool MAPSJoin::findAssociatedLaser(int id_Laser)
 {
 	for (unsigned int i = 0; i < joined.size(); i++)
 	{
-		if (joined[i][0] == id_Laser)
+		if (joined.vector[i][0] == id_Laser)
 		{
 			return true;
 		}
@@ -279,7 +275,7 @@ bool MAPSJoin::findAssociatedCamera(int id_Camera)
 {
 	for (unsigned int i = 0; i < joined.size(); i++)
 	{
-		if (joined[i][1] == id_Camera)
+		if (joined.vector[i][1] == id_Camera)
 		{
 			return true;
 		}
@@ -291,15 +287,16 @@ void MAPSJoin::cleanAssociatedList()
 {
 	for (unsigned int i = 0; i < joined.size(); i++)
 	{
-		if (joined[i][1] == -1)
+		if (joined.vector[i][1] == -1)
 		{
-			joined.erase(joined.begin() + (int)i);
+			joined.erase((int)i);
+			i--;
 		}
-		else if(joined[i][2] < MIN_SCORE)
+		else if(joined.vector[i][2] < MIN_SCORE)
 		{
-			joined.erase(joined.begin() + (int)i);
+			joined.erase((int)i);
+			i--;
 		}
-		i--;
 	}
 }
 

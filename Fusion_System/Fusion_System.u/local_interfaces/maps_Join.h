@@ -46,10 +46,10 @@ private :
 	//Second column = id Camera Object
 	//Third colum = score 
 	
-	vector<array<int, 3>>joined;
+	AssociatedObjs joined;
 	//int joined[AUTO_MAX_NUM_OBJECTS][3];
-	vector<int>nonLaserJoined;
-	vector<int>nonCameraJoined;
+	NonAssociated nonLaserJoined;
+	NonAssociated nonCameraJoined;
 
 
 private:

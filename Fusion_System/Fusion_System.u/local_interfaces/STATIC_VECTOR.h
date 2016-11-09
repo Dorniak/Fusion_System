@@ -2,6 +2,7 @@
 
 #include "Hipotesys.h"
 #include <algorithm>
+#include "auto_objects.h"
 #define tamanoVV 300
 #define tamanoV 50
 
@@ -34,4 +35,29 @@ public:
 	void resize(int tam);
 	
 	void push_back(int input);
+};
+
+
+class AssociatedObjs
+{
+public:
+	int number_objects = 0;
+	int vector[AUTO_MAX_NUM_OBJECTS][3];
+	void clear();
+	void clear(int pos);
+	int size();
+	void resize(int tam);
+	void erase(int pos);
+};
+
+class NonAssociated
+{
+public:
+	int number_objects = 0;
+	int vector[AUTO_MAX_NUM_OBJECTS];
+	void clear();
+	int size();
+	void resize(int tam);
+	void erase(int pos);
+	void push_back(int id);
 };
