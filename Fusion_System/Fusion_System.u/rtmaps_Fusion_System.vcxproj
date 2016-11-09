@@ -108,6 +108,7 @@
   <ItemGroup>
     <ClCompile Include="src\maps_Estimation.cpp" />
     <ClCompile Include="src\maps_Gating.cpp" />
+    <ClCompile Include="src\maps_Join.cpp" />
     <ClCompile Include="src\maps_Matching.cpp" />
     <ClCompile Include="src\maps_Predictor.cpp" />
     <ClCompile Include="src\STATIC_VECTOR.cpp" />
@@ -118,6 +119,7 @@
     <ClInclude Include="local_interfaces\Hipotesys.h" />
     <ClInclude Include="local_interfaces\maps_Estimation.h" />
     <ClInclude Include="local_interfaces\maps_Gating.h" />
+    <ClInclude Include="local_interfaces\maps_Join.h" />
     <ClInclude Include="local_interfaces\maps_Matching.h" />
     <ClInclude Include="local_interfaces\maps_Predictor.h" />
     <ClInclude Include="local_interfaces\Match_Objects.h" />

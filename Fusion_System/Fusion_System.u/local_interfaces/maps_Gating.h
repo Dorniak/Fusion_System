@@ -36,7 +36,6 @@ private :
 
 	MAPSIOElt* elt;
 	MAPSStreamedString str;
-	MAPSStreamedString prueba;
 	MATCH_OBJECTS* input_Laser_Matched;
 	MATCH_OBJECTS* input_Camera_Matched;
 	AUTO_Objects* m_objects_Cam2; /*!<Camera objects*/

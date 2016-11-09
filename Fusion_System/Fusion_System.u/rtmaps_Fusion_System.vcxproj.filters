@@ -24,6 +24,9 @@
     <ClCompile Include="src\maps_Predictor.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\maps_Join.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="local_interfaces\auto_common.h">
@@ -54,6 +57,9 @@
       <Filter>local_interfaces</Filter>
     </ClInclude>
     <ClInclude Include="local_interfaces\maps_Predictor.h">
+      <Filter>local_interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="local_interfaces\maps_Join.h">
       <Filter>local_interfaces</Filter>
     </ClInclude>
   </ItemGroup>

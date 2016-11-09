@@ -68,25 +68,8 @@ void MAPSGating::Core()
 	{
 		readed[i] = false;
 	}
-	
-	prueba << '\n';
-	prueba << "Numero de objetos Laser " << m_objects_Laser.number_of_objects;
-	prueba << '\n';
-	prueba << "Numero de objetos Camara " << m_objects_Cam.number_of_objects;
-
 	adaptation();
-
 	ProcessData();
-
-	prueba << '\n';
-	prueba << "Numero de objetos asociados " << 	m_objects_ass.number_of_objects;
-	prueba << '\n';
-	prueba << "Numero de objetos Camara no asociados " << m_objects_nC.number_of_objects;
-	prueba << '\n';
-	prueba << "Numero de objetos Laser no asociados " <<	m_objects_nL.number_of_objects;
-	prueba << '\n';
-	ReportInfo(prueba);
-	prueba.Clear();
 	writeOutputs();
 	ReportInfo(str);
 	str.Clear();

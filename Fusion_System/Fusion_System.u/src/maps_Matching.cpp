@@ -164,7 +164,15 @@ void MAPSMatching::findMatches(AUTO_Objects* ArrayLaserObjects, AUTO_Objects* Ar
 {
 	//We look for coincidences between bounding box of 2 objects
 	LaserMatched.number_objects = ArrayLaserObjects->number_of_objects;
+	for (int i = 0; i < ArrayLaserObjects->number_of_objects; i++)
+	{
+		LaserMatched.id[i] = ArrayLaserObjects->object[i].id;
+	}
 	CameraMatched.number_objects = ArrayCameraObjects->number_of_objects;
+	for (int i = 0; i < ArrayCameraObjects->number_of_objects; i++)
+	{
+		CameraMatched.id[i] = ArrayCameraObjects->object[i].id;
+	}
 	output_LaserAmpliatedBox = *ArrayLaserObjects;
 	output_CameraAmpliatedBox = *ArrayCameraObjects;
 
@@ -464,6 +472,7 @@ int MAPSMatching::findID(int id_object, int id_target, MATCH_OBJECTS vector)
 			return j;
 		}
 	}
+	return -1;
 }
 
 BOUNDIG_BOX MAPSMatching::calculateBBox(AUTO_Object obj)
