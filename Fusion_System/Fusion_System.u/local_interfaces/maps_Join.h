@@ -27,7 +27,7 @@ private :
 	MAPSStreamedString str;
 	//Para controlar ambiguedades
 	//Matriz con el score de todas las asociaciones y su id
-	int ListOfAssociations[AUTO_MAX_NUM_OBJECTS][AUTO_MAX_NUM_OBJECTS][2];
+	int MatrixOfAssociations[AUTO_MAX_NUM_OBJECTS][AUTO_MAX_NUM_OBJECTS][2];
 	bool readed[4] = { false,false, false, false };
 	int numInputs = 4;
 
@@ -66,6 +66,10 @@ private:
 	bool findAssociatedCamera(int id_Camera);
 	void cleanAssociatedList();
 	void cleanStructures();
+	void addAssociation(int posLaser, int idCam, int score);
+	void shortMatrixAssociations();
+	void selectAssociations();
+	void cleanAssociationMatrix();
 };
 
 #endif

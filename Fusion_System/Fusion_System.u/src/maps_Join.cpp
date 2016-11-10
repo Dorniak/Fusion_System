@@ -180,6 +180,11 @@ void MAPSJoin::ProcessData()
 			score = calculateScore(Laser_Matched.id[i], Laser_Matched.Matrix_matched[i][j]);
 			if (score > 0) 
 			{
+				addAssociation(i, Laser_Matched.Matrix_matched[i][j], score);
+
+
+
+				/*
 				if (score == joined.vector[i][3])
 				{
 					//TODO::We have a problem
@@ -189,9 +194,11 @@ void MAPSJoin::ProcessData()
 					joined.vector[i][1] = Laser_Matched.Matrix_matched[i][j];
 					joined.vector[i][2] = score;
 				}
+				*/
 			}
 		}
 	}
+	selectAssociations();
 	//At the end of this for we will have a list of asociated objects
 	cleanAssociatedList();
 	//Now we can find the non calculated Laser objects
@@ -305,4 +312,53 @@ void MAPSJoin::cleanStructures()
 	joined.clear();
 	nonLaserJoined.clear();
 	nonCameraJoined.clear();
+}
+
+void MAPSJoin::addAssociation(int posLaser, int idCam, int score)
+{
+	int i = 0;
+	while (MatrixOfAssociations[posLaser][i][0] != -1) { i++; }
+	MatrixOfAssociations[posLaser][i][0] = idCam;
+	MatrixOfAssociations[posLaser][i][1] = score;
+}
+
+void MAPSJoin::shortMatrixAssociations()
+{
+	//Ordenar la matriz de asociaciones de mayor a menor por score
+	int id, score,k;
+	for (int i = 0; i < AUTO_MAX_NUM_OBJECTS; i++)
+	{
+		for (int j = 0; j < AUTO_MAX_NUM_OBJECTS; j++)
+		{
+			id = MatrixOfAssociations[i][j][0];
+			score = MatrixOfAssociations[i][j][1];
+			k = j;
+			while (k > 0 && MatrixOfAssociations[i][k - 1][1] < score) {
+				MatrixOfAssociations[i][k][0] = MatrixOfAssociations[i][k - 1][0];
+				MatrixOfAssociations[i][k][1] = MatrixOfAssociations[i][k - 1][1];
+				k--;
+			}
+			MatrixOfAssociations[i][k][0] = id;
+			MatrixOfAssociations[i][k][1] = score;
+		}
+	}
+}
+
+void MAPSJoin::selectAssociations()
+{
+	//TODO:Buscar la manera de hacer asociaciones sin ambiguedades
+	shortMatrixAssociations();
+
+}
+
+void MAPSJoin::cleanAssociationMatrix()
+{
+	for (int i = 0; i < AUTO_MAX_NUM_OBJECTS; i++)
+	{
+		for (int j = 0; j < AUTO_MAX_NUM_OBJECTS; j++)
+		{
+			MatrixOfAssociations[i][j][0] = -1;
+			MatrixOfAssociations[i][j][1] = 0;
+		}
+	}
 }
