@@ -181,20 +181,6 @@ void MAPSJoin::ProcessData()
 			if (score > 0) 
 			{
 				addAssociation(i, Laser_Matched.Matrix_matched[i][j], score);
-
-
-
-				/*
-				if (score == joined.vector[i][3])
-				{
-					//TODO::We have a problem
-				}
-				else if (score > joined.vector[i][3])
-				{
-					joined.vector[i][1] = Laser_Matched.Matrix_matched[i][j];
-					joined.vector[i][2] = score;
-				}
-				*/
 			}
 		}
 	}
@@ -312,6 +298,7 @@ void MAPSJoin::cleanStructures()
 	joined.clear();
 	nonLaserJoined.clear();
 	nonCameraJoined.clear();
+	cleanAssociationMatrix();
 }
 
 void MAPSJoin::addAssociation(int posLaser, int idCam, int score)
@@ -325,14 +312,17 @@ void MAPSJoin::addAssociation(int posLaser, int idCam, int score)
 void MAPSJoin::shortMatrixAssociations()
 {
 	//Ordenar la matriz de asociaciones de mayor a menor por score
-	int id, score,k;
-	for (int i = 0; i < AUTO_MAX_NUM_OBJECTS; i++)
+	int id, score, k, j;
+	//Recorres la lista de objetos del laser
+	for (int i = 0; i < Laser_Objects.number_of_objects; i++)
 	{
-		for (int j = 0; j < AUTO_MAX_NUM_OBJECTS; j++)
-		{
+		j = 0;
+		//Recorres la lista de un objeto 
+		while (MatrixOfAssociations[i][j][0] != -1 && j < AUTO_MAX_NUM_OBJECTS) {
 			id = MatrixOfAssociations[i][j][0];
 			score = MatrixOfAssociations[i][j][1];
 			k = j;
+			//Elevas el objeto hasta su posicion
 			while (k > 0 && MatrixOfAssociations[i][k - 1][1] < score) {
 				MatrixOfAssociations[i][k][0] = MatrixOfAssociations[i][k - 1][0];
 				MatrixOfAssociations[i][k][1] = MatrixOfAssociations[i][k - 1][1];
@@ -340,15 +330,45 @@ void MAPSJoin::shortMatrixAssociations()
 			}
 			MatrixOfAssociations[i][k][0] = id;
 			MatrixOfAssociations[i][k][1] = score;
+
+			j++;
 		}
 	}
 }
-
 void MAPSJoin::selectAssociations()
 {
+	int posAmb;
 	//TODO:Buscar la manera de hacer asociaciones sin ambiguedades
 	shortMatrixAssociations();
+	for (int i = 0; i < Laser_Objects.number_of_objects; i++)
+	{
+		//No hay que copiar el id del laser por que ya estaba antes
+		joined.vector[i][1] = MatrixOfAssociations[i][0][0];//Copiar el id de la camara 
+		joined.vector[i][2] = MatrixOfAssociations[i][0][1];//Copiar el score
+	}
+	do
+	{
+		while (findAmbiguities())
+		{
+			for (int i = 0; i < joined.size(); i++)
+			{
+				posAmb = findAmbiguities(i);
+				if (posAmb != -1) {
+					if (joined.vector[i][2] >= joined.vector[posAmb][2])
+					{
+						selectNextAssociation(posAmb);
+					}
+					else
+					{
+						selectNextAssociation(i);
+					}
+				}
+			}
 
+
+
+		}
+	} while (lastCheck());
 }
 
 void MAPSJoin::cleanAssociationMatrix()
@@ -361,4 +381,109 @@ void MAPSJoin::cleanAssociationMatrix()
 			MatrixOfAssociations[i][j][1] = 0;
 		}
 	}
+}
+
+bool MAPSJoin::findAmbiguities()
+{
+	for (int i = 0; i < joined.size(); i++)
+	{
+		for (int j = i+1; j < joined.size(); j++)
+		{
+			if (joined.vector[i][1] != -1)
+			{
+				if (joined.vector[j][1] != -1 && joined.vector[i][1] == joined.vector[j][1])
+				{
+					return true;
+				}
+			}
+			else
+			{
+				break;
+			}
+		}
+	}
+	return false;
+}
+
+int MAPSJoin::findAmbiguities(int pos)
+{
+	int id = joined.vector[pos][1];//id de camara
+	if (id != -1) 
+	{
+		for (int i = pos + 1; i < joined.size(); i++)
+		{
+			if (joined.vector[i][1] != -1 && id == joined.vector[i][1])
+			{
+				return i;
+			}
+		}
+	}
+	return -1;
+}
+
+void MAPSJoin::selectNextAssociation(int pos)
+{
+	//TODO::Seleccionar la siguiente asociacion posible y copiarla al vector de asociaciones
+	int id_actual;
+	id_actual = joined.vector[pos][1];
+	//MatrixOfAssociations
+	int i(1);
+	while (i < AUTO_MAX_NUM_OBJECTS && (MatrixOfAssociations[pos][i][0] != id_actual || MatrixOfAssociations[pos][i][0] == -1))
+	{
+		i++;
+	}
+	//Significa que soy el ultimo
+	if (i >= AUTO_MAX_NUM_OBJECTS - 1 || MatrixOfAssociations[pos][i][0] == -1)
+	{
+		joined.vector[pos][1] = -1;
+		joined.vector[pos][2] = 0;
+	}//Significa que no eres el ultimo en el array y hay mas posibilidades
+	else //if (MatrixOfAssociations[pos][i][0] != -1)
+	{
+		joined.vector[pos][1] = MatrixOfAssociations[pos][i][0];//Id de la camara
+		joined.vector[pos][2] = MatrixOfAssociations[pos][i][1];//score
+	}
+
+}
+
+bool MAPSJoin::lastCheck()
+{
+	int j;
+	bool changes = false;
+	//si ha habido algun cambio se devuelve true
+	for (int i = 0; i < Laser_Matched.number_objects; i++)
+	{
+		j = 0;
+		//Buscar mi posicion
+		while (MatrixOfAssociations[i][j][0] != joined.vector[i][1])//Buscar tu id en tu lista de posibilidades
+		{
+			j++;
+		}
+		for (int k = 0; k < j; k++)
+		{
+			if (!IsAssociated(MatrixOfAssociations[i][k][0]))
+			{//Se ha dado el caso de que con la resolucion de ambiguedades se ha quedado una asociacion con mayor score libre
+				joined.vector[i][1] = MatrixOfAssociations[i][k][0];
+				joined.vector[i][2] = MatrixOfAssociations[i][k][1];
+				changes = true;
+			}
+		}
+	}
+	if (changes)
+	{
+		return true;
+	}
+	else return false;
+}
+
+bool MAPSJoin::IsAssociated(int id)
+{
+	for (int i = 0; i < joined.size(); i++)
+	{
+		if (joined.vector[i][1] == id)
+		{
+			return true;//Ese id ya esta asociado
+		}
+	}
+	return false;//Ese id aun no esta asociado
 }

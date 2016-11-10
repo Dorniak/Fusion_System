@@ -112,7 +112,7 @@ void NonAssociated::push_back(int id)
 
 void AssociatedObjs::clear()
 {
-	for (int i = 0; i < number_objects; i++)
+	for (int i = 0; i < AUTO_MAX_NUM_OBJECTS; i++)
 	{
 		clear(i);
 	}

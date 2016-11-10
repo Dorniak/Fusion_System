@@ -50,7 +50,6 @@ private :
 	//Third colum = score 
 	
 	AssociatedObjs joined;
-	//int joined[AUTO_MAX_NUM_OBJECTS][3];
 	NonAssociated nonLaserJoined;
 	NonAssociated nonCameraJoined;
 
@@ -70,6 +69,12 @@ private:
 	void shortMatrixAssociations();
 	void selectAssociations();
 	void cleanAssociationMatrix();
+	bool findAmbiguities();
+	int findAmbiguities(int pos);
+	void selectNextAssociation(int pos);
+	bool lastCheck();
+	bool IsAssociated(int id);
+	
 };
 
 #endif
