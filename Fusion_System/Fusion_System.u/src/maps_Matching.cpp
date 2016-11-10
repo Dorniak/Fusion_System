@@ -9,6 +9,7 @@
 #include "maps_Matching.h"	// Includes the header of this component
 
 const MAPSTypeFilterBase ValeoStructure = MAPS_FILTER_USER_STRUCTURE(AUTO_Objects); 
+
 // Use the macros to declare the inputs
 MAPS_BEGIN_INPUTS_DEFINITION(MAPSMatching)
     MAPS_INPUT("LaserObject", ValeoStructure, MAPS::FifoReader)
@@ -63,11 +64,10 @@ void MAPSMatching::Core()
 	}
 	str << '\n' << "Box Matchig " << ArrayLaserObjects->number_of_objects << " " << ArrayCameraObjects->number_of_objects;
 	//We look for objects inside the gating window of each object
+	clear_Matched();
 	findMatches(ArrayLaserObjects, ArrayCameraObjects);
 	printResults();
 	WriteOutputs();
-
-	clear_Matched();
 	//ReportInfo(str);
 }
 
@@ -163,19 +163,22 @@ void MAPSMatching::printResults()
 void MAPSMatching::findMatches(AUTO_Objects* ArrayLaserObjects, AUTO_Objects* ArrayCameraObjects)
 {
 	//We look for coincidences between bounding box of 2 objects
+	//We fill the array of id Laser objects
 	LaserMatched.number_objects = ArrayLaserObjects->number_of_objects;
 	for (int i = 0; i < ArrayLaserObjects->number_of_objects; i++)
 	{
 		LaserMatched.id[i] = ArrayLaserObjects->object[i].id;
 	}
+	//We fill the array of id Camera objects
 	CameraMatched.number_objects = ArrayCameraObjects->number_of_objects;
 	for (int i = 0; i < ArrayCameraObjects->number_of_objects; i++)
 	{
 		CameraMatched.id[i] = ArrayCameraObjects->object[i].id;
 	}
+	//Save and print the extended bowndingbox
 	output_LaserAmpliatedBox = *ArrayLaserObjects;
 	output_CameraAmpliatedBox = *ArrayCameraObjects;
-
+	//Calculate the extended BBox and save it in the output_XAmpliatedBox
 	for (int a = 0; a < output_LaserAmpliatedBox.number_of_objects; a++) 
 	{
 		calculateBoundingBox(&output_LaserAmpliatedBox.object[a]);
@@ -184,6 +187,7 @@ void MAPSMatching::findMatches(AUTO_Objects* ArrayLaserObjects, AUTO_Objects* Ar
 	{
 		calculateBoundingBox(&output_CameraAmpliatedBox.object[b]);
 	}
+
 	for (int i = 0; i < ArrayLaserObjects->number_of_objects; i++)
 	{
 		for (int j = 0; j < ArrayCameraObjects->number_of_objects; j++)
@@ -208,6 +212,7 @@ void MAPSMatching::findMatches(AUTO_Objects* ArrayLaserObjects, AUTO_Objects* Ar
 
 bool MAPSMatching::BoxMatching(AUTO_Object Object1, AUTO_Object Object2)
 {
+	
 	double x_max(-DBL_MAX), x_min(DBL_MAX), y_max(-DBL_MAX), y_min(DBL_MAX);
 
 	for (int i = 0; i < 4; i++) {
@@ -216,12 +221,12 @@ bool MAPSMatching::BoxMatching(AUTO_Object Object1, AUTO_Object Object2)
 		y_max = max(Object1.bounding_box_y_rel[i], y_max);
 		y_min = min(Object1.bounding_box_y_rel[i], y_min);
 	}
-
-	for (size_t i = 0; i < 4; i++)
+	//TODO::Modificar esto por una manera mas fiable de ver si dos cuadrados se cortan
+	for (int i = 0; i < 4; i++)
 	{
-		if (Object1.bounding_box_x_rel[i] > x_min && Object1.bounding_box_x_rel[i] < x_max)
+		if (Object2.bounding_box_x_rel[i] > x_min && Object2.bounding_box_x_rel[i] < x_max)
 		{
-			if (Object1.bounding_box_y_rel[i] > y_min && Object1.bounding_box_y_rel[i] < y_max)
+			if (Object2.bounding_box_y_rel[i] > y_min && Object2.bounding_box_y_rel[i] < y_max)
 			{
 				return true;
 			}
@@ -236,6 +241,40 @@ bool MAPSMatching::BoxMatching(AUTO_Object Object1, AUTO_Object Object2)
 			return true;
 		}
 	}
+	
+	//Calcularlo al reves por que hay casos extraños no contemplados antes
+
+	double x_max2(-DBL_MAX), x_min2(DBL_MAX), y_max2(-DBL_MAX), y_min2(DBL_MAX);
+
+	for (int i = 0; i < 4; i++) {
+		x_max2 = max(Object2.bounding_box_x_rel[i], x_max2);
+		x_min2 = min(Object2.bounding_box_x_rel[i], x_min2);
+		y_max2 = max(Object2.bounding_box_y_rel[i], y_max2);
+		y_min2 = min(Object2.bounding_box_y_rel[i], y_min2);
+	}
+	//TODO::Modificar esto por una manera mas fiable de ver si dos cuadrados se cortan
+	for (int i = 0; i < 4; i++)
+	{
+		if (Object1.bounding_box_x_rel[i] > x_min2 && Object1.bounding_box_x_rel[i] < x_max2)
+		{
+			if (Object1.bounding_box_y_rel[i] > y_min2 && Object1.bounding_box_y_rel[i] < y_max2)
+			{
+				return true;
+			}
+		}
+	}
+
+	//Calcular si el centro esta dentro de la bownding box
+	if (Object1.x_rel > x_min2 && Object1.x_rel < x_max2)
+	{
+		if (Object1.y_rel > y_min2 && Object1.y_rel < y_max2)
+		{
+			return true;
+		}
+	}
+
+
+
 	return false;
 }
 
@@ -426,8 +465,6 @@ void MAPSMatching::overlap(AUTO_Object objeto1, AUTO_Object objeto2)
 
 }
 
-
-
 float MAPSMatching::compareArea(BOUNDIG_BOX BBox, BOUNDIG_BOX BBoxOriginal)
 {
 	double base, altura, area1, area2;
@@ -447,7 +484,7 @@ float MAPSMatching::compareArea(BOUNDIG_BOX BBox, BOUNDIG_BOX BBoxOriginal)
 	base = fabs(y_max - y_min);//y max - y min
 	altura = fabs(x_max - x_min);//x max - x min
 	area2 = base * altura;
-	return (area1 * 100) / area2;//Porcentaje de coincidencia
+	return (float)(area1 * 100) / area2;//Porcentaje de coincidencia
 }
 
 int MAPSMatching::findID(int id_object, MATCH_OBJECTS vector)
@@ -490,4 +527,3 @@ BOUNDIG_BOX MAPSMatching::calculateBBox(AUTO_Object obj)
 
 	return BBox;
 }
-

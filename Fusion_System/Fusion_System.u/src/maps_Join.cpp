@@ -261,7 +261,7 @@ int MAPSJoin::findPositionObject(int id, AUTO_Objects * objects)
 
 bool MAPSJoin::findAssociatedLaser(int id_Laser)
 {
-	for (unsigned int i = 0; i < joined.size(); i++)
+	for (int i = 0; i < joined.size(); i++)
 	{
 		if (joined.vector[i][0] == id_Laser)
 		{
@@ -273,7 +273,7 @@ bool MAPSJoin::findAssociatedLaser(int id_Laser)
 
 bool MAPSJoin::findAssociatedCamera(int id_Camera)
 {
-	for (unsigned int i = 0; i < joined.size(); i++)
+	for (int i = 0; i < joined.size(); i++)
 	{
 		if (joined.vector[i][1] == id_Camera)
 		{
@@ -285,7 +285,7 @@ bool MAPSJoin::findAssociatedCamera(int id_Camera)
 
 void MAPSJoin::cleanAssociatedList()
 {
-	for (unsigned int i = 0; i < joined.size(); i++)
+	for (int i = 0; i < joined.size(); i++)
 	{
 		if (joined.vector[i][1] == -1)
 		{
