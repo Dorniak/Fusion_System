@@ -61,3 +61,13 @@ public:
 	void erase(int pos);
 	void push_back(int id);
 };
+
+class Point3D
+{
+public:
+	Point3D();
+	Point3D(float x, float y, float z);
+	float x, y, z;
+private:
+	
+};

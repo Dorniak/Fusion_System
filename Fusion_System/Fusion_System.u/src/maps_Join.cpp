@@ -237,7 +237,26 @@ int MAPSJoin::calculateScore(int id_Laser, int id_Camera)
 {
 
 	//TODO::Calculate score
-	return 30;
+	//return 30;
+
+	float score;//[0,100]
+	float score_pos(0), score_dis(0), score_size(0), score_speed(0), score_accel(0), score_overlap(0);//[0,100]
+
+	//Calculate the scores
+	AUTO_Object object_Laser, object_Camera;
+	object_Laser = Laser_Objects.object[findPositionObject(id_Laser, &Laser_Objects)];
+	object_Camera = Camera_Objects.object[findPositionObject(id_Camera, &Camera_Objects)];
+
+	score_pos = calcScorePos(&object_Laser, &object_Camera);
+	score_dis = calcScoreDis(&object_Laser, &object_Camera);
+	score_size = calcScoreSize(&object_Laser, &object_Camera);
+	score_speed = calcScoreSpeed(&object_Laser, &object_Camera);
+	score_accel = calcScoreAccel(&object_Laser, &object_Camera);
+
+	
+	
+	score = score_pos*weight_pos + score_dis*weight_dis + score_size*weight_size + score_speed*weight_speed + score_accel*weight_accel + score_overlap*weight_over;
+	return (int)score;
 }
 
 int MAPSJoin::findPositionObject(int id, AUTO_Objects * objects)
@@ -338,7 +357,6 @@ void MAPSJoin::shortMatrixAssociations()
 void MAPSJoin::selectAssociations()
 {
 	int posAmb;
-	//TODO:Buscar la manera de hacer asociaciones sin ambiguedades
 	shortMatrixAssociations();
 	for (int i = 0; i < Laser_Objects.number_of_objects; i++)
 	{
@@ -423,7 +441,7 @@ int MAPSJoin::findAmbiguities(int pos)
 
 void MAPSJoin::selectNextAssociation(int pos)
 {
-	//TODO::Seleccionar la siguiente asociacion posible y copiarla al vector de asociaciones
+	//Seleccionar la siguiente asociacion posible y copiarla al vector de asociaciones
 	int id_actual;
 	id_actual = joined.vector[pos][1];
 	//MatrixOfAssociations
@@ -438,7 +456,7 @@ void MAPSJoin::selectNextAssociation(int pos)
 		joined.vector[pos][1] = -1;
 		joined.vector[pos][2] = 0;
 	}//Significa que no eres el ultimo en el array y hay mas posibilidades
-	else //if (MatrixOfAssociations[pos][i][0] != -1)
+	else 
 	{
 		joined.vector[pos][1] = MatrixOfAssociations[pos][i][0];//Id de la camara
 		joined.vector[pos][2] = MatrixOfAssociations[pos][i][1];//score
@@ -486,4 +504,30 @@ bool MAPSJoin::IsAssociated(int id)
 		}
 	}
 	return false;//Ese id aun no esta asociado
+}
+
+float MAPSJoin::calcScorePos(AUTO_Object * Object_Laser, AUTO_Object * Object_Camera)
+{
+	//TODO::Calcular score posicion
+	return 30;
+}
+
+float MAPSJoin::calcScoreDis(AUTO_Object * Object_Laser, AUTO_Object * Object_Camera)
+{
+	return 0.0f;
+}
+
+float MAPSJoin::calcScoreSize(AUTO_Object * Object_Laser, AUTO_Object * Object_Camera)
+{
+	return 0.0f;
+}
+
+float MAPSJoin::calcScoreSpeed(AUTO_Object * Object_Laser, AUTO_Object * Object_Camera)
+{
+	return 0.0f;
+}
+
+float MAPSJoin::calcScoreAccel(AUTO_Object * Object_Laser, AUTO_Object * Object_Camera)
+{
+	return 0.0f;
 }

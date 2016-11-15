@@ -5,6 +5,18 @@
 #ifndef _Maps_Join_H
 #define _Maps_Join_H
 #define MIN_SCORE 20
+
+//sum = 1
+#define weight_pos 1
+#define weight_dis 0
+#define weight_size 0
+#define weight_speed 0
+#define weight_accel 0
+#define weight_over 0
+
+
+
+
 // Includes maps sdk library header
 #include "maps.hpp"
 #include <math.h>
@@ -74,7 +86,11 @@ private:
 	void selectNextAssociation(int pos);
 	bool lastCheck();
 	bool IsAssociated(int id);
-	
+	float calcScorePos(AUTO_Object * Object_Laser, AUTO_Object * Object_Camera);//[0,100]
+	float calcScoreDis(AUTO_Object * Object_Laser, AUTO_Object * Object_Camera);//[0,100]
+	float calcScoreSize(AUTO_Object * Object_Laser, AUTO_Object * Object_Camera);//[0,100]
+	float calcScoreSpeed(AUTO_Object * Object_Laser, AUTO_Object * Object_Camera);//[0,100]
+	float calcScoreAccel(AUTO_Object * Object_Laser, AUTO_Object * Object_Camera);//[0,100]
 };
 
 #endif

@@ -150,3 +150,17 @@ void AssociatedObjs::erase(int pos)
 	number_objects--;
 	clear(number_objects);
 }
+
+Point3D::Point3D()
+{
+	x = -1;
+	y = -1;
+	z = -1;
+}
+
+Point3D::Point3D(float x, float y, float z)
+{
+	this->x = x;
+	this->y = y;
+	this->z = z;
+}
