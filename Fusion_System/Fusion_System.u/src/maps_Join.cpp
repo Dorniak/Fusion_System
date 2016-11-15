@@ -177,10 +177,10 @@ void MAPSJoin::ProcessData()
 		for (int j = 0; j < Laser_Matched.number_matched[i]; j++)
 		{
 			score = 0;
-			score = calculateScore(Laser_Matched.id[i], Laser_Matched.Matrix_matched[i][j]);
+			score = calculateScore(Laser_Matched.id[i], Laser_Matched.Matrix_matched[i][j][0]);
 			if (score > 0) 
 			{
-				addAssociation(i, Laser_Matched.Matrix_matched[i][j], score);
+				addAssociation(i, Laser_Matched.Matrix_matched[i][j][0], score);
 			}
 		}
 	}

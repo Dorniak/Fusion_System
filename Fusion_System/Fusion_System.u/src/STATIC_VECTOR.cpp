@@ -164,3 +164,55 @@ Point3D::Point3D(float x, float y, float z)
 	this->y = y;
 	this->z = z;
 }
+
+Point2D::Point2D()
+{
+	x = 0;
+	y = 0;
+}
+
+// Constructor uses default arguments to allow calling with zero, one,
+// or two values.
+Point2D::Point2D(float32_t x , float32_t y ) {
+	this->x = x;
+	this->y = y;
+}
+
+// Distance to another Point2D.  Pythagorean thm.
+float32_t Point2D::dist(Point2D other) {
+	float32_t xd = x - other.x;
+	float32_t yd = y - other.y;
+	return sqrt(xd*xd + yd*yd);
+}
+
+// Add or subtract two Point2Ds.
+Point2D Point2D::add(Point2D b)
+{
+	return Point2D(x + b.x, y + b.y);
+}
+Point2D Point2D::sub(Point2D b)
+{
+	return Point2D(x - b.x, y - b.y);
+}
+
+// Move the existing Point2D.
+void Point2D::move(float32_t a, float32_t b)
+{
+	x += a;
+	y += b;
+}
+void Point2D::rote(double angle)
+{
+	x = (x * (float32_t)cos(angle)) - (y * (float32_t)sin(angle));
+	y = (x * (float32_t)sin(angle)) + (y * (float32_t)cos(angle));
+}
+
+
+BOUNDIG_BOX::BOUNDIG_BOX()
+{
+	for (int i = 0; i < 4; i++)
+	{
+		point[i] = Point2D();;
+	}
+	
+}

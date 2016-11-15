@@ -68,6 +68,25 @@ public:
 	Point3D();
 	Point3D(float x, float y, float z);
 	float x, y, z;
-private:
-	
+};
+
+
+class Point2D 
+{
+public:
+	float32_t x, y;
+	Point2D();
+	Point2D(float32_t x, float32_t y);
+	float32_t dist(Point2D other);
+	Point2D add(Point2D b);
+	Point2D sub(Point2D b);
+	void move(float32_t a, float32_t b);
+	void rote(double angle);
+};
+
+class BOUNDIG_BOX
+{
+public:
+	Point2D point[4];
+	BOUNDIG_BOX();
 };

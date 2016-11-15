@@ -139,7 +139,7 @@ void MAPSGating::adaptation()
 	{
 		for (int j = 0; j < Laser_Matched.number_matched[i]; j++)
 		{
-			int id = Laser_Matched.Matrix_matched[i][j];
+			int id = Laser_Matched.Matrix_matched[i][j][0];
 			m_ass_Cam_Las_meas.vector[i].push_back(id);
 			if (!IsAlreadyHere(id, m_idx_gate))
 			{

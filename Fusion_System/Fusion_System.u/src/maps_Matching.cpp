@@ -62,10 +62,10 @@ void MAPSMatching::Core()
 	{
 		readed[i] = false;
 	}
-	str << '\n' << "Box Matchig " << ArrayLaserObjects->number_of_objects << " " << ArrayCameraObjects->number_of_objects;
+	str << '\n' << "Box Matchig " << ArrayLaserObjects.number_of_objects << " " << ArrayCameraObjects.number_of_objects;
 	//We look for objects inside the gating window of each object
 	clear_Matched();
-	findMatches(ArrayLaserObjects, ArrayCameraObjects);
+	findMatches(&ArrayLaserObjects, &ArrayCameraObjects);
 	printResults();
 	WriteOutputs();
 	//ReportInfo(str);
@@ -87,11 +87,13 @@ void MAPSMatching::readInputs()
 	switch (inputThatAnswered)
 	{
 	case 0:
-		ArrayLaserObjects = static_cast<AUTO_Objects*>(ioeltin->Data());
+		LaserInput = static_cast<AUTO_Objects*>(ioeltin->Data());
+		ArrayLaserObjects = *LaserInput;
 		readed[0] = true;
 		break;
 	case 1:
-		ArrayCameraObjects = static_cast<AUTO_Objects*>(ioeltin->Data());
+		CameraInput = static_cast<AUTO_Objects*>(ioeltin->Data());
+		ArrayCameraObjects = *CameraInput;
 		readed[1] = true;
 		break;
 	default:
@@ -113,12 +115,12 @@ void MAPSMatching::WriteOutputs()
 
 	_ioOutput = StartWriting(Output("LaserObjects"));
 	AUTO_Objects &list = *static_cast<AUTO_Objects*>(_ioOutput->Data());
-	list = *ArrayLaserObjects;
+	list = ArrayLaserObjects;
 	StopWriting(_ioOutput);
 
 	_ioOutput = StartWriting(Output("CameraObjects"));
 	AUTO_Objects &list2 = *static_cast<AUTO_Objects*>(_ioOutput->Data());
-	list2 = *ArrayCameraObjects;
+	list2 = ArrayCameraObjects;
 	StopWriting(_ioOutput);
 
 	_ioOutput = StartWriting(Output("MatchedLaser"));
@@ -138,7 +140,7 @@ void MAPSMatching::printResults()
 	str << '\n' << "Laser" << '\n';
 	for (int printer = 0; printer < LaserMatched.number_objects; printer++)
 	{
-		str << "ID: " << ArrayLaserObjects->object[printer].id << '\n';
+		str << "ID: " << ArrayLaserObjects.object[printer].id << '\n';
 		for (int printer2 = 0; printer2 < LaserMatched.number_matched[printer]; printer2++)
 		{
 			str << " " << LaserMatched.Matrix_matched[printer][printer2];
@@ -149,7 +151,7 @@ void MAPSMatching::printResults()
 	str << '\n' << "Camara" << '\n';
 	for (int printer = 0; printer < CameraMatched.number_objects; printer++)
 	{
-		str << "ID: " << ArrayCameraObjects->object[printer].id << '\n';
+		str << "ID: " << ArrayCameraObjects.object[printer].id << '\n';
 		for (int printer2 = 0; printer2 < CameraMatched.number_matched[printer]; printer2++)
 		{
 			str << " " << CameraMatched.Matrix_matched[printer][printer2];
@@ -160,26 +162,26 @@ void MAPSMatching::printResults()
 	str << '\n' << "fin de impresion";
 }
 
-void MAPSMatching::findMatches(AUTO_Objects* ArrayLaserObjects, AUTO_Objects* ArrayCameraObjects)
+void MAPSMatching::findMatches(AUTO_Objects * ArrayLaser, AUTO_Objects * ArrayCamera)
 {
 	//We look for coincidences between bounding box of 2 objects
 	//We fill the array of id Laser objects
-	LaserMatched.number_objects = ArrayLaserObjects->number_of_objects;
-	for (int i = 0; i < ArrayLaserObjects->number_of_objects; i++)
+	LaserMatched.number_objects = ArrayLaser->number_of_objects;
+	for (int i = 0; i < ArrayLaser->number_of_objects; i++)
 	{
-		LaserMatched.id[i] = ArrayLaserObjects->object[i].id;
+		LaserMatched.id[i] = ArrayLaser->object[i].id;
 	}
 	//We fill the array of id Camera objects
-	CameraMatched.number_objects = ArrayCameraObjects->number_of_objects;
-	for (int i = 0; i < ArrayCameraObjects->number_of_objects; i++)
+	CameraMatched.number_objects = ArrayCamera->number_of_objects;
+	for (int i = 0; i < ArrayCamera->number_of_objects; i++)
 	{
-		CameraMatched.id[i] = ArrayCameraObjects->object[i].id;
+		CameraMatched.id[i] = ArrayCamera->object[i].id;
 	}
 	//Save and print the extended bowndingbox
-	output_LaserAmpliatedBox = *ArrayLaserObjects;
-	output_CameraAmpliatedBox = *ArrayCameraObjects;
+	output_LaserAmpliatedBox = *ArrayLaser;
+	output_CameraAmpliatedBox = *ArrayCamera;
 	//Calculate the extended BBox and save it in the output_XAmpliatedBox
-	for (int a = 0; a < output_LaserAmpliatedBox.number_of_objects; a++) 
+	for (int a = 0; a < output_LaserAmpliatedBox.number_of_objects; a++)
 	{
 		calculateBoundingBox(&output_LaserAmpliatedBox.object[a]);
 	}
@@ -188,24 +190,18 @@ void MAPSMatching::findMatches(AUTO_Objects* ArrayLaserObjects, AUTO_Objects* Ar
 		calculateBoundingBox(&output_CameraAmpliatedBox.object[b]);
 	}
 
-	for (int i = 0; i < ArrayLaserObjects->number_of_objects; i++)
+	for (int i = 0; i < ArrayLaser->number_of_objects; i++)
 	{
-		for (int j = 0; j < ArrayCameraObjects->number_of_objects; j++)
+		for (int j = 0; j < ArrayCamera->number_of_objects; j++)
 		{
-			//TODO::
-			//if (ArrayLaserObjects->object[i].object_class == ArrayCameraObjects->object[j].object_class)
-			//{
-				if (BoxMatching(output_LaserAmpliatedBox.object[i], output_CameraAmpliatedBox.object[j]))
-				{
-					LaserMatched.Matrix_matched[i][LaserMatched.number_matched[i]] = ArrayCameraObjects->object[j].id;
-					LaserMatched.number_matched[i]++;
-					CameraMatched.Matrix_matched[j][CameraMatched.number_matched[j]] = ArrayLaserObjects->object[i].id;
-					CameraMatched.number_matched[j]++;
-					overlap(output_LaserAmpliatedBox.object[i], output_CameraAmpliatedBox.object[j]);
-				}
-				output_LaserAmpliatedBox.number_of_objects++;
-				output_CameraAmpliatedBox.number_of_objects++;
-			//}
+			if (BoxMatching(output_LaserAmpliatedBox.object[i], output_CameraAmpliatedBox.object[j]))
+			{
+				LaserMatched.Matrix_matched[i][LaserMatched.number_matched[i]][0] = ArrayCamera->object[j].id;
+				LaserMatched.number_matched[i]++;
+				CameraMatched.Matrix_matched[j][CameraMatched.number_matched[j]][0] = ArrayLaser->object[i].id;
+				CameraMatched.number_matched[j]++;
+				overlap(output_LaserAmpliatedBox.object[i], output_CameraAmpliatedBox.object[j]);
+			}
 		}
 	}
 }
@@ -297,7 +293,7 @@ void MAPSMatching::calculateBoundingBox(AUTO_Object *Object)
 
 #pragma region Calculate Original_ampliated
 #pragma region Copiar a local
-	original_ampliated = calculateBBox(*Object);
+	original_ampliated = calculateBBox(Object);
 #pragma endregion
 
 #pragma region ampliacion
@@ -399,20 +395,13 @@ BOUNDIG_BOX MAPSMatching::finalBox(BOUNDIG_BOX original, BOUNDIG_BOX Lrotated, B
 	return finalBox;
 }
 
-void MAPSMatching::rotarBoundingBox(BOUNDIG_BOX* entrada, double angulo)
+void MAPSMatching::rotarBoundingBox(BOUNDIG_BOX* entrada, double angle)
 {
 	//Rotate bounding box
-	rotarPunto(&entrada->point[0], angulo);
-	rotarPunto(&entrada->point[1], angulo);
-	rotarPunto(&entrada->point[2], angulo);
-	rotarPunto(&entrada->point[3], angulo);
-}
-
-void MAPSMatching::rotarPunto(B_POINT *punto, double angulo)
-{
-	//Rotate point in the plane 
-	punto->x = (punto->x * (float32_t)cos(angulo)) - (punto->y * (float32_t)sin(angulo));
-	punto->y = (punto->x * (float32_t)sin(angulo)) + (punto->y * (float32_t)cos(angulo));
+	entrada->point[0].rote(angle);
+	entrada->point[1].rote(angle);
+	entrada->point[2].rote(angle);
+	entrada->point[3].rote(angle);
 }
 
 void MAPSMatching::clear_Matched()
@@ -422,8 +411,10 @@ void MAPSMatching::clear_Matched()
 	{
 		for (int j = 0; j < AUTO_MAX_NUM_OBJECTS; j++)
 		{
-			LaserMatched.Matrix_matched[i][j] = 0;
-			CameraMatched.Matrix_matched[i][j] = 0;
+			LaserMatched.Matrix_matched[i][j][0] = 0;
+			CameraMatched.Matrix_matched[i][j][0] = 0;
+			LaserMatched.Matrix_matched[i][j][1] = 0;
+			CameraMatched.Matrix_matched[i][j][1] = 0;
 		}
 		LaserMatched.number_matched[i] = 0;
 		CameraMatched.number_matched[i] = 0;
@@ -435,34 +426,31 @@ void MAPSMatching::clear_Matched()
 void MAPSMatching::overlap(AUTO_Object objeto1, AUTO_Object objeto2)
 {
 
-	BOUNDIG_BOX finalBox, BBox1, BBox2;
-	BBox1 = calculateBBox(objeto1);
-	BBox2 = calculateBBox(objeto2);
+	BOUNDIG_BOX intersection, BBox1, BBox2;
+	BBox1 = calculateBBox(&objeto1);
+	BBox2 = calculateBBox(&objeto2);
 	float32_t x_min, x_max, y_min, y_max;
 	x_max = min(max(max(BBox1.point[0].x, BBox1.point[1].x), max(BBox1.point[2].x, BBox1.point[3].x)), max(max(BBox2.point[0].x, BBox2.point[1].x), max(BBox2.point[2].x, BBox2.point[3].x)));
 	y_max = min(max(max(BBox1.point[0].y, BBox1.point[1].y), max(BBox1.point[2].y, BBox1.point[3].y)), max(max(BBox2.point[0].y, BBox2.point[1].y), max(BBox2.point[2].y, BBox2.point[3].y)));
 	x_min = max(min(min(BBox1.point[0].x, BBox1.point[1].x), min(BBox1.point[2].x, BBox1.point[3].x)), min(min(BBox2.point[0].x, BBox2.point[1].x), min(BBox2.point[2].x, BBox2.point[3].x)));
 	y_min = max(min(min(BBox1.point[0].y, BBox1.point[1].y), min(BBox1.point[2].y, BBox1.point[3].y)), min(min(BBox2.point[0].y, BBox2.point[1].y), min(BBox2.point[2].y, BBox2.point[3].y)));
 
-	finalBox.point[0].x = x_max;
-	finalBox.point[0].y = y_min;
+	intersection.point[0].x = x_max;
+	intersection.point[0].y = y_min;
 
-	finalBox.point[1].x = x_max;
-	finalBox.point[1].y = y_max;
+	intersection.point[1].x = x_max;
+	intersection.point[1].y = y_max;
 
-	finalBox.point[2].x = x_min;
-	finalBox.point[2].y = y_max;
+	intersection.point[2].x = x_min;
+	intersection.point[2].y = y_max;
 
-	finalBox.point[3].x = x_min;
-	finalBox.point[3].y = y_min;
+	intersection.point[3].x = x_min;
+	intersection.point[3].y = y_min;
 
-
-	LaserMatched.overlap[findID(objeto1.id, LaserMatched)][findID(objeto1.id, objeto2.id, LaserMatched)][0] = compareArea(finalBox, BBox1);//Compare area between intersection box and Laser object box
-	LaserMatched.overlap[findID(objeto1.id, LaserMatched)][findID(objeto1.id, objeto2.id, LaserMatched)][1] = compareArea(finalBox, BBox2);//Compare area between intersection box and Camera object box
-
-	CameraMatched.overlap[findID(objeto2.id, CameraMatched)][findID(objeto2.id, objeto1.id, CameraMatched)][0] = LaserMatched.overlap[objeto1.id][findID(objeto1.id, objeto2.id, LaserMatched)][1];
-	CameraMatched.overlap[findID(objeto2.id, CameraMatched)][findID(objeto2.id, objeto1.id, CameraMatched)][1] = LaserMatched.overlap[objeto1.id][findID(objeto1.id, objeto2.id, LaserMatched)][0];
-
+	LaserMatched.Matrix_matched[findID(objeto1.id, &LaserMatched)][findID(objeto1.id, objeto2.id, &LaserMatched)][1] = calcIU(&objeto1, &objeto2, &intersection);
+	CameraMatched.Matrix_matched[findID(objeto2.id, &CameraMatched)][findID(objeto2.id, objeto1.id, &CameraMatched)][1] = LaserMatched.Matrix_matched[findID(objeto1.id, &LaserMatched)][findID(objeto1.id, objeto2.id, &LaserMatched)][1];
+	
+	
 }
 
 float MAPSMatching::compareArea(BOUNDIG_BOX BBox, BOUNDIG_BOX BBoxOriginal)
@@ -484,14 +472,22 @@ float MAPSMatching::compareArea(BOUNDIG_BOX BBox, BOUNDIG_BOX BBoxOriginal)
 	base = fabs(y_max - y_min);//y max - y min
 	altura = fabs(x_max - x_min);//x max - x min
 	area2 = base * altura;
-	return (float)(area1 * 100) / area2;//Porcentaje de coincidencia
+	return (float)((area1 * 100) / area2);//Porcentaje de coincidencia
 }
 
-int MAPSMatching::findID(int id_object, MATCH_OBJECTS vector)
+int MAPSMatching::findID(int id_object, MATCH_OBJECTS * vector)
 {
-	for (int i = 0; i < vector.number_objects; i++)
+	if (id_object == -1 || vector->number_objects>AUTO_MAX_NUM_OBJECTS)
 	{
-		if (ArrayLaserObjects->object[i].id == id_object)
+		return -1;
+	}
+	for (int i = 0; i < vector->number_objects; i++)
+	{
+		if (vector->id[i] == -1)
+		{
+			return -1;
+		}
+		else if (vector->id[i] == id_object)
 		{
 			return i;
 		}
@@ -499,13 +495,13 @@ int MAPSMatching::findID(int id_object, MATCH_OBJECTS vector)
 	return -1;
 }
 
-int MAPSMatching::findID(int id_object, int id_target, MATCH_OBJECTS vector)
+int MAPSMatching::findID(int id_object, int id_target, MATCH_OBJECTS * vector)
 {
 	int pos = findID(id_object, vector);
 
-	for (int j = 0; j < vector.number_matched[pos]; j++)
+	for (int j = 0; j < vector->number_matched[pos]; j++)
 	{
-		if (vector.Matrix_matched[pos][j] == id_target)
+		if (vector->Matrix_matched[pos][j][0] == id_target)
 		{
 			return j;
 		}
@@ -513,17 +509,58 @@ int MAPSMatching::findID(int id_object, int id_target, MATCH_OBJECTS vector)
 	return -1;
 }
 
-BOUNDIG_BOX MAPSMatching::calculateBBox(AUTO_Object obj)
+BOUNDIG_BOX MAPSMatching::calculateBBox(AUTO_Object * obj)
 {
 	BOUNDIG_BOX BBox;
-	BBox.point[0].x = obj.bounding_box_x_rel[0];
-	BBox.point[0].y = obj.bounding_box_y_rel[0];
-	BBox.point[1].x = obj.bounding_box_x_rel[1];
-	BBox.point[1].y = obj.bounding_box_y_rel[1];
-	BBox.point[2].x = obj.bounding_box_x_rel[2];
-	BBox.point[2].y = obj.bounding_box_y_rel[2];
-	BBox.point[3].x = obj.bounding_box_x_rel[3];
-	BBox.point[3].y = obj.bounding_box_y_rel[3];
+
+	BBox.point[0].x = obj->bounding_box_x_rel[0];
+	BBox.point[0].y = obj->bounding_box_y_rel[0];
+	BBox.point[1].x = obj->bounding_box_x_rel[1];
+	BBox.point[1].y = obj->bounding_box_y_rel[1];
+	BBox.point[2].x = obj->bounding_box_x_rel[2];
+	BBox.point[2].y = obj->bounding_box_y_rel[2];
+	BBox.point[3].x = obj->bounding_box_x_rel[3];
+	BBox.point[3].y = obj->bounding_box_y_rel[3];
 
 	return BBox;
+}
+
+int MAPSMatching::calcIU(AUTO_Object * objet1, AUTO_Object * objet2, BOUNDIG_BOX * BBoxInter)
+{
+	double area1, area2, areaI, areaU, areaFinal;
+
+	area1 = objet1->width * objet1->length;
+	area2 = objet2->width * objet2->length;
+	areaI = calcArea(BBoxInter);
+	areaU = area1 + area2 - areaI;
+	areaFinal = (areaI / areaU)*100;//[0,100]
+	areaFinal = round(areaFinal);
+
+	return (int)areaFinal;
+}
+
+double MAPSMatching::calcArea(BOUNDIG_BOX * BBox)
+{
+	float32_t distanceA, distanceB, distanceC;
+	float32_t width, length;
+
+	distanceA = BBox->point[0].dist(BBox->point[1]);
+	distanceB = BBox->point[0].dist(BBox->point[2]);
+	distanceC = BBox->point[0].dist(BBox->point[3]);
+
+	width = min(min(distanceA, distanceB), distanceC);
+	if (distanceA == width)
+	{
+		length = min(distanceB, distanceC);
+	}
+	else if (distanceB == width)
+	{
+		length = min(distanceA, distanceC);
+	}
+	else
+	{
+		length = min(distanceB, distanceC);
+	}
+
+	return width*length;
 }
