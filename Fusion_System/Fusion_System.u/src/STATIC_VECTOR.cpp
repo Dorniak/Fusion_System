@@ -165,6 +165,25 @@ Point3D::Point3D(float x, float y, float z)
 	this->z = z;
 }
 
+float Point3D::dist(Point3D other)
+{
+	Point3D result;
+	result = this->sub(other);
+	return result.module();
+}
+
+float Point3D::module()
+{
+	float module;
+	module = sqrt(pow(x, 2) + pow(y, 2) + pow(z, 2));
+	return 0;
+}
+
+Point3D Point3D::sub(Point3D other)
+{
+	return Point3D(x - other.x, y - other.y, z - other.z);
+}
+
 Point2D::Point2D()
 {
 	x = 0;
@@ -215,4 +234,122 @@ BOUNDIG_BOX::BOUNDIG_BOX()
 		point[i] = Point2D();;
 	}
 	
+}
+
+BOUNDIG_BOX::BOUNDIG_BOX(AUTO_Object * object)
+{
+	point[0].x = object->bounding_box_x_rel[0];
+	point[0].y = object->bounding_box_y_rel[0];
+	point[1].x = object->bounding_box_x_rel[1];
+	point[1].y = object->bounding_box_y_rel[1];
+	point[2].x = object->bounding_box_x_rel[2];
+	point[2].y = object->bounding_box_y_rel[2];
+	point[3].x = object->bounding_box_x_rel[3];
+	point[3].y = object->bounding_box_y_rel[3];
+}
+
+void BOUNDIG_BOX::rote(double angle)
+{
+	point[0].rote(angle);
+	point[1].rote(angle);
+	point[2].rote(angle);
+	point[3].rote(angle);
+}
+
+BOUNDIG_BOX_3D::BOUNDIG_BOX_3D()
+{
+	point[0] = Point3D(0, 0, 0);
+	point[1] = Point3D(0, 0, 0);
+	point[2] = Point3D(0, 0, 0);
+	point[3] = Point3D(0, 0, 0);
+	point[4] = Point3D(0, 0, 0);
+	point[5] = Point3D(0, 0, 0);
+	point[6] = Point3D(0, 0, 0);
+	point[7] = Point3D(0, 0, 0);
+}
+
+BOUNDIG_BOX_3D::BOUNDIG_BOX_3D(Point3D a, Point3D b, Point3D c, Point3D d, Point3D e, Point3D f, Point3D g, Point3D h)
+{
+	point[0] = a;
+	point[1] = b;
+	point[2] = c;
+	point[3] = d;
+	point[4] = e;
+	point[5] = f;
+	point[6] = g;
+	point[7] = h;
+}
+
+BOUNDIG_BOX_3D::BOUNDIG_BOX_3D(Point3D p, Point3D sigma)
+{
+	//abajo
+	//1 2
+	//0 3
+	//arria
+	//5 6
+	//4 7
+	point[0] = Point3D(p.x - sigma.x, p.y + sigma.y, p.z - sigma.z);
+	point[1] = Point3D(p.x + sigma.x, p.y + sigma.y, p.z - sigma.z);
+	point[2] = Point3D(p.x + sigma.x, p.y - sigma.y, p.z - sigma.z);
+	point[3] = Point3D(p.x - sigma.x, p.y - sigma.y, p.z - sigma.z);
+	point[4] = Point3D(p.x - sigma.x, p.y + sigma.y, p.z + sigma.z);
+	point[5] = Point3D(p.x + sigma.x, p.y + sigma.y, p.z + sigma.z);
+	point[6] = Point3D(p.x + sigma.x, p.y - sigma.y, p.z + sigma.z);
+	point[7] = Point3D(p.x - sigma.x, p.y - sigma.y, p.z + sigma.z);
+}
+
+float BOUNDIG_BOX_3D::volumen()
+{
+	float edge1, edge2, edge3;
+	float volum;
+	edge1 = point[0].dist(point[1]);
+	edge2 = point[0].dist(point[3]);
+	edge3 = point[0].dist(point[5]);
+	volum = edge1 * edge2 * edge3;
+
+	return volum;
+}
+
+BOUNDIG_BOX_3D BOUNDIG_BOX_3D::intersection(BOUNDIG_BOX_3D other)
+{
+	float x_min, x_max, y_min, y_max, z_min, z_max;
+	float x_min_Box(FLT_MAX), x_max_Box(-FLT_MAX), y_min_Box(FLT_MAX), y_max_Box(-FLT_MAX), z_min_Box(FLT_MAX), z_max_Box(-FLT_MAX);
+	float x_min_Other(FLT_MAX), x_max_Other(-FLT_MAX), y_min_Other(FLT_MAX), y_max_Other(-FLT_MAX), z_min_Other(FLT_MAX), z_max_Other(-FLT_MAX);
+
+	for (int i = 0; i < 8; i++)
+	{
+		x_min_Box = min(x_min_Box, point[i].x);
+		x_max_Box = max(x_max_Box, point[i].x);
+		y_min_Box = min(y_min_Box, point[i].y);
+		y_max_Box = max(y_max_Box, point[i].y);
+		z_min_Box = min(z_min_Box, point[i].z);
+		z_max_Box = max(z_max_Box, point[i].z);
+
+		x_min_Other = min(x_min_Other, other.point[i].x);
+		x_max_Other = max(x_max_Other, other.point[i].x);
+		y_min_Other = min(y_min_Other, other.point[i].y);
+		y_max_Other = max(y_max_Other, other.point[i].y);
+		z_min_Other = min(z_min_Other, other.point[i].z);
+		z_max_Other = max(z_max_Other, other.point[i].z);
+	}
+
+
+	x_min = min(x_min_Box, x_min_Other);
+	x_max = max(x_max_Box, x_max_Other);
+	y_min = min(y_min_Box, y_min_Other);
+	y_max = max(y_max_Box, y_max_Other);
+	z_min = min(z_min_Box, z_min_Other);
+	z_max = max(z_max_Box, z_max_Other);
+	
+
+	return BOUNDIG_BOX_3D(Point3D(x_min,y_max,z_min), Point3D(x_max, y_max, z_min), Point3D(x_max, y_min, z_min), Point3D(x_min, y_min, z_min), Point3D(x_min, y_max, z_max), Point3D(x_max, y_max, z_max), Point3D(x_max, y_min, z_max), Point3D(x_min, y_min, z_max));
+}
+
+float BOUNDIG_BOX_3D::Union_Volumen(BOUNDIG_BOX_3D other)
+{
+	float volumenU;
+	
+	volumenU = this->volumen() + other.volumen() - this->intersection(other).volumen();
+	
+	return volumenU;
 }

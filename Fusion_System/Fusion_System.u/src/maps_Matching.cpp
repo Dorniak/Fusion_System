@@ -194,35 +194,34 @@ void MAPSMatching::findMatches(AUTO_Objects * ArrayLaser, AUTO_Objects * ArrayCa
 	{
 		for (int j = 0; j < ArrayCamera->number_of_objects; j++)
 		{
-			if (BoxMatching(output_LaserAmpliatedBox.object[i], output_CameraAmpliatedBox.object[j]))
+			if (BoxMatching(&output_LaserAmpliatedBox.object[i], &output_CameraAmpliatedBox.object[j]))
 			{
 				LaserMatched.Matrix_matched[i][LaserMatched.number_matched[i]][0] = ArrayCamera->object[j].id;
 				LaserMatched.number_matched[i]++;
 				CameraMatched.Matrix_matched[j][CameraMatched.number_matched[j]][0] = ArrayLaser->object[i].id;
 				CameraMatched.number_matched[j]++;
-				overlap(output_LaserAmpliatedBox.object[i], output_CameraAmpliatedBox.object[j]);
+				overlap(&output_LaserAmpliatedBox.object[i], &output_CameraAmpliatedBox.object[j]);
 			}
 		}
 	}
 }
 
-bool MAPSMatching::BoxMatching(AUTO_Object Object1, AUTO_Object Object2)
+bool MAPSMatching::BoxMatching(AUTO_Object * Object1, AUTO_Object * Object2)
 {
 	
 	double x_max(-DBL_MAX), x_min(DBL_MAX), y_max(-DBL_MAX), y_min(DBL_MAX);
 
 	for (int i = 0; i < 4; i++) {
-		x_max = max(Object1.bounding_box_x_rel[i], x_max);
-		x_min = min(Object1.bounding_box_x_rel[i], x_min);
-		y_max = max(Object1.bounding_box_y_rel[i], y_max);
-		y_min = min(Object1.bounding_box_y_rel[i], y_min);
+		x_max = max(Object1->bounding_box_x_rel[i], x_max);
+		x_min = min(Object1->bounding_box_x_rel[i], x_min);
+		y_max = max(Object1->bounding_box_y_rel[i], y_max);
+		y_min = min(Object1->bounding_box_y_rel[i], y_min);
 	}
-	//TODO::Modificar esto por una manera mas fiable de ver si dos cuadrados se cortan
 	for (int i = 0; i < 4; i++)
 	{
-		if (Object2.bounding_box_x_rel[i] > x_min && Object2.bounding_box_x_rel[i] < x_max)
+		if (Object2->bounding_box_x_rel[i] > x_min && Object2->bounding_box_x_rel[i] < x_max)
 		{
-			if (Object2.bounding_box_y_rel[i] > y_min && Object2.bounding_box_y_rel[i] < y_max)
+			if (Object2->bounding_box_y_rel[i] > y_min && Object2->bounding_box_y_rel[i] < y_max)
 			{
 				return true;
 			}
@@ -230,9 +229,9 @@ bool MAPSMatching::BoxMatching(AUTO_Object Object1, AUTO_Object Object2)
 	}
 
 	//Calcular si el centro esta dentro de la bownding box
-	if (Object2.x_rel > x_min && Object2.x_rel < x_max)
+	if (Object2->x_rel > x_min && Object2->x_rel < x_max)
 	{
-		if (Object2.y_rel > y_min && Object2.y_rel < y_max)
+		if (Object2->y_rel > y_min && Object2->y_rel < y_max)
 		{
 			return true;
 		}
@@ -243,17 +242,16 @@ bool MAPSMatching::BoxMatching(AUTO_Object Object1, AUTO_Object Object2)
 	double x_max2(-DBL_MAX), x_min2(DBL_MAX), y_max2(-DBL_MAX), y_min2(DBL_MAX);
 
 	for (int i = 0; i < 4; i++) {
-		x_max2 = max(Object2.bounding_box_x_rel[i], x_max2);
-		x_min2 = min(Object2.bounding_box_x_rel[i], x_min2);
-		y_max2 = max(Object2.bounding_box_y_rel[i], y_max2);
-		y_min2 = min(Object2.bounding_box_y_rel[i], y_min2);
+		x_max2 = max(Object2->bounding_box_x_rel[i], x_max2);
+		x_min2 = min(Object2->bounding_box_x_rel[i], x_min2);
+		y_max2 = max(Object2->bounding_box_y_rel[i], y_max2);
+		y_min2 = min(Object2->bounding_box_y_rel[i], y_min2);
 	}
-	//TODO::Modificar esto por una manera mas fiable de ver si dos cuadrados se cortan
 	for (int i = 0; i < 4; i++)
 	{
-		if (Object1.bounding_box_x_rel[i] > x_min2 && Object1.bounding_box_x_rel[i] < x_max2)
+		if (Object1->bounding_box_x_rel[i] > x_min2 && Object1->bounding_box_x_rel[i] < x_max2)
 		{
-			if (Object1.bounding_box_y_rel[i] > y_min2 && Object1.bounding_box_y_rel[i] < y_max2)
+			if (Object1->bounding_box_y_rel[i] > y_min2 && Object1->bounding_box_y_rel[i] < y_max2)
 			{
 				return true;
 			}
@@ -261,16 +259,14 @@ bool MAPSMatching::BoxMatching(AUTO_Object Object1, AUTO_Object Object2)
 	}
 
 	//Calcular si el centro esta dentro de la bownding box
-	if (Object1.x_rel > x_min2 && Object1.x_rel < x_max2)
+	if (Object1->x_rel > x_min2 && Object1->x_rel < x_max2)
 	{
-		if (Object1.y_rel > y_min2 && Object1.y_rel < y_max2)
+		if (Object1->y_rel > y_min2 && Object1->y_rel < y_max2)
 		{
 			return true;
 		}
 	}
-
-
-
+	
 	return false;
 }
 
@@ -284,7 +280,7 @@ void MAPSMatching::copyBBox(BOUNDIG_BOX BBox, AUTO_Object* Output_ampliated)
 	}
 }
 
-void MAPSMatching::calculateBoundingBox(AUTO_Object *Object)
+void MAPSMatching::calculateBoundingBox(AUTO_Object * Object)
 {
 	BOUNDIG_BOX original_ampliated;
 	BOUNDIG_BOX ampliated_Lrotated;
@@ -293,7 +289,7 @@ void MAPSMatching::calculateBoundingBox(AUTO_Object *Object)
 
 #pragma region Calculate Original_ampliated
 #pragma region Copiar a local
-	original_ampliated = calculateBBox(Object);
+	original_ampliated = BOUNDIG_BOX(Object);
 #pragma endregion
 
 #pragma region ampliacion
@@ -306,11 +302,11 @@ void MAPSMatching::calculateBoundingBox(AUTO_Object *Object)
 	//Center Bowndingbox to 0
 	trasladarBowndingBox(&ampliated_Lrotated, -Object->x_rel, -Object->y_rel);
 	//Rotate BowndingBox
-	rotarBoundingBox(&ampliated_Lrotated, -Object->yaw_sigma);
+	ampliated_Lrotated.rote(-Object->yaw_sigma);
 	//Return to the real position
 	trasladarBowndingBox(&ampliated_Lrotated, Object->x_rel, Object->y_rel);
 	trasladarBowndingBox(&ampliated_Rrotated, -Object->x_rel, -Object->y_rel);
-	rotarBoundingBox(&ampliated_Rrotated, Object->yaw_sigma);
+	ampliated_Rrotated.rote(Object->yaw_sigma);
 	trasladarBowndingBox(&ampliated_Rrotated, Object->x_rel, Object->y_rel);
 
 	final_BowndingBox = finalBox(original_ampliated, ampliated_Lrotated, ampliated_Rrotated);
@@ -395,15 +391,6 @@ BOUNDIG_BOX MAPSMatching::finalBox(BOUNDIG_BOX original, BOUNDIG_BOX Lrotated, B
 	return finalBox;
 }
 
-void MAPSMatching::rotarBoundingBox(BOUNDIG_BOX* entrada, double angle)
-{
-	//Rotate bounding box
-	entrada->point[0].rote(angle);
-	entrada->point[1].rote(angle);
-	entrada->point[2].rote(angle);
-	entrada->point[3].rote(angle);
-}
-
 void MAPSMatching::clear_Matched()
 {
 	//Clear the arrays of the matched objects
@@ -411,25 +398,27 @@ void MAPSMatching::clear_Matched()
 	{
 		for (int j = 0; j < AUTO_MAX_NUM_OBJECTS; j++)
 		{
-			LaserMatched.Matrix_matched[i][j][0] = 0;
-			CameraMatched.Matrix_matched[i][j][0] = 0;
-			LaserMatched.Matrix_matched[i][j][1] = 0;
-			CameraMatched.Matrix_matched[i][j][1] = 0;
+			LaserMatched.Matrix_matched[i][j][0] = -1;//id camara
+			CameraMatched.Matrix_matched[i][j][0] = -1;//id laser
+			LaserMatched.Matrix_matched[i][j][1] = 0;//score
+			CameraMatched.Matrix_matched[i][j][1] = 0;//score
 		}
-		LaserMatched.number_matched[i] = 0;
-		CameraMatched.number_matched[i] = 0;
+		LaserMatched.number_matched[i] = 0;//Quitar las asociaciones
+		CameraMatched.number_matched[i] = 0;//Quitar las asociaciones
+		LaserMatched.id[i] = -1;//Eliminar todos los id
+		CameraMatched.id[i] = -1;//Eliminar todos los id
 	}
-	LaserMatched.number_objects = 0;
-	CameraMatched.number_objects = 0;
+	LaserMatched.number_objects = 0;//Eliminar numero de objetos
+	CameraMatched.number_objects = 0;//Eliminar numero de objetos
 }
 
-void MAPSMatching::overlap(AUTO_Object objeto1, AUTO_Object objeto2)
+void MAPSMatching::overlap(AUTO_Object * objeto1, AUTO_Object * objeto2)//Call with objects with extended BBox
 {
-
 	BOUNDIG_BOX intersection, BBox1, BBox2;
-	BBox1 = calculateBBox(&objeto1);
-	BBox2 = calculateBBox(&objeto2);
+	BBox1 = BOUNDIG_BOX(objeto1);
+	BBox2 = BOUNDIG_BOX(objeto2);
 	float32_t x_min, x_max, y_min, y_max;
+
 	x_max = min(max(max(BBox1.point[0].x, BBox1.point[1].x), max(BBox1.point[2].x, BBox1.point[3].x)), max(max(BBox2.point[0].x, BBox2.point[1].x), max(BBox2.point[2].x, BBox2.point[3].x)));
 	y_max = min(max(max(BBox1.point[0].y, BBox1.point[1].y), max(BBox1.point[2].y, BBox1.point[3].y)), max(max(BBox2.point[0].y, BBox2.point[1].y), max(BBox2.point[2].y, BBox2.point[3].y)));
 	x_min = max(min(min(BBox1.point[0].x, BBox1.point[1].x), min(BBox1.point[2].x, BBox1.point[3].x)), min(min(BBox2.point[0].x, BBox2.point[1].x), min(BBox2.point[2].x, BBox2.point[3].x)));
@@ -447,10 +436,8 @@ void MAPSMatching::overlap(AUTO_Object objeto1, AUTO_Object objeto2)
 	intersection.point[3].x = x_min;
 	intersection.point[3].y = y_min;
 
-	LaserMatched.Matrix_matched[findID(objeto1.id, &LaserMatched)][findID(objeto1.id, objeto2.id, &LaserMatched)][1] = calcIU(&objeto1, &objeto2, &intersection);
-	CameraMatched.Matrix_matched[findID(objeto2.id, &CameraMatched)][findID(objeto2.id, objeto1.id, &CameraMatched)][1] = LaserMatched.Matrix_matched[findID(objeto1.id, &LaserMatched)][findID(objeto1.id, objeto2.id, &LaserMatched)][1];
-	
-	
+	LaserMatched.Matrix_matched[findID(objeto1->id, &LaserMatched)][findID(objeto1->id, objeto2->id, &LaserMatched)][1] = calcIU(objeto1, objeto2, &intersection);
+	CameraMatched.Matrix_matched[findID(objeto2->id, &CameraMatched)][findID(objeto2->id, objeto1->id, &CameraMatched)][1] = LaserMatched.Matrix_matched[findID(objeto1->id, &LaserMatched)][findID(objeto1->id, objeto2->id, &LaserMatched)][1];	
 }
 
 float MAPSMatching::compareArea(BOUNDIG_BOX BBox, BOUNDIG_BOX BBoxOriginal)
@@ -460,6 +447,7 @@ float MAPSMatching::compareArea(BOUNDIG_BOX BBox, BOUNDIG_BOX BBoxOriginal)
 	float32_t y_min = min(min(BBox.point[0].y, BBox.point[1].y), min(BBox.point[2].y, BBox.point[3].y));
 	float32_t x_max = max(max(BBox.point[0].x, BBox.point[1].x), max(BBox.point[2].x, BBox.point[3].x));
 	float32_t x_min = min(min(BBox.point[0].x, BBox.point[1].x), min(BBox.point[2].x, BBox.point[3].x));
+
 	base = fabs(y_max- y_min);//y max - y min
 	altura = fabs(x_max - x_min);//x max - x min
 	area1 = base * altura;
@@ -472,6 +460,7 @@ float MAPSMatching::compareArea(BOUNDIG_BOX BBox, BOUNDIG_BOX BBoxOriginal)
 	base = fabs(y_max - y_min);//y max - y min
 	altura = fabs(x_max - x_min);//x max - x min
 	area2 = base * altura;
+
 	return (float)((area1 * 100) / area2);//Porcentaje de coincidencia
 }
 
@@ -479,19 +468,20 @@ int MAPSMatching::findID(int id_object, MATCH_OBJECTS * vector)
 {
 	if (id_object == -1 || vector->number_objects>AUTO_MAX_NUM_OBJECTS)
 	{
-		return -1;
+		return -1;//Only for control but actually should be implossible 
 	}
 	for (int i = 0; i < vector->number_objects; i++)
 	{
 		if (vector->id[i] == -1)
 		{
-			return -1;
+			return -1;//Only for control but actually should be implossible 
 		}
 		else if (vector->id[i] == id_object)
 		{
 			return i;
 		}
 	}
+
 	return -1;
 }
 
@@ -499,30 +489,24 @@ int MAPSMatching::findID(int id_object, int id_target, MATCH_OBJECTS * vector)
 {
 	int pos = findID(id_object, vector);
 
+	if (pos == -1 || id_target == -1 )
+	{
+		return -1;//Only for control but actually should be implossible 
+	}
+
 	for (int j = 0; j < vector->number_matched[pos]; j++)
 	{
+		if (j > AUTO_MAX_NUM_OBJECTS)
+		{
+			continue;//Only for control but actually should be implossible 
+		}
 		if (vector->Matrix_matched[pos][j][0] == id_target)
 		{
 			return j;
 		}
 	}
+
 	return -1;
-}
-
-BOUNDIG_BOX MAPSMatching::calculateBBox(AUTO_Object * obj)
-{
-	BOUNDIG_BOX BBox;
-
-	BBox.point[0].x = obj->bounding_box_x_rel[0];
-	BBox.point[0].y = obj->bounding_box_y_rel[0];
-	BBox.point[1].x = obj->bounding_box_x_rel[1];
-	BBox.point[1].y = obj->bounding_box_y_rel[1];
-	BBox.point[2].x = obj->bounding_box_x_rel[2];
-	BBox.point[2].y = obj->bounding_box_y_rel[2];
-	BBox.point[3].x = obj->bounding_box_x_rel[3];
-	BBox.point[3].y = obj->bounding_box_y_rel[3];
-
-	return BBox;
 }
 
 int MAPSMatching::calcIU(AUTO_Object * objet1, AUTO_Object * objet2, BOUNDIG_BOX * BBoxInter)

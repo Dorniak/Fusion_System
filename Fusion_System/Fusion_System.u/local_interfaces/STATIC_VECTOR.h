@@ -68,6 +68,9 @@ public:
 	Point3D();
 	Point3D(float x, float y, float z);
 	float x, y, z;
+	float dist(Point3D other);
+	float module();
+	Point3D sub(Point3D other);
 };
 
 
@@ -89,4 +92,18 @@ class BOUNDIG_BOX
 public:
 	Point2D point[4];
 	BOUNDIG_BOX();
+	BOUNDIG_BOX(AUTO_Object * object);
+	void rote(double angle);
+};
+
+class BOUNDIG_BOX_3D
+{
+public:
+	Point3D point[8];
+	BOUNDIG_BOX_3D();
+	BOUNDIG_BOX_3D(Point3D a, Point3D b, Point3D c, Point3D d, Point3D e, Point3D f, Point3D g, Point3D h);
+	BOUNDIG_BOX_3D(Point3D p, Point3D sigma);
+	float volumen();
+	BOUNDIG_BOX_3D intersection(BOUNDIG_BOX_3D other);
+	float Union_Volumen(BOUNDIG_BOX_3D other);
 };

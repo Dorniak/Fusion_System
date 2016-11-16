@@ -34,22 +34,19 @@ private :
 	void WriteOutputs();
 	void printResults();
 	void findMatches(AUTO_Objects * ArrayLaser, AUTO_Objects * ArrayCamera);
-	bool BoxMatching(AUTO_Object Object1, AUTO_Object Object2);
+	bool BoxMatching(AUTO_Object * Object1, AUTO_Object * Object2);
 	void copyBBox(BOUNDIG_BOX BBox, AUTO_Object * Output_ampliated);
 	void calculateBoundingBox(AUTO_Object * Object);
 	void trasladarBowndingBox(BOUNDIG_BOX * entrada, double x, double y);
 	void ampliarBowndingBox(BOUNDIG_BOX * entrada, double x, double y);
 	BOUNDIG_BOX finalBox(BOUNDIG_BOX original, BOUNDIG_BOX Lrotated, BOUNDIG_BOX Rrotated);
-	void rotarBoundingBox(BOUNDIG_BOX *entrada, double angle);
 	void clear_Matched();
 
-
 	//Pruebas
-	void overlap(AUTO_Object objeto1, AUTO_Object objeto2);
+	void overlap(AUTO_Object * objeto1, AUTO_Object * objeto2);
 	float compareArea(BOUNDIG_BOX BBox, BOUNDIG_BOX BBoxOriginal);
 	int findID(int id_object, MATCH_OBJECTS * vector);
 	int findID(int id_object,int id_target, MATCH_OBJECTS * vector);
-	BOUNDIG_BOX calculateBBox(AUTO_Object * obj);
 	int calcIU(AUTO_Object * objet1, AUTO_Object * objet2, BOUNDIG_BOX * BBoxInter);
 	double calcArea(BOUNDIG_BOX * BBox);
 };

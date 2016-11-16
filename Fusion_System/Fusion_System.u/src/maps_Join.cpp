@@ -235,10 +235,6 @@ void MAPSJoin::WriteOutputs()
 
 int MAPSJoin::calculateScore(int id_Laser, int id_Camera)
 {
-
-	//TODO::Calculate score
-	//return 30;
-
 	float score;//[0,100]
 	float score_pos(0), score_dis(0), score_size(0), score_speed(0), score_accel(0), score_overlap(0);//[0,100]
 
@@ -508,8 +504,24 @@ bool MAPSJoin::IsAssociated(int id)
 
 float MAPSJoin::calcScorePos(AUTO_Object * Object_Laser, AUTO_Object * Object_Camera)
 {
-	//TODO::Calcular score posicion
-	return 30;
+	//TODO::Error en el calculo 
+	Point3D Pos_Laser, Sigma_Laser, Pos_Camera, Sigma_Camera;
+	BOUNDIG_BOX_3D Position_Laser, Position_Camera;
+	float I_U;
+
+	//Lo guardamos en forma de punto
+	Pos_Laser = Point3D(Object_Laser->x_rel, Object_Laser->y_rel, Object_Laser->z_rel);
+	Sigma_Laser = Point3D(Object_Laser->x_sigma, Object_Laser->y_sigma, Object_Laser->z_sigma);
+	Pos_Camera = Point3D(Object_Camera->x_rel, Object_Camera->y_rel, Object_Camera->z_rel);
+	Sigma_Camera = Point3D(Object_Camera->x_sigma, Object_Camera->y_sigma, Object_Camera->z_sigma);
+	//Calculamos las BBox
+	Position_Laser = BOUNDIG_BOX_3D(Pos_Laser, Sigma_Laser);
+	Position_Camera = BOUNDIG_BOX_3D(Pos_Camera, Sigma_Camera);
+
+	I_U = (Position_Laser.intersection(Position_Camera).volumen())/ Position_Laser.Union_Volumen(Position_Camera);
+	I_U *= 100;
+
+	return I_U;
 }
 
 float MAPSJoin::calcScoreDis(AUTO_Object * Object_Laser, AUTO_Object * Object_Camera)
