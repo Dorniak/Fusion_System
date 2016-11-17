@@ -198,18 +198,41 @@ Point2D::Point2D(float32_t x , float32_t y ) {
 }
 
 // Distance to another Point2D.  Pythagorean thm.
-float32_t Point2D::dist(Point2D other) {
+float32_t Point2D::dist(Point2D other) 
+{
 	float32_t xd = x - other.x;
 	float32_t yd = y - other.y;
+
 	return sqrt(xd*xd + yd*yd);
 }
 
-// Add or subtract two Point2Ds.
-Point2D Point2D::add(Point2D b)
+float32_t Point2D::module()
 {
+	float32_t module;
+
+	module = this->dist(Point2D(0, 0));
+
+	return module;
+}
+
+// Add or subtract two Point2Ds.
+//Point2D Point2D::add(Point2D b)
+//{
+//	return Point2D(x + b.x, y + b.y);
+//}
+
+Point2D Point2D::operator+(Point2D b)
+{
+	// TODO: insert return statement here
 	return Point2D(x + b.x, y + b.y);
 }
-Point2D Point2D::sub(Point2D b)
+
+//Point2D Point2D::sub(Point2D b)
+//{
+//	return Point2D(x - b.x, y - b.y);
+//}
+
+Point2D Point2D::operator-(Point2D b)
 {
 	return Point2D(x - b.x, y - b.y);
 }
@@ -248,12 +271,129 @@ BOUNDIG_BOX::BOUNDIG_BOX(AUTO_Object * object)
 	point[3].y = object->bounding_box_y_rel[3];
 }
 
+BOUNDIG_BOX::BOUNDIG_BOX(Point2D p, Point2D sigma)
+{
+	//1 2
+	//0 3
+
+	point[0] = Point2D(p.x - sigma.x, p.y + sigma.y);
+	point[1] = Point2D(p.x + sigma.x, p.y + sigma.y);
+	point[2] = Point2D(p.x + sigma.x, p.y - sigma.y);
+	point[3] = Point2D(p.x - sigma.x, p.y - sigma.y);
+}
+
+BOUNDIG_BOX::BOUNDIG_BOX(Point2D a, Point2D b, Point2D c, Point2D d)
+{
+	point[0] = a;
+	point[1] = b;
+	point[2] = c;
+	point[3] = d;
+	this->reordenar();
+}
+
+void BOUNDIG_BOX::reordenar()
+{
+	Point2D aux;
+	Point2D p[4];
+	for (int i = 0; i < 4; i++)
+	{
+		p[i] = point[i];
+		for (int j = 0; j < 4; j++)
+		{
+			switch (i) {
+			case 0:
+				// Code
+				if (point[j].x < p[i].x && point[j].y > p[i].y)
+				{
+					p[i] = point[j];
+				}
+				break;
+			case 1:
+				// Code
+				if (point[j].x > p[i].x && point[j].y > p[i].y)
+				{
+					p[i] = point[j];
+				}
+				break;
+			case 2:
+				// Code
+				if (point[j].x > p[i].x && point[j].y < p[i].y)
+				{
+					p[i] = point[j];
+				}
+				break;
+			case 3:
+				// Code
+				if (point[j].x < p[i].x && point[j].y < p[i].y)
+				{
+					p[i] = point[j];
+				}
+				break;
+			default:
+				// Code
+				break;
+			}
+		}
+	}
+	for (int i = 0; i < 4; i++)
+	{
+		point[i] = p[i];
+	}
+}
+
 void BOUNDIG_BOX::rote(double angle)
 {
 	point[0].rote(angle);
 	point[1].rote(angle);
 	point[2].rote(angle);
 	point[3].rote(angle);
+}
+
+float32_t BOUNDIG_BOX::area()
+{
+	float32_t base, height;
+
+	this->reordenar();
+	base = point[0].dist(point[3]);
+	height = point[0].dist(point[1]);
+
+	return base*height;
+}
+
+BOUNDIG_BOX BOUNDIG_BOX::intersection(BOUNDIG_BOX other)
+{
+	float x_min, x_max, y_min, y_max;
+	float x_min_Box(FLT_MAX), x_max_Box(-FLT_MAX), y_min_Box(FLT_MAX), y_max_Box(-FLT_MAX);
+	float x_min_Other(FLT_MAX), x_max_Other(-FLT_MAX), y_min_Other(FLT_MAX), y_max_Other(-FLT_MAX);
+
+	for (int i = 0; i < 4; i++)
+	{
+		x_min_Box = min(x_min_Box, point[i].x);
+		x_max_Box = max(x_max_Box, point[i].x);
+		y_min_Box = min(y_min_Box, point[i].y);
+		y_max_Box = max(y_max_Box, point[i].y);
+
+		x_min_Other = min(x_min_Other, other.point[i].x);
+		x_max_Other = max(x_max_Other, other.point[i].x);
+		y_min_Other = min(y_min_Other, other.point[i].y);
+		y_max_Other = max(y_max_Other, other.point[i].y);
+	}
+
+	x_min = min(x_min_Box, x_min_Other);
+	x_max = max(x_max_Box, x_max_Other);
+	y_min = min(y_min_Box, y_min_Other);
+	y_max = max(y_max_Box, y_max_Other);
+
+	return BOUNDIG_BOX(Point2D(x_min, y_max), Point2D(x_max, y_max), Point2D(x_max, y_min), Point2D(x_min, y_min));
+}
+
+float32_t BOUNDIG_BOX::Union_area(BOUNDIG_BOX other)
+{
+	float32_t areaU;
+
+	areaU = this->area() + other.area() - this->intersection(other).area();
+
+	return areaU;
 }
 
 BOUNDIG_BOX_3D::BOUNDIG_BOX_3D()

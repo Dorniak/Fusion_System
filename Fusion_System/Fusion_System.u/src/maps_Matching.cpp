@@ -51,7 +51,6 @@ void MAPSMatching::Birth()
 
 void MAPSMatching::Core()
 {
-	str.Clear();
 	//Read input objects
 	readInputs();
 	if ( !readed[0] || !readed [1])
@@ -62,6 +61,7 @@ void MAPSMatching::Core()
 	{
 		readed[i] = false;
 	}
+	str.Clear();
 	str << '\n' << "Box Matchig " << ArrayLaserObjects.number_of_objects << " " << ArrayCameraObjects.number_of_objects;
 	//We look for objects inside the gating window of each object
 	clear_Matched();
@@ -512,7 +512,7 @@ int MAPSMatching::findID(int id_object, int id_target, MATCH_OBJECTS * vector)
 int MAPSMatching::calcIU(AUTO_Object * objet1, AUTO_Object * objet2, BOUNDIG_BOX * BBoxInter)
 {
 	double area1, area2, areaI, areaU, areaFinal;
-
+	//TODO::Esto esta mal no se puede usar el width y el length por que son de la BBox original
 	area1 = objet1->width * objet1->length;
 	area2 = objet2->width * objet2->length;
 	areaI = calcArea(BBoxInter);

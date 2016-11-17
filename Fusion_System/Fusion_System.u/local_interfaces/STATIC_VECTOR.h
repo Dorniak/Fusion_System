@@ -61,7 +61,7 @@ public:
 	void erase(int pos);
 	void push_back(int id);
 };
-
+//En pruebas
 class Point3D
 {
 public:
@@ -73,7 +73,6 @@ public:
 	Point3D sub(Point3D other);
 };
 
-
 class Point2D 
 {
 public:
@@ -81,8 +80,11 @@ public:
 	Point2D();
 	Point2D(float32_t x, float32_t y);
 	float32_t dist(Point2D other);
-	Point2D add(Point2D b);
-	Point2D sub(Point2D b);
+	float32_t module();
+//	Point2D add(Point2D b);
+	Point2D operator+(Point2D b);
+//	Point2D sub(Point2D b);
+	Point2D operator-(Point2D b);
 	void move(float32_t a, float32_t b);
 	void rote(double angle);
 };
@@ -93,9 +95,15 @@ public:
 	Point2D point[4];
 	BOUNDIG_BOX();
 	BOUNDIG_BOX(AUTO_Object * object);
+	BOUNDIG_BOX(Point2D p, Point2D sigma);
+	BOUNDIG_BOX(Point2D a, Point2D b, Point2D c, Point2D d);
+	void reordenar();
 	void rote(double angle);
+	float32_t area();
+	BOUNDIG_BOX intersection(BOUNDIG_BOX other);
+	float32_t Union_area(BOUNDIG_BOX other);
 };
-
+//En pruebas
 class BOUNDIG_BOX_3D
 {
 public:
