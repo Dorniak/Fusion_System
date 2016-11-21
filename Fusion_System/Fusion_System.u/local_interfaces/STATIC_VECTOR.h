@@ -42,7 +42,7 @@ class AssociatedObjs
 {
 public:
 	int number_objects = 0;
-	int vector[AUTO_MAX_NUM_OBJECTS][3];
+	int vector[AUTO_MAX_NUM_OBJECTS][3];//id_Laser id_Camera Score
 	void clear();
 	void clear(int pos);
 	int size();
@@ -53,6 +53,7 @@ public:
 class NonAssociated
 {
 public:
+	NonAssociated();
 	int number_objects = 0;
 	int vector[AUTO_MAX_NUM_OBJECTS];
 	void clear();

@@ -417,8 +417,10 @@ void MAPSMatching::overlap(AUTO_Object * objeto1, AUTO_Object * objeto2)//Call w
 	BOUNDIG_BOX intersection, BBox1, BBox2;
 	BBox1 = BOUNDIG_BOX(objeto1);
 	BBox2 = BOUNDIG_BOX(objeto2);
-	float32_t x_min, x_max, y_min, y_max;
+//	float32_t x_min, x_max, y_min, y_max;
 
+	intersection = BBox1.intersection(BBox2);
+	/*
 	x_max = min(max(max(BBox1.point[0].x, BBox1.point[1].x), max(BBox1.point[2].x, BBox1.point[3].x)), max(max(BBox2.point[0].x, BBox2.point[1].x), max(BBox2.point[2].x, BBox2.point[3].x)));
 	y_max = min(max(max(BBox1.point[0].y, BBox1.point[1].y), max(BBox1.point[2].y, BBox1.point[3].y)), max(max(BBox2.point[0].y, BBox2.point[1].y), max(BBox2.point[2].y, BBox2.point[3].y)));
 	x_min = max(min(min(BBox1.point[0].x, BBox1.point[1].x), min(BBox1.point[2].x, BBox1.point[3].x)), min(min(BBox2.point[0].x, BBox2.point[1].x), min(BBox2.point[2].x, BBox2.point[3].x)));
@@ -435,6 +437,7 @@ void MAPSMatching::overlap(AUTO_Object * objeto1, AUTO_Object * objeto2)//Call w
 
 	intersection.point[3].x = x_min;
 	intersection.point[3].y = y_min;
+	*/
 
 	LaserMatched.Matrix_matched[findID(objeto1->id, &LaserMatched)][findID(objeto1->id, objeto2->id, &LaserMatched)][1] = calcIU(objeto1, objeto2, &intersection);
 	CameraMatched.Matrix_matched[findID(objeto2->id, &CameraMatched)][findID(objeto2->id, objeto1->id, &CameraMatched)][1] = LaserMatched.Matrix_matched[findID(objeto1->id, &LaserMatched)][findID(objeto1->id, objeto2->id, &LaserMatched)][1];	
@@ -512,10 +515,14 @@ int MAPSMatching::findID(int id_object, int id_target, MATCH_OBJECTS * vector)
 int MAPSMatching::calcIU(AUTO_Object * objet1, AUTO_Object * objet2, BOUNDIG_BOX * BBoxInter)
 {
 	double area1, area2, areaI, areaU, areaFinal;
+	BOUNDIG_BOX obj1, obj2;
+
+	obj1 = BOUNDIG_BOX(objet1);
+	obj2 = BOUNDIG_BOX(objet2);
 	//TODO::Esto esta mal no se puede usar el width y el length por que son de la BBox original
-	area1 = objet1->width * objet1->length;
-	area2 = objet2->width * objet2->length;
-	areaI = calcArea(BBoxInter);
+	area1 = obj1.area();
+	area2 = obj2.area();
+	areaI = BBoxInter->area();
 	areaU = area1 + area2 - areaI;
 	areaFinal = (areaI / areaU)*100;//[0,100]
 	areaFinal = round(areaFinal);

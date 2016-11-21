@@ -7,12 +7,13 @@
 #define MIN_SCORE 20
 
 //sum = 1
-#define weight_pos 1
+#define weight_type 0.2
+#define weight_pos 0.4
 #define weight_dis 0
 #define weight_size 0
 #define weight_speed 0
 #define weight_accel 0
-#define weight_over 0
+#define weight_over 0.4
 
 
 
@@ -86,11 +87,16 @@ private:
 	void selectNextAssociation(int pos);
 	bool lastCheck();
 	bool IsAssociated(int id);
+	float calcScoreType(AUTO_Object * Object_Laser, AUTO_Object * Object_Camera);//[0,100]
 	float calcScorePos(AUTO_Object * Object_Laser, AUTO_Object * Object_Camera);//[0,100]
 	float calcScoreDis(AUTO_Object * Object_Laser, AUTO_Object * Object_Camera);//[0,100]
 	float calcScoreSize(AUTO_Object * Object_Laser, AUTO_Object * Object_Camera);//[0,100]
 	float calcScoreSpeed(AUTO_Object * Object_Laser, AUTO_Object * Object_Camera);//[0,100]
 	float calcScoreAccel(AUTO_Object * Object_Laser, AUTO_Object * Object_Camera);//[0,100]
+	float getOverlapScore(AUTO_Object * Object_Laser, AUTO_Object * Object_Camera);//[0,100]
+	int findID(int id_object, MATCH_OBJECTS * vector);
+	int findID(int id_object, int id_target, MATCH_OBJECTS * vector);
+	bool compatibles(AUTO_OBJECT_CLASS classL, AUTO_OBJECT_CLASS classC);
 };
 
 #endif

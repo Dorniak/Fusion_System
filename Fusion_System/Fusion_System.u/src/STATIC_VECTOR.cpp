@@ -71,6 +71,12 @@ void VVECTOR_INT::resize(int tam)
 	}
 }
 
+NonAssociated::NonAssociated()
+{
+	number_objects = AUTO_MAX_NUM_OBJECTS;
+	clear();
+}
+
 void NonAssociated::clear()
 {
 	for (int i = 0; i < number_objects; i++)
@@ -379,10 +385,10 @@ BOUNDIG_BOX BOUNDIG_BOX::intersection(BOUNDIG_BOX other)
 		y_max_Other = max(y_max_Other, other.point[i].y);
 	}
 
-	x_min = min(x_min_Box, x_min_Other);
-	x_max = max(x_max_Box, x_max_Other);
-	y_min = min(y_min_Box, y_min_Other);
-	y_max = max(y_max_Box, y_max_Other);
+	x_min = max(x_min_Box, x_min_Other);
+	x_max = min(x_max_Box, x_max_Other);
+	y_min = max(y_min_Box, y_min_Other);
+	y_max = min(y_max_Box, y_max_Other);
 
 	return BOUNDIG_BOX(Point2D(x_min, y_max), Point2D(x_max, y_max), Point2D(x_max, y_min), Point2D(x_min, y_min));
 }

@@ -236,20 +236,22 @@ void MAPSJoin::WriteOutputs()
 int MAPSJoin::calculateScore(int id_Laser, int id_Camera)
 {
 	float score;//[0,100]
-	float score_pos(0), score_dis(0), score_size(0), score_speed(0), score_accel(0), score_overlap(0);//[0,100]
+	float score_type(0),score_pos(0), score_dis(0), score_size(0), score_speed(0), score_accel(0), score_overlap(0);//[0,100]
 
 	//Calculate the scores
 	AUTO_Object object_Laser, object_Camera;
 	object_Laser = Laser_Objects.object[findPositionObject(id_Laser, &Laser_Objects)];
 	object_Camera = Camera_Objects.object[findPositionObject(id_Camera, &Camera_Objects)];
-
+	score_type = calcScoreType(&object_Laser, &object_Camera);
 	score_pos = calcScorePos(&object_Laser, &object_Camera);
 	score_dis = calcScoreDis(&object_Laser, &object_Camera);
 	score_size = calcScoreSize(&object_Laser, &object_Camera);
 	score_speed = calcScoreSpeed(&object_Laser, &object_Camera);
 	score_accel = calcScoreAccel(&object_Laser, &object_Camera);
-		
-	score = score_pos*weight_pos + score_dis*weight_dis + score_size*weight_size + score_speed*weight_speed + score_accel*weight_accel + score_overlap*weight_over;
+	score_overlap = getOverlapScore(&object_Laser, &object_Camera);
+
+	score = (float)(score_type*weight_type + score_pos*weight_pos + score_dis*weight_dis + score_size*weight_size + score_speed*weight_speed + score_accel*weight_accel + score_overlap*weight_over);
+	score = round(score);
 
 	return (int)score;
 }
@@ -501,6 +503,23 @@ bool MAPSJoin::IsAssociated(int id)
 	return false;//Ese id aun no esta asociado
 }
 
+float MAPSJoin::calcScoreType(AUTO_Object * Object_Laser, AUTO_Object * Object_Camera)
+{
+	//Definimos 3 opciones
+	//Que los dos objetos tengan un tipo definido y sea el mismo 100%
+	//Que los dos objetos tengan tipos incompatibles 0%
+	//Que los dos objetos tengan distintos tipos pero compatibles
+	if (Object_Laser->object_class == Object_Camera->object_class && Object_Laser->object_class != 0)
+	{
+		return Object_Laser->class_confidence;
+	}
+	else if (compatibles(Object_Laser->object_class, Object_Camera->object_class))
+	{
+		return 50;
+	}
+	else return 0;
+}
+
 float MAPSJoin::calcScorePos(AUTO_Object * Object_Laser, AUTO_Object * Object_Camera)
 {
 	Point2D Pos_Laser, Sigma_Laser, Pos_Camera, Sigma_Camera;
@@ -540,4 +559,111 @@ float MAPSJoin::calcScoreSpeed(AUTO_Object * Object_Laser, AUTO_Object * Object_
 float MAPSJoin::calcScoreAccel(AUTO_Object * Object_Laser, AUTO_Object * Object_Camera)
 {
 	return 0.0f;
+}
+
+float MAPSJoin::getOverlapScore(AUTO_Object * Object_Laser, AUTO_Object * Object_Camera)
+{
+	return (float)Laser_Matched.Matrix_matched[findID(Object_Laser->id, &Laser_Matched)][findID(Object_Laser->id, Object_Camera->id, &Laser_Matched)][1];
+}
+
+int MAPSJoin::findID(int id_object, MATCH_OBJECTS * vector)
+{
+	if (id_object == -1 || vector->number_objects>AUTO_MAX_NUM_OBJECTS)
+	{
+		return -1;//Only for control but actually should be implossible 
+	}
+	for (int i = 0; i < vector->number_objects; i++)
+	{
+		if (vector->id[i] == -1)
+		{
+			return -1;//Only for control but actually should be implossible 
+		}
+		else if (vector->id[i] == id_object)
+		{
+			return i;
+		}
+	}
+
+	return -1;
+}
+
+int MAPSJoin::findID(int id_object, int id_target, MATCH_OBJECTS * vector)
+{
+	int pos = findID(id_object, vector);
+
+	if (pos == -1 || id_target == -1)
+	{
+		return -1;//Only for control but actually should be implossible 
+	}
+
+	for (int j = 0; j < vector->number_matched[pos]; j++)
+	{
+		if (j > AUTO_MAX_NUM_OBJECTS)
+		{
+			continue;//Only for control but actually should be implossible 
+		}
+		if (vector->Matrix_matched[pos][j][0] == id_target)
+		{
+			return j;
+		}
+	}
+
+	return -1;
+}
+
+bool MAPSJoin::compatibles(AUTO_OBJECT_CLASS classL, AUTO_OBJECT_CLASS classC)
+{
+	if (classL == 0 || classC == 0)
+	{
+		return true;
+	}
+	switch (classL)
+	{
+	case 0:
+		return true;
+		break;
+	case 1:
+		if (classC == 1 || classC == 2)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+		break;
+	case 2:
+		if (classC == 1 || classC == 2)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+		break;
+	case 3:
+		if (classC == 3 || classC == 4)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+		break;
+	case 4:
+		if (classC == 3 || classC == 4)
+		{
+			return true;
+		}
+		else 
+		{
+			return false;
+		}
+		break;
+	default:
+		return false;
+		break;
+	}
 }
