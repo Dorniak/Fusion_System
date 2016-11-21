@@ -208,7 +208,7 @@ void MAPSMatching::findMatches(AUTO_Objects * ArrayLaser, AUTO_Objects * ArrayCa
 
 bool MAPSMatching::BoxMatching(AUTO_Object * Object1, AUTO_Object * Object2)
 {
-	
+	//TODO::Modificar esto con las nuevas funciones de BBox
 	double x_max(-DBL_MAX), x_min(DBL_MAX), y_max(-DBL_MAX), y_min(DBL_MAX);
 
 	for (int i = 0; i < 4; i++) {

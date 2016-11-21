@@ -402,6 +402,27 @@ float32_t BOUNDIG_BOX::Union_area(BOUNDIG_BOX other)
 	return areaU;
 }
 
+bool BOUNDIG_BOX::isInside(Point2D P)
+{
+	float x_min(FLT_MAX), x_max(-FLT_MAX), y_min(FLT_MAX), y_max(-FLT_MAX);
+
+	for (int i = 0; i < 4; i++)
+	{
+		x_min = min(x_min, point[i].x);
+		x_max = max(x_max, point[i].x);
+		y_min = min(y_min, point[i].y);
+		y_max = max(y_max, point[i].y);
+	}
+	if (P.x < x_max && P.x > x_min)
+	{
+		if (P.y < y_max && P.y > y_min)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 BOUNDIG_BOX_3D::BOUNDIG_BOX_3D()
 {
 	point[0] = Point3D(0, 0, 0);

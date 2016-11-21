@@ -265,6 +265,7 @@ int MAPSJoin::findPositionObject(int id, AUTO_Objects * objects)
 			return i;
 		}
 	}
+
 	return -1;
 }
 
@@ -277,6 +278,7 @@ bool MAPSJoin::findAssociatedLaser(int id_Laser)
 			return true;
 		}
 	}
+
 	return false;
 }
 
@@ -289,6 +291,7 @@ bool MAPSJoin::findAssociatedCamera(int id_Camera)
 			return true;
 		}
 	}
+
 	return false;
 }
 
@@ -379,9 +382,6 @@ void MAPSJoin::selectAssociations()
 					}
 				}
 			}
-
-
-
 		}
 	} while (lastCheck());
 }
@@ -417,6 +417,7 @@ bool MAPSJoin::findAmbiguities()
 			}
 		}
 	}
+
 	return false;
 }
 
@@ -433,6 +434,7 @@ int MAPSJoin::findAmbiguities(int pos)
 			}
 		}
 	}
+
 	return -1;
 }
 
@@ -458,7 +460,6 @@ void MAPSJoin::selectNextAssociation(int pos)
 		joined.vector[pos][1] = MatrixOfAssociations[pos][i][0];//Id de la camara
 		joined.vector[pos][2] = MatrixOfAssociations[pos][i][1];//score
 	}
-
 }
 
 bool MAPSJoin::lastCheck()
@@ -484,6 +485,7 @@ bool MAPSJoin::lastCheck()
 			}
 		}
 	}
+
 	if (changes)
 	{
 		return true;
@@ -500,6 +502,7 @@ bool MAPSJoin::IsAssociated(int id)
 			return true;//Ese id ya esta asociado
 		}
 	}
+
 	return false;//Ese id aun no esta asociado
 }
 
@@ -517,6 +520,7 @@ float MAPSJoin::calcScoreType(AUTO_Object * Object_Laser, AUTO_Object * Object_C
 	{
 		return 50;
 	}
+
 	else return 0;
 }
 
@@ -553,7 +557,24 @@ float MAPSJoin::calcScoreSize(AUTO_Object * Object_Laser, AUTO_Object * Object_C
 
 float MAPSJoin::calcScoreSpeed(AUTO_Object * Object_Laser, AUTO_Object * Object_Camera)
 {
-	return 0.0f;
+	Point2D Speed_Laser, Sigma_Laser, Speed_Camera;
+	BOUNDIG_BOX Speed_Laser_Box;
+
+	//Vector Speed Laser
+	Speed_Laser = Point2D(Object_Laser->x_rel, Object_Laser->y_rel);
+	Sigma_Laser = Point2D(Object_Laser->x_sigma, Object_Laser->y_sigma);
+
+	//Vector speed Camera
+	//Speed sigma is not working for the camera
+	Speed_Camera = Point2D(Object_Camera->x_rel, Object_Camera->y_rel);
+
+	Speed_Laser_Box = BOUNDIG_BOX(Speed_Laser, Sigma_Laser);
+
+	if (Speed_Laser_Box.isInside(Speed_Camera))
+	{
+		return 100;
+	}
+	else return 0;
 }
 
 float MAPSJoin::calcScoreAccel(AUTO_Object * Object_Laser, AUTO_Object * Object_Camera)

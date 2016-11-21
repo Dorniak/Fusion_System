@@ -103,6 +103,7 @@ public:
 	float32_t area();
 	BOUNDIG_BOX intersection(BOUNDIG_BOX other);
 	float32_t Union_area(BOUNDIG_BOX other);
+	bool isInside(Point2D P);
 };
 //En pruebas
 class BOUNDIG_BOX_3D
