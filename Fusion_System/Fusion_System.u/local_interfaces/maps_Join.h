@@ -4,16 +4,15 @@
 
 #ifndef _Maps_Join_H
 #define _Maps_Join_H
-#define MIN_SCORE 20
+#define MIN_SCORE 0
 
 //sum = 1
-#define weight_type 0.2
-#define weight_pos 0.4
-#define weight_dis 0
+#define weight_type 0//0.2
+#define weight_pos 0//0.4
 #define weight_size 0
 #define weight_speed 0
-#define weight_accel 0
-#define weight_over 0.4
+#define weight_over 0//0.4
+#define weight_center 1
 
 
 
@@ -72,6 +71,8 @@ private:
 	void ReadInputs();
 	void ProcessData();
 	void WriteOutputs();
+	void PrintAssociations();
+	void PrintPossibleAssociations();
 	int calculateScore(int id_Laser, int id_Camera);
 	int findPositionObject(int id, AUTO_Objects *objects);
 	bool findAssociatedLaser(int id_Laser);
@@ -89,10 +90,9 @@ private:
 	bool IsAssociated(int id);
 	float calcScoreType(AUTO_Object * Object_Laser, AUTO_Object * Object_Camera);//[0,100]
 	float calcScorePos(AUTO_Object * Object_Laser, AUTO_Object * Object_Camera);//[0,100]
-	float calcScoreDis(AUTO_Object * Object_Laser, AUTO_Object * Object_Camera);//[0,100]
 	float calcScoreSize(AUTO_Object * Object_Laser, AUTO_Object * Object_Camera);//[0,100]
 	float calcScoreSpeed(AUTO_Object * Object_Laser, AUTO_Object * Object_Camera);//[0,100]
-	float calcScoreAccel(AUTO_Object * Object_Laser, AUTO_Object * Object_Camera);//[0,100]
+	float calcScoreCenter(AUTO_Object * Object_Laser, AUTO_Object * Object_Camera);//[0,100]
 	float getOverlapScore(AUTO_Object * Object_Laser, AUTO_Object * Object_Camera);//[0,100]
 	int findID(int id_object, MATCH_OBJECTS * vector);
 	int findID(int id_object, int id_target, MATCH_OBJECTS * vector);

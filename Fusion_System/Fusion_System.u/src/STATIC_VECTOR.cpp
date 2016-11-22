@@ -402,6 +402,31 @@ float32_t BOUNDIG_BOX::Union_area(BOUNDIG_BOX other)
 	return areaU;
 }
 
+BOUNDIG_BOX BOUNDIG_BOX::ampliate(Point2D sigma)
+{
+	//b c
+	//a d
+	Point2D a, b, c, d;
+
+	a = point[0];
+	a.x -= sigma.x;
+	a.y += sigma.y;
+
+	b = point[1];
+	b.x += sigma.x;
+	b.y += sigma.y;
+
+	c = point[2];
+	c.x += sigma.x;
+	c.y -= sigma.y;
+
+	d = point[3];
+	d.x -= sigma.x;
+	d.y -= sigma.y;
+
+	return BOUNDIG_BOX(a,b,c,d);
+}
+
 bool BOUNDIG_BOX::isInside(Point2D P)
 {
 	float x_min(FLT_MAX), x_max(-FLT_MAX), y_min(FLT_MAX), y_max(-FLT_MAX);

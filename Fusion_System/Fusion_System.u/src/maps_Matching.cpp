@@ -68,7 +68,7 @@ void MAPSMatching::Core()
 	findMatches(&ArrayLaserObjects, &ArrayCameraObjects);
 	printResults();
 	WriteOutputs();
-	//ReportInfo(str);
+	ReportInfo(str);
 }
 
 void MAPSMatching::Death()
@@ -140,10 +140,10 @@ void MAPSMatching::printResults()
 	str << '\n' << "Laser" << '\n';
 	for (int printer = 0; printer < LaserMatched.number_objects; printer++)
 	{
-		str << "ID: " << ArrayLaserObjects.object[printer].id << '\n';
+		str << "ID: " << LaserMatched.id[printer]<< " ==>";
 		for (int printer2 = 0; printer2 < LaserMatched.number_matched[printer]; printer2++)
 		{
-			str << " " << LaserMatched.Matrix_matched[printer][printer2];
+			str << " " << LaserMatched.Matrix_matched[printer][printer2][0] << "(" << LaserMatched.Matrix_matched[printer][printer2][1] << ")";
 		}
 		str << '\n';
 	}
@@ -151,10 +151,10 @@ void MAPSMatching::printResults()
 	str << '\n' << "Camara" << '\n';
 	for (int printer = 0; printer < CameraMatched.number_objects; printer++)
 	{
-		str << "ID: " << ArrayCameraObjects.object[printer].id << '\n';
+		str << "ID: " << CameraMatched.id[printer] << " ==> ";
 		for (int printer2 = 0; printer2 < CameraMatched.number_matched[printer]; printer2++)
 		{
-			str << " " << CameraMatched.Matrix_matched[printer][printer2];
+			str << " " << CameraMatched.Matrix_matched[printer][printer2][0] << "(" << CameraMatched.Matrix_matched[printer][printer2][1] << ")";
 		}
 		str << '\n';
 	}

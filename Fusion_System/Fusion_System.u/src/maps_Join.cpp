@@ -75,7 +75,7 @@ void MAPSJoin::Core()
 	WriteOutputs();
 #pragma endregion
 
-	
+	/*
 	str << '\n';
 	str << "Inputs:";
 	str << '\n' << "Laser: " << Laser_Objects.number_of_objects << " Camera: " << Camera_Objects.number_of_objects;
@@ -83,6 +83,9 @@ void MAPSJoin::Core()
 	str << '\n' << "Associated objects: " << joined.size();
 	str << '\n' << "Non Laser Associated objects: " << nonLaserJoined.size();
 	str << '\n' << "Non Camera Associated objects: " << nonCameraJoined.size();
+	*/
+	PrintAssociations();
+	PrintPossibleAssociations();
 	ReportInfo(str);
 	str.Clear();
 
@@ -233,27 +236,65 @@ void MAPSJoin::WriteOutputs()
 	StopWriting(_ioOutput);
 }
 
+void MAPSJoin::PrintAssociations()
+{
+	str << '\n' << "Associations" << '\n';
+	for (int i = 0; i < joined.number_objects; i++)
+	{
+		str << "L: " << joined.vector[i][0] << " C: " << joined.vector[i][1] << " S: " << joined.vector[i][2] << '\n';
+	}
+}
+
+void MAPSJoin::PrintPossibleAssociations()
+{
+	str << '\n' << "Possible Associations" << '\n';
+	//MatrixOfAssociations
+	for (int i = 0; i < Laser_Objects.number_of_objects; i++)
+	{
+		str << "Laser ID: " << Laser_Matched.id[i] << '\n';
+		for (int j = 0; j < Laser_Matched.number_matched[i]; j++)
+		{
+			str << "C: " << MatrixOfAssociations[i][j][0] << " S: " << MatrixOfAssociations[i][j][1] << '\n';
+		}
+	}
+}
+
 int MAPSJoin::calculateScore(int id_Laser, int id_Camera)
 {
 	float score;//[0,100]
-	float score_type(0),score_pos(0), score_dis(0), score_size(0), score_speed(0), score_accel(0), score_overlap(0);//[0,100]
+	float score_type(0), score_pos(0), score_size(0), score_speed(0), score_overlap(0);//[0,100]
+	float score_centered(0);
 
 	//Calculate the scores
 	AUTO_Object object_Laser, object_Camera;
 	object_Laser = Laser_Objects.object[findPositionObject(id_Laser, &Laser_Objects)];
 	object_Camera = Camera_Objects.object[findPositionObject(id_Camera, &Camera_Objects)];
-	score_type = calcScoreType(&object_Laser, &object_Camera);
-	score_pos = calcScorePos(&object_Laser, &object_Camera);
-	score_dis = calcScoreDis(&object_Laser, &object_Camera);
-	score_size = calcScoreSize(&object_Laser, &object_Camera);
-	score_speed = calcScoreSpeed(&object_Laser, &object_Camera);
-	score_accel = calcScoreAccel(&object_Laser, &object_Camera);
-	score_overlap = getOverlapScore(&object_Laser, &object_Camera);
+	if (compatibles(object_Laser.object_class, object_Camera.object_class))
+	{
+		score_type = calcScoreType(&object_Laser, &object_Camera);
+		score_pos = calcScorePos(&object_Laser, &object_Camera);
+		score_size = calcScoreSize(&object_Laser, &object_Camera);
+		score_speed = calcScoreSpeed(&object_Laser, &object_Camera);
+		score_overlap = getOverlapScore(&object_Laser, &object_Camera);
+		score_centered = calcScoreCenter(&object_Laser, &object_Camera);
+		//TODO:Revisar los -1 en las posibles asociaciones
 
-	score = (float)(score_type*weight_type + score_pos*weight_pos + score_dis*weight_dis + score_size*weight_size + score_speed*weight_speed + score_accel*weight_accel + score_overlap*weight_over);
-	score = round(score);
+		//Ready
+		//-Type
+		//-Position
+		//-Speed
+		//-Overlap
+		//-Centered
 
-	return (int)score;
+		//Left
+		//-size
+
+		score = (float)(score_type*weight_type + score_pos*weight_pos + score_size*weight_size + score_speed*weight_speed + score_overlap*weight_over + score_centered*weight_center);
+
+		score = round(score);
+		return (int)score;
+	}
+	else return 0;//Son tipos no compatibles
 }
 
 int MAPSJoin::findPositionObject(int id, AUTO_Objects * objects)
@@ -402,18 +443,15 @@ bool MAPSJoin::findAmbiguities()
 {
 	for (int i = 0; i < joined.size(); i++)
 	{
-		for (int j = i+1; j < joined.size(); j++)
+		if (joined.vector[i][1] == -1)
 		{
-			if (joined.vector[i][1] != -1)
+			continue;
+		}
+		for (int j = i + 1; j < joined.size(); j++)
+		{
+			if (joined.vector[j][1] != -1 && joined.vector[i][1] == joined.vector[j][1])
 			{
-				if (joined.vector[j][1] != -1 && joined.vector[i][1] == joined.vector[j][1])
-				{
-					return true;
-				}
-			}
-			else
-			{
-				break;
+				return true;
 			}
 		}
 	}
@@ -441,24 +479,24 @@ int MAPSJoin::findAmbiguities(int pos)
 void MAPSJoin::selectNextAssociation(int pos)
 {
 	//Seleccionar la siguiente asociacion posible y copiarla al vector de asociaciones
-	int id_actual;
+	int id_actual, posMatrix;
 	id_actual = joined.vector[pos][1];
 	//MatrixOfAssociations
-	int i(1);
-	while (i < AUTO_MAX_NUM_OBJECTS && (MatrixOfAssociations[pos][i][0] != id_actual || MatrixOfAssociations[pos][i][0] == -1))
+	int i(0);
+	while (i < AUTO_MAX_NUM_OBJECTS && (MatrixOfAssociations[pos][i][0] != id_actual && MatrixOfAssociations[pos][i][0] != -1))
 	{
 		i++;
 	}
 	//Significa que soy el ultimo
-	if (i >= AUTO_MAX_NUM_OBJECTS - 1 || MatrixOfAssociations[pos][i][0] == -1)
+	if (i >= AUTO_MAX_NUM_OBJECTS - 1 || MatrixOfAssociations[pos][i + 1][0] == -1)
 	{
 		joined.vector[pos][1] = -1;
 		joined.vector[pos][2] = 0;
 	}//Significa que no eres el ultimo en el array y hay mas posibilidades
-	else 
+	else
 	{
-		joined.vector[pos][1] = MatrixOfAssociations[pos][i][0];//Id de la camara
-		joined.vector[pos][2] = MatrixOfAssociations[pos][i][1];//score
+		joined.vector[pos][1] = MatrixOfAssociations[pos][i + 1][0];//Id de la camara
+		joined.vector[pos][2] = MatrixOfAssociations[pos][i + 1][1];//score
 	}
 }
 
@@ -545,11 +583,6 @@ float MAPSJoin::calcScorePos(AUTO_Object * Object_Laser, AUTO_Object * Object_Ca
 	return (float)I_U;
 }
 
-float MAPSJoin::calcScoreDis(AUTO_Object * Object_Laser, AUTO_Object * Object_Camera)
-{
-	return 0.0f;
-}
-
 float MAPSJoin::calcScoreSize(AUTO_Object * Object_Laser, AUTO_Object * Object_Camera)
 {
 	return 0.0f;
@@ -577,9 +610,34 @@ float MAPSJoin::calcScoreSpeed(AUTO_Object * Object_Laser, AUTO_Object * Object_
 	else return 0;
 }
 
-float MAPSJoin::calcScoreAccel(AUTO_Object * Object_Laser, AUTO_Object * Object_Camera)
+float MAPSJoin::calcScoreCenter(AUTO_Object * Object_Laser, AUTO_Object * Object_Camera)
 {
-	return 0.0f;
+	Point2D centerL,centerC,sigmaL;
+	BOUNDIG_BOX BBoxLAmpli;
+	float32_t distanceMax, dist;
+
+	centerL = Point2D(Object_Laser->x_rel, Object_Laser->y_rel);
+	centerC = Point2D(Object_Camera->x_rel, Object_Camera->y_rel);
+	sigmaL = Point2D(Object_Laser->x_sigma, Object_Laser->y_sigma);
+
+	BBoxLAmpli = BOUNDIG_BOX(Object_Laser);
+	BBoxLAmpli.ampliate(sigmaL);
+
+	distanceMax = centerL.dist(BBoxLAmpli.point[0]);//Da igual que punto
+	dist = centerL.dist(centerC);
+
+	if (dist > distanceMax)
+	{
+		return 0;
+	}
+	else if (dist == 0)
+	{
+		return 100;
+	}
+	else
+	{
+		return (1 / (distanceMax / dist)) * 100;//[0,100]
+	}
 }
 
 float MAPSJoin::getOverlapScore(AUTO_Object * Object_Laser, AUTO_Object * Object_Camera)
