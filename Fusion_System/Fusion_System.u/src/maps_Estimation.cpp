@@ -8,12 +8,18 @@
 
 #include "maps_Estimation.h"	// Includes the header of this component
 const MAPSTypeFilterBase ValeoStructure = MAPS_FILTER_USER_STRUCTURE(AUTO_Objects);
+const MAPSTypeFilterBase Associations = MAPS_FILTER_USER_STRUCTURE(AssociatedObjs);
+const MAPSTypeFilterBase NonAssociations = MAPS_FILTER_USER_STRUCTURE(NonAssociated);
 
 // Use the macros to declare the inputs
 MAPS_BEGIN_INPUTS_DEFINITION(MAPSEstimation)
     //MAPS_INPUT("iName",MAPS::FilterInteger32,MAPS::FifoReader)
 	MAPS_INPUT("LaserObject", ValeoStructure, MAPS::FifoReader)
 	MAPS_INPUT("CameraObject", ValeoStructure, MAPS::FifoReader)
+	MAPS_INPUT("Associations", Associations, MAPS::FifoReader)
+	MAPS_INPUT("NonAssocLaser", NonAssociations, MAPS::FifoReader)
+	MAPS_INPUT("NonAssocCamera", NonAssociations, MAPS::FifoReader)
+
 MAPS_END_INPUTS_DEFINITION
 
 // Use the macros to declare the outputs
@@ -49,12 +55,15 @@ void MAPSEstimation::Birth()
 void MAPSEstimation::Core()
 {
 	readInputs();
-	if (numReaded < numInputs)
+	if (!readed[0] || !readed[1] || !readed[2] || !readed[3] || !readed[4])
 	{
 		return;
 	}
-	numReaded = 0;
-	readInputs();
+	for (int i = 0; i < numInputs; i++)
+	{
+		readed[i] = false;
+	}
+	ProcessData();
 	WriteOutputs();
 	//ReportInfo(str);
 	str.Clear();
@@ -66,21 +75,38 @@ void MAPSEstimation::Death()
 
 void MAPSEstimation::readInputs()
 {
-	MAPSInput* inputs[2] = { &Input("LaserObject"), &Input("CameraObject")};
+	MAPSInput* inputs[5] = { &Input("LaserObject"), &Input("CameraObject"), &Input("Associations") , &Input("NonAssocLaser") , &Input("NonAssocCamera") };
 	int inputThatAnswered;
-	MAPSIOElt* ioeltin = StartReading(2, inputs, &inputThatAnswered);
+	MAPSIOElt* ioeltin = StartReading(5, inputs, &inputThatAnswered);
 	if (ioeltin == NULL) {
 		return;
 	}
 	switch (inputThatAnswered)
 	{
 	case 0:
-		numReaded++;
-		ArrayLaserObjects = static_cast<AUTO_Objects*>(ioeltin->Data());
+		ArrayLaserObjects_input = static_cast<AUTO_Objects*>(ioeltin->Data());
+		ArrayLaserObjects = *ArrayLaserObjects_input;
+		readed[0] = true;
 		break;
 	case 1:
-		numReaded++;
-		ArrayCameraObjects = static_cast<AUTO_Objects*>(ioeltin->Data());
+		ArrayCameraObjects_input = static_cast<AUTO_Objects*>(ioeltin->Data());
+		ArrayCameraObjects = *ArrayCameraObjects_input;
+		readed[1] = true;
+		break;
+	case 2:
+		joined_input = static_cast<AssociatedObjs*>(ioeltin->Data());
+		joined = *joined_input;
+		readed[2] = true;
+		break;
+	case 3:
+		nonLaserJoined_input = static_cast<NonAssociated*>(ioeltin->Data());
+		nonLaserJoined = *nonLaserJoined_input;
+		readed[3] = true;
+		break;
+	case 4:
+		nonCameraJoined_input = static_cast<NonAssociated*>(ioeltin->Data());
+		nonCameraJoined = *nonCameraJoined_input;
+		readed[4] = true;
 		break;
 	default:
 		break;
@@ -89,9 +115,28 @@ void MAPSEstimation::readInputs()
 
 void MAPSEstimation::WriteOutputs()
 {
+}
 
-	_ioOutput = StartWriting(Output("Output_estimation"));
-	AUTO_Objects &list = *static_cast<AUTO_Objects*>(_ioOutput->Data());
-	list = *ArrayLaserObjects;
-	StopWriting(_ioOutput);
+void MAPSEstimation::ProcessData()
+{
+	Estimate();
+}
+
+void MAPSEstimation::Estimate()
+{
+	int a;
+	//TODO:Añadir objetos no asociados
+		//TODO:Comprobar ids
+		//TODO:Generar nuevos ids
+
+	//TODO:Añadir objetos asociados
+		//TODO:Comprobar y generar nuevos ids
+		//Si la asociacion ya ha pasado antes se le asigna el id
+		//Si no se genera un id
+		//Si esos objetos ya han pasado por aqui pero en asociaciones distintas hay que eliminar esas asociaciones
+
+
+
+
+	//TODO:Ordenar la lista de estimaciones por id
 }

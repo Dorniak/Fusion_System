@@ -181,7 +181,7 @@ void MAPSJoin::ProcessData()
 		{
 			score = 0;
 			score = calculateScore(Laser_Matched.id[i], Laser_Matched.Matrix_matched[i][j][0]);
-			if (score > 0) 
+			if (score >= 0) 
 			{
 				addAssociation(i, Laser_Matched.Matrix_matched[i][j][0], score);
 			}

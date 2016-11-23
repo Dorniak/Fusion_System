@@ -1,5 +1,5 @@
-﻿  maps_Join.cpp
-d:\documentos\github\fusion_system\fusion_system\fusion_system.u\src\maps_join.cpp(482): warning C4101: 'posMatrix': unreferenced local variable
+﻿  maps_Estimation.cpp
+d:\documentos\github\fusion_system\fusion_system\fusion_system.u\src\maps_estimation.cpp(127): warning C4101: 'a': unreferenced local variable
   LINK : D:\Documentos\GitHub\Fusion_System\Fusion_System\packages\debug\Fusion_System.pck not found or not built by the last incremental link; performing full link
      Creating library D:\Documentos\GitHub\Fusion_System\Fusion_System\build\Win32Debug\tmp\Fusion_System\Fusion_System.lib and object D:\Documentos\GitHub\Fusion_System\Fusion_System\build\Win32Debug\tmp\Fusion_System\Fusion_System.exp
   rtmaps_Fusion_System.vcxproj -> D:\Documentos\GitHub\Fusion_System\Fusion_System\packages\debug\Fusion_System.pck
