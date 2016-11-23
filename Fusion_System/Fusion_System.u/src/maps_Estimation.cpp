@@ -65,6 +65,11 @@ void MAPSEstimation::Core()
 	}
 	ProcessData();
 	WriteOutputs();
+
+	shortVector(&IdL);
+	shortVector(&IdC);
+	shortVectorLCA(&LCAssociations);
+
 	//ReportInfo(str);
 	str.Clear();
 }
@@ -120,14 +125,30 @@ void MAPSEstimation::WriteOutputs()
 void MAPSEstimation::ProcessData()
 {
 	Estimate();
+
+	shortObjects(&Estimation);
+
 }
 
 void MAPSEstimation::Estimate()
 {
-	int a;
 	//TODO:Añadir objetos no asociados
 		//TODO:Comprobar ids
 		//TODO:Generar nuevos ids
+	//Tratar objetos no asociados
+	for (int i = 0; i < nonLaserJoined.size(); i++)
+	{
+		Estimation.object[Estimation.number_of_objects] = findLaserObj(nonLaserJoined.vector[i]);
+		Estimation.object[Estimation.number_of_objects].id = generateIdLas(nonLaserJoined.vector[i]);
+		Estimation.number_of_objects++;
+	}
+
+	for (int i = 0; i < nonCameraJoined.size(); i++)
+	{
+		Estimation.object[Estimation.number_of_objects] = findCameraObj(nonCameraJoined.vector[i]);
+		Estimation.object[Estimation.number_of_objects].id = generateIdLas(nonCameraJoined.vector[i]);
+		Estimation.number_of_objects++;
+	}
 
 	//TODO:Añadir objetos asociados
 		//TODO:Comprobar y generar nuevos ids
@@ -139,4 +160,130 @@ void MAPSEstimation::Estimate()
 
 
 	//TODO:Ordenar la lista de estimaciones por id
+}
+
+void MAPSEstimation::shortVector(vector<int[2]> * vect)
+{
+	int id, newId;
+	for (int i = 0; i < vect->size(); i++)
+	{
+		id = *vect[i][0];
+		newId = *vect[i][1];
+
+		for (int j = i - 1; j > 0; j++)
+		{
+			if (*vect[j][0] > id)
+			{
+				*vect[j + 1][0] = *vect[j][0];
+				*vect[j + 1][1] = *vect[j][1];
+			}
+			else
+			{
+				*vect[j + 1][0] = id;
+				*vect[j + 1][1] = newId;
+				break;
+			}
+		}
+	}
+}
+
+void MAPSEstimation::shortVectorLCA(vector<int[3]> * vect)
+{
+	int idL, idC, newId;
+	for (int i = 0; i < vect->size(); i++)
+	{
+		idL = *vect[i][0];
+		idC = *vect[i][1];
+		newId = *vect[i][2];
+
+		for (int j = i - 1; j > 0; j++)
+		{
+			if (*vect[j][0] > idL)
+			{
+				*vect[j + 1][0] = *vect[j][0];
+				*vect[j + 1][1] = *vect[j][1];
+				*vect[j + 1][2] = *vect[j][2];
+			}
+			else if (*vect[j][0] == idL)
+			{
+				if (*vect[j][1] > idC)
+				{
+					*vect[j + 1][0] = *vect[j][0];
+					*vect[j + 1][1] = *vect[j][1];
+					*vect[j + 1][2] = *vect[j][2];
+				}
+				else
+				{
+					*vect[j + 1][0] = idL;
+					*vect[j + 1][1] = idC;
+					*vect[j + 1][2] = newId;
+					break;
+				}
+			}
+			else
+			{
+				*vect[j + 1][0] = idL;
+				*vect[j + 1][1] = idC;
+				*vect[j + 1][2] = newId;
+				break;
+			}
+		}
+	}
+}
+
+void MAPSEstimation::shortObjects(AUTO_Objects * objects)
+{
+	AUTO_Object objectaux;
+	for (int i = 0; i < objects->number_of_objects; i++)
+	{
+		objectaux = objects->object[i];
+		for (int j = i - 1; j > 0; j++)
+		{
+			//TODO:poner numero de objetos antes de este punto
+			if (objects->object[j].id > objectaux.id)
+			{
+				objects->object[j + 1] = objects->object[j];
+			}
+			else
+			{
+				objects->object[j + 1] = objectaux;
+			}
+		}
+	}
+}
+
+int MAPSEstimation::generateIdLas(int id)
+{
+	//TODO::Generar ids
+	return 0;
+}
+
+int MAPSEstimation::generateIdCam(int id)
+{
+	//TODO::Generar ids
+	return 0;
+}
+
+AUTO_Object MAPSEstimation::findLaserObj(int id)
+{
+	for (int i = 0; i < ArrayLaserObjects.number_of_objects; i++)
+	{
+		if (ArrayLaserObjects.object[i].id == id)
+		{
+			return ArrayLaserObjects.object[i];
+		}
+	}
+	return AUTO_Object();
+}
+
+AUTO_Object MAPSEstimation::findCameraObj(int id)
+{
+	for (int i = 0; i < ArrayCameraObjects.number_of_objects; i++)
+	{
+		if (ArrayCameraObjects.object[i].id == id)
+		{
+			return ArrayCameraObjects.object[i];
+		}
+	}
+	return AUTO_Object();
 }

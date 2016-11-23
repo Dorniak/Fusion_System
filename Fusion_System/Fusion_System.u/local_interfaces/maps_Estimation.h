@@ -42,12 +42,18 @@ private :
 	vector<int[3]>LCAssociations;//Ids de camara no asociados
 
 	void readInputs();
+	void ProcessData();
 	void WriteOutputs();
 	//TODO:Generador de ids
-
-	void ProcessData();
 	void Estimate();
-	
+	void shortVector(vector<int[2]> *vect);
+	void shortVectorLCA(vector<int[3]> *vect);
+	void shortObjects(AUTO_Objects * objects);
+	int generateIdLas(int id);
+	int generateIdCam(int id);
+	AUTO_Object findLaserObj(int id);
+	AUTO_Object findCameraObj(int id);
+
 };
 
 #endif
