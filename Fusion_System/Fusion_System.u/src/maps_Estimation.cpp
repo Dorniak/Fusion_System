@@ -49,7 +49,8 @@ MAPS_COMPONENT_DEFINITION(MAPSEstimation,"Estimation","1.0",128,
 //Initialization: Birth() will be called once at diagram execution startup.			  
 void MAPSEstimation::Birth()
 {
-
+	//Inicializar
+	initObjects(&Estimation);
 }
 
 void MAPSEstimation::Core()
@@ -126,16 +127,14 @@ void MAPSEstimation::ProcessData()
 {
 	Estimate();
 
+	//Ordenar la lista de estimaciones por id
 	shortObjects(&Estimation);
 
 }
 
 void MAPSEstimation::Estimate()
 {
-	//TODO:Añadir objetos no asociados
-		//TODO:Comprobar ids
-		//TODO:Generar nuevos ids
-	//Tratar objetos no asociados
+	//Añadir objetos no asociados
 	for (int i = 0; i < nonLaserJoined.size(); i++)
 	{
 		Estimation.object[Estimation.number_of_objects] = findLaserObj(nonLaserJoined.vector[i]);
@@ -150,16 +149,15 @@ void MAPSEstimation::Estimate()
 		Estimation.number_of_objects++;
 	}
 
-	//TODO:Añadir objetos asociados
-		//TODO:Comprobar y generar nuevos ids
-		//Si la asociacion ya ha pasado antes se le asigna el id
-		//Si no se genera un id
-		//Si esos objetos ya han pasado por aqui pero en asociaciones distintas hay que eliminar esas asociaciones
-
-
-
-
-	//TODO:Ordenar la lista de estimaciones por id
+	//Si la asociacion ya ha pasado antes se le asigna el id
+	//Si no se genera un id
+	//Si esos objetos ya han pasado por aqui pero en asociaciones distintas hay que eliminar esas asociaciones
+	for (int i = 0; i < joined.size(); i++)
+	{
+		Estimation.object[Estimation.number_of_objects] = calculateObj(&findLaserObj(joined.vector[i][0]), &findCameraObj(joined.vector[i][1]));
+		Estimation.object[Estimation.number_of_objects].id = generateIdLC(joined.vector[i][0], joined.vector[i][1]);
+		Estimation.number_of_objects++;
+	}
 }
 
 void MAPSEstimation::shortVector(vector<int[2]> * vect)
@@ -264,6 +262,12 @@ int MAPSEstimation::generateIdCam(int id)
 	return 0;
 }
 
+int MAPSEstimation::generateIdLC(int idL, int idC)
+{
+	//TODO:: Crear la funcion de generar el id
+	return 0;
+}
+
 AUTO_Object MAPSEstimation::findLaserObj(int id)
 {
 	for (int i = 0; i < ArrayLaserObjects.number_of_objects; i++)
@@ -285,5 +289,11 @@ AUTO_Object MAPSEstimation::findCameraObj(int id)
 			return ArrayCameraObjects.object[i];
 		}
 	}
+	return AUTO_Object();
+}
+
+AUTO_Object MAPSEstimation::calculateObj(AUTO_Object * objL, AUTO_Object * objC)
+{
+	//TODO::Hacer la funcion de estimacion
 	return AUTO_Object();
 }

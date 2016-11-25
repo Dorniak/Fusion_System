@@ -51,9 +51,11 @@ private :
 	void shortObjects(AUTO_Objects * objects);
 	int generateIdLas(int id);
 	int generateIdCam(int id);
+	int generateIdLC(int idL, int idC);
 	AUTO_Object findLaserObj(int id);
 	AUTO_Object findCameraObj(int id);
 
+	AUTO_Object calculateObj(AUTO_Object * objL, AUTO_Object * objC);
 };
 
 #endif
