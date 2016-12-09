@@ -56,6 +56,7 @@ private :
 	AUTO_Object findCameraObj(int id);
 
 	AUTO_Object calculateObj(AUTO_Object * objL, AUTO_Object * objC);
+	void EstimateParameter(float32_t paramA, float32_t sigmaA, float32_t paramB, float32_t sigmaB, float32_t * paramResult, float32_t * sigmaResult);
 };
 
 #endif

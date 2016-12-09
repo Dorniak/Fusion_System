@@ -145,7 +145,10 @@ void MAPSPredictor::WriteOutputs()
 
 void MAPSPredictor::predecir()
 {
-	
+	if (abs(timestamp - min(LaserObjects[1].timestamp, CameraObjects[1].timestamp)) > framerate * 10)
+	{
+		timestamp = min(LaserObjects[1].timestamp, CameraObjects[1].timestamp);
+	}
 	while (timestamp < max(LaserObjects[1].timestamp, CameraObjects[1].timestamp))
 	{
 		timestamp += framerate;

@@ -296,4 +296,104 @@ AUTO_Object MAPSEstimation::calculateObj(AUTO_Object * objL, AUTO_Object * objC)
 {
 	//TODO::Hacer la funcion de estimacion
 	return AUTO_Object();
+	AUTO_Object result;
+	float32_t  paramA, sigmaA, paramB, sigmaB;
+	float32_t paramResult, sigmaResult;
+	//Funcion final
+	//TODO::Recorer lista de parametros
+
+	//x_rel
+#pragma region x_rel
+	paramA = objL->x_rel;
+	sigmaA = objL->x_sigma;
+	paramB = objC->x_rel;
+	sigmaB = objC->x_sigma;
+	if (sigmaA != 0 && sigmaB != 0) {
+		EstimateParameter(paramA, sigmaA, paramB, sigmaB, &paramResult, &sigmaResult);
+		result.x_rel = paramResult;
+		result.x_sigma = sigmaResult;
+	}
+	else
+	{
+		if (sigmaA != 0)
+		{
+			result.x_rel = paramA;
+			result.x_sigma = sigmaA;
+		}
+		else if (sigmaB != 0)
+		{
+			result.x_rel = paramB;
+			result.x_sigma = sigmaB;
+		}
+		else
+		{
+			//TODO::Hacer algo si las dos sigmas son 0 una media o algo
+		}
+	}
+#pragma endregion
+	//y_rel
+#pragma region y_rel
+	paramA = objL->y_rel;
+	sigmaA = objL->y_sigma;
+	paramB = objC->y_rel;
+	sigmaB = objC->y_sigma;
+	if (sigmaA != 0 && sigmaB != 0) {
+		EstimateParameter(paramA, sigmaA, paramB, sigmaB, &paramResult, &sigmaResult);
+		result.y_rel = paramResult;
+		result.y_sigma = sigmaResult;
+	}
+	else
+	{
+		if (sigmaA != 0)
+		{
+			result.y_rel = paramA;
+			result.y_sigma = sigmaA;
+		}
+		else if (sigmaB != 0)
+		{
+			result.y_rel = paramB;
+			result.y_sigma = sigmaB;
+		}
+		else
+		{
+			//TODO::Hacer algo si las dos sigmas son 0 una media o algo
+		}
+	}
+#pragma endregion
+	//z_rel
+#pragma region z_rel
+	paramA = objL->z_rel;
+	sigmaA = objL->z_sigma;
+	paramB = objC->z_rel;
+	sigmaB = objC->z_sigma;
+	if (sigmaA != 0 && sigmaB != 0) {
+		EstimateParameter(paramA, sigmaA, paramB, sigmaB, &paramResult, &sigmaResult);
+		result.z_rel = paramResult;
+		result.z_sigma = sigmaResult;
+	}
+	else
+	{
+		if (sigmaA != 0)
+		{
+			result.z_rel = paramA;
+			result.z_sigma = sigmaA;
+		}
+		else if (sigmaB != 0)
+		{
+			result.z_rel = paramB;
+			result.z_sigma = sigmaB;
+		}
+		else
+		{
+			//TODO::Hacer algo si las dos sigmas son 0 una media o algo
+		}
+	}
+#pragma endregion
+
+
+}
+
+void MAPSEstimation::EstimateParameter(float32_t paramA, float32_t sigmaA, float32_t paramB, float32_t sigmaB, float32_t * paramResult, float32_t * sigmaResult)
+{
+	//TODO::Implementar formula
 }
