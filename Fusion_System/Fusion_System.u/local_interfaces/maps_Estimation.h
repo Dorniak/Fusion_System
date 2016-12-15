@@ -57,6 +57,8 @@ private :
 
 	AUTO_Object calculateObj(AUTO_Object * objL, AUTO_Object * objC);
 	void EstimateParameter(float32_t paramA, float32_t sigmaA, float32_t paramB, float32_t sigmaB, float32_t * paramResult, float32_t * sigmaResult);
+	float32_t calcParam(float32_t paramL, float32_t sigmaL, float32_t paramC, float32_t sigmaC);
+	float32_t calcSigma(float32_t sigmaL, float32_t sigmaC);
 };
 
 #endif

@@ -302,6 +302,86 @@ AUTO_Object MAPSEstimation::calculateObj(AUTO_Object * objL, AUTO_Object * objC)
 	//Funcion final
 	//TODO::Recorer lista de parametros
 
+	//id
+#pragma region id
+	
+#pragma endregion
+	//gnss
+#pragma region gnss
+
+#pragma endregion
+	//sub_class
+#pragma region sub_class
+
+#pragma endregion
+	//class
+#pragma region class
+
+#pragma endregion
+	//class_age
+#pragma region class_age
+
+#pragma endregion
+	//class_confidence
+#pragma region class_confidence
+
+#pragma endregion
+	//track_age
+#pragma region track_age
+
+#pragma endregion
+	//track_confiance
+#pragma region track_confiance
+
+#pragma endregion
+	//length
+#pragma region length
+
+#pragma endregion
+	//width
+#pragma region width
+
+#pragma endregion
+	//height
+#pragma region height
+
+#pragma endregion
+	//x
+#pragma region x
+
+#pragma endregion
+	//y
+#pragma region y
+
+#pragma endregion
+	//z
+#pragma region z
+
+#pragma endregion
+	//yaw
+#pragma region yaw
+
+#pragma endregion
+	//yaw_rate
+#pragma region yaw_rate
+
+#pragma endregion
+	//speed
+#pragma region speed
+
+#pragma endregion
+	//acceleration
+#pragma region acceleration
+
+#pragma endregion
+	//BBox x_rel
+#pragma region BBox x_rel
+
+#pragma endregion
+	//BBox y_rel
+#pragma region BBox y_rel
+
+#pragma endregion
 	//x_rel
 #pragma region x_rel
 	paramA = objL->x_rel;
@@ -389,11 +469,114 @@ AUTO_Object MAPSEstimation::calculateObj(AUTO_Object * objL, AUTO_Object * objC)
 		}
 	}
 #pragma endregion
+	//yaw_rel
+#pragma region yaw_rel
 
+#pragma endregion
+	//speed_x_rel
+#pragma region speed_x_rel
 
+#pragma endregion
+	//speed_y_rel
+#pragma region speed_y_rel
+
+#pragma endregion
+	//acceleration_x_rel
+#pragma region acceleration_x_rel
+
+#pragma endregion
+	//acceleration_y_rel
+#pragma region acceleration_y_rel
+
+#pragma endregion
+	//distance
+#pragma region distance
+
+#pragma endregion
+	//speed_rel
+#pragma region speed_rel
+
+#pragma endregion
+	//acceleration_rel
+#pragma region acceleration_rel
+
+#pragma endregion
+	//length_sigma
+#pragma region length_sigma
+
+#pragma endregion
+	//width_sigma
+#pragma region width_sigma
+
+#pragma endregion
+	//height_sigma
+#pragma region height_sigma
+
+#pragma endregion
+	//x_sigma
+#pragma region x_sigma
+
+#pragma endregion
+	//y_sigma
+#pragma region y_sigma
+
+#pragma endregion
+	//z_sigma
+#pragma region z_sigma
+
+#pragma endregion
+	//yaw_sigma
+#pragma region yaw_sigma
+
+#pragma endregion
+	//speed_x_sigma
+#pragma region speed_x_sigma
+
+#pragma endregion
+	//speed_y_sigma
+#pragma region speed_y_sigma
+
+#pragma endregion
+	//acceleration_x_sigma
+#pragma region acceleration_x_sigma
+
+#pragma endregion
+	//acceleration_y_sigma
+#pragma region acceleration_y_sigma
+
+#pragma endregion
+	//turn_signal
+#pragma region turn_signal
+
+#pragma endregion
+	//brake_signal
+#pragma region brake_signal
+
+#pragma endregion
+	//timestamp
+#pragma region timestamp
+
+#pragma endregion
+	//status
+#pragma region status
+
+#pragma endregion
 }
 
 void MAPSEstimation::EstimateParameter(float32_t paramA, float32_t sigmaA, float32_t paramB, float32_t sigmaB, float32_t * paramResult, float32_t * sigmaResult)
 {
-	//TODO::Implementar formula
+	*paramResult = calcParam(paramA, sigmaA, paramB, sigmaB);
+	*sigmaResult = calcSigma(sigmaA, sigmaB);
 }
+float32_t MAPSEstimation::calcParam(float32_t paramL, float32_t sigmaL, float32_t paramC, float32_t sigmaC)
+{
+	float32_t param = ((sigmaC / (sigmaL + sigmaC))*paramL) + ((sigmaL / (sigmaL + sigmaC)) *paramC);
+	return param;
+}
+
+float32_t MAPSEstimation::calcSigma(float32_t sigmaL, float32_t sigmaC)
+{
+	float32_t sigma = (sigmaL*sigmaC) / (sigmaL + sigmaC);
+	return sigma;
+}
+//TODO::Implemaentar control division entre 0
