@@ -42,6 +42,9 @@ MAPS_COMPONENT_DEFINITION(MAPSGrafics,"Grafics","1.0",128,
 //Initialization: Birth() will be called once at diagram execution startup.			  
 void MAPSGrafics::Birth()
 {
+	direction = direction + std::to_string(idLaser) + "_" + std::to_string(idCamera) + "\\";
+	_mkdir(direction.c_str());
+
 	fLaser.open(direction + "Laser_" + std::to_string(idLaser) + "_" + std::to_string(idCamera) + ".m", ofstream::out);
 	fCamera.open(direction + "Camera_" + std::to_string(idLaser) + "_" + std::to_string(idCamera) + ".m", ofstream::out);
 
@@ -115,13 +118,13 @@ void MAPSGrafics::WriteLaser()
 			if (!firstL)
 			{
 				fLaser << ";" << '\n' << ArrayLaserObjects.timestamp << "," << ArrayLaserObjects.object[i].x_rel << "," << ArrayLaserObjects.object[i].y_rel << "," << ArrayLaserObjects.object[i].x_sigma
-					<< "," << ArrayLaserObjects.object[i].y_sigma << "," << ArrayLaserObjects.object[i].speed << "," << ArrayLaserObjects.object[i].speed_x_rel << "," << ArrayLaserObjects.object[i].speed_y_rel
+					<< "," << ArrayLaserObjects.object[i].y_sigma << "," << ArrayLaserObjects.object[i].speed_rel << "," << ArrayLaserObjects.object[i].speed_x_rel << "," << ArrayLaserObjects.object[i].speed_y_rel
 					<< "," << ArrayLaserObjects.object[i].speed_x_sigma << "," << ArrayLaserObjects.object[i].speed_y_sigma;
 			}
 			else
 			{
 				fLaser << '\n' << ArrayLaserObjects.timestamp << "," << ArrayLaserObjects.object[i].x_rel << "," << ArrayLaserObjects.object[i].y_rel << "," << ArrayLaserObjects.object[i].x_sigma
-					<< "," << ArrayLaserObjects.object[i].y_sigma << "," << ArrayLaserObjects.object[i].speed << "," << ArrayLaserObjects.object[i].speed_x_rel << "," << ArrayLaserObjects.object[i].speed_y_rel
+					<< "," << ArrayLaserObjects.object[i].y_sigma << "," << ArrayLaserObjects.object[i].speed_rel << "," << ArrayLaserObjects.object[i].speed_x_rel << "," << ArrayLaserObjects.object[i].speed_y_rel
 					<< "," << ArrayLaserObjects.object[i].speed_x_sigma << "," << ArrayLaserObjects.object[i].speed_y_sigma;
 				firstL = false;
 			}
@@ -138,13 +141,13 @@ void MAPSGrafics::WriteCamera()
 			if (!firstC)
 			{
 				fCamera << ";" << '\n' << ArrayCameraObjects.timestamp << "," << ArrayCameraObjects.object[i].x_rel << "," << ArrayCameraObjects.object[i].y_rel << "," << ArrayCameraObjects.object[i].x_sigma
-					<< "," << ArrayCameraObjects.object[i].y_sigma << "," << ArrayCameraObjects.object[i].speed << "," << ArrayCameraObjects.object[i].speed_x_rel << "," << ArrayCameraObjects.object[i].speed_y_rel
+					<< "," << ArrayCameraObjects.object[i].y_sigma << "," << ArrayCameraObjects.object[i].speed_rel << "," << ArrayCameraObjects.object[i].speed_x_rel << "," << ArrayCameraObjects.object[i].speed_y_rel
 					<< "," << ArrayCameraObjects.object[i].speed_x_sigma << "," << ArrayCameraObjects.object[i].speed_y_sigma;
 			}
 			else
 			{
 				fCamera << '\n' << ArrayCameraObjects.timestamp << "," << ArrayCameraObjects.object[i].x_rel << "," << ArrayCameraObjects.object[i].y_rel << "," << ArrayCameraObjects.object[i].x_sigma
-					<< "," << ArrayCameraObjects.object[i].y_sigma << "," << ArrayCameraObjects.object[i].speed << "," << ArrayCameraObjects.object[i].speed_x_rel << "," << ArrayCameraObjects.object[i].speed_y_rel
+					<< "," << ArrayCameraObjects.object[i].y_sigma << "," << ArrayCameraObjects.object[i].speed_rel << "," << ArrayCameraObjects.object[i].speed_x_rel << "," << ArrayCameraObjects.object[i].speed_y_rel
 					<< "," << ArrayCameraObjects.object[i].speed_x_sigma << "," << ArrayCameraObjects.object[i].speed_y_sigma;
 				firstC = false;
 			}

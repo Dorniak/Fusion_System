@@ -13,7 +13,7 @@
 #include <fstream>
 #include <string>
 #include "Common.h"
-
+#include <direct.h>
 
 using namespace std;
 // Declares a new MAPSComponent child class

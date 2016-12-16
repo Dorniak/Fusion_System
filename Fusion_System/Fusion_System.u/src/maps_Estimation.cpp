@@ -304,7 +304,7 @@ AUTO_Object MAPSEstimation::calculateObj(AUTO_Object * objL, AUTO_Object * objC)
 
 	//id
 #pragma region id
-	
+	result.id = objL->id * 100 + objC->id;
 #pragma endregion
 	//gnss
 #pragma region gnss
@@ -336,15 +336,78 @@ AUTO_Object MAPSEstimation::calculateObj(AUTO_Object * objL, AUTO_Object * objC)
 #pragma endregion
 	//length
 #pragma region length
-
+	paramA = objL->length;
+	sigmaA = objL->length_sigma;
+	paramB = objC->length;
+	sigmaB = objC->length_sigma;
+	if (sigmaA != 0 && sigmaB != 0) {
+		EstimateParameter(paramA, sigmaA, paramB, sigmaB, &paramResult, &sigmaResult);
+		result.length = paramResult;
+		result.length_sigma = sigmaResult;
+	}
+	else
+	{
+		if (sigmaA != 0)
+		{
+			result.length = paramA;
+			result.length_sigma = sigmaA;
+		}
+		else if (sigmaB != 0)
+		{
+			result.length = paramB;
+			result.length_sigma = sigmaB;
+		}
+	}
 #pragma endregion
 	//width
 #pragma region width
-
+	paramA = objL->width;
+	sigmaA = objL->width_sigma;
+	paramB = objC->width;
+	sigmaB = objC->width_sigma;
+	if (sigmaA != 0 && sigmaB != 0) {
+		EstimateParameter(paramA, sigmaA, paramB, sigmaB, &paramResult, &sigmaResult);
+		result.width = paramResult;
+		result.width_sigma = sigmaResult;
+	}
+	else
+	{
+		if (sigmaA != 0)
+		{
+			result.width = paramA;
+			result.width_sigma = sigmaA;
+		}
+		else if (sigmaB != 0)
+		{
+			result.width = paramB;
+			result.width_sigma = sigmaB;
+		}
+	}
 #pragma endregion
 	//height
 #pragma region height
-
+	paramA = objL->height;
+	sigmaA = objL->height_sigma;
+	paramB = objC->height;
+	sigmaB = objC->height_sigma;
+	if (sigmaA != 0 && sigmaB != 0) {
+		EstimateParameter(paramA, sigmaA, paramB, sigmaB, &paramResult, &sigmaResult);
+		result.height = paramResult;
+		result.height_sigma = sigmaResult;
+	}
+	else
+	{
+		if (sigmaA != 0)
+		{
+			result.height = paramA;
+			result.height_sigma = sigmaA;
+		}
+		else if (sigmaB != 0)
+		{
+			result.height = paramB;
+			result.height_sigma = sigmaB;
+		}
+	}
 #pragma endregion
 	//x
 #pragma region x
@@ -376,11 +439,53 @@ AUTO_Object MAPSEstimation::calculateObj(AUTO_Object * objL, AUTO_Object * objC)
 #pragma endregion
 	//BBox x_rel
 #pragma region BBox x_rel
-
+	for (int i = 0; i < 4; i++)
+	{
+		paramA = objL->bounding_box_x_rel[i];
+		sigmaA = objL->x_sigma;
+		paramB = objC->bounding_box_x_rel[i];
+		sigmaB = objC->x_sigma;
+		if (sigmaA != 0 && sigmaB != 0) {
+			EstimateParameter(paramA, sigmaA, paramB, sigmaB, &paramResult, &sigmaResult);
+			result.bounding_box_x_rel[i] = paramResult;
+		}
+		else
+		{
+			if (sigmaA != 0)
+			{
+				result.bounding_box_x_rel[i] = paramA;
+			}
+			else if (sigmaB != 0)
+			{
+				result.bounding_box_x_rel[i] = paramB;
+			}
+		}
+	}
 #pragma endregion
 	//BBox y_rel
 #pragma region BBox y_rel
-
+	for (int i = 0; i < 4; i++)
+	{
+		paramA = objL->bounding_box_y_rel[i];
+		sigmaA = objL->y_sigma;
+		paramB = objC->bounding_box_y_rel[i];
+		sigmaB = objC->y_sigma;
+		if (sigmaA != 0 && sigmaB != 0) {
+			EstimateParameter(paramA, sigmaA, paramB, sigmaB, &paramResult, &sigmaResult);
+			result.bounding_box_y_rel[i] = paramResult;
+		}
+		else
+		{
+			if (sigmaA != 0)
+			{
+				result.bounding_box_y_rel[i] = paramA;
+			}
+			else if (sigmaB != 0)
+			{
+				result.bounding_box_y_rel[i] = paramB;
+			}
+		}
+	}
 #pragma endregion
 	//x_rel
 #pragma region x_rel
@@ -404,10 +509,6 @@ AUTO_Object MAPSEstimation::calculateObj(AUTO_Object * objL, AUTO_Object * objC)
 		{
 			result.x_rel = paramB;
 			result.x_sigma = sigmaB;
-		}
-		else
-		{
-			//TODO::Hacer algo si las dos sigmas son 0 una media o algo
 		}
 	}
 #pragma endregion
@@ -434,10 +535,6 @@ AUTO_Object MAPSEstimation::calculateObj(AUTO_Object * objL, AUTO_Object * objC)
 			result.y_rel = paramB;
 			result.y_sigma = sigmaB;
 		}
-		else
-		{
-			//TODO::Hacer algo si las dos sigmas son 0 una media o algo
-		}
 	}
 #pragma endregion
 	//z_rel
@@ -463,87 +560,147 @@ AUTO_Object MAPSEstimation::calculateObj(AUTO_Object * objL, AUTO_Object * objC)
 			result.z_rel = paramB;
 			result.z_sigma = sigmaB;
 		}
-		else
-		{
-			//TODO::Hacer algo si las dos sigmas son 0 una media o algo
-		}
 	}
 #pragma endregion
 	//yaw_rel
 #pragma region yaw_rel
-
+	paramA = objL->yaw_rel;
+	sigmaA = objL->yaw_sigma;
+	paramB = objC->yaw_rel;
+	sigmaB = objC->yaw_sigma;
+	if (sigmaA != 0 && sigmaB != 0) {
+		EstimateParameter(paramA, sigmaA, paramB, sigmaB, &paramResult, &sigmaResult);
+		result.yaw_rel = paramResult;
+		result.yaw_sigma = sigmaResult;
+	}
+	else
+	{
+		if (sigmaA != 0)
+		{
+			result.yaw_rel = paramA;
+			result.yaw_sigma = sigmaA;
+		}
+		else if (sigmaB != 0)
+		{
+			result.yaw_rel = paramB;
+			result.yaw_sigma = sigmaB;
+		}
+	}
 #pragma endregion
 	//speed_x_rel
 #pragma region speed_x_rel
-
+	paramA = objL->speed_x_rel;
+	sigmaA = objL->speed_x_sigma;
+	paramB = objC->speed_x_rel;
+	sigmaB = objC->speed_x_sigma;
+	if (sigmaA != 0 && sigmaB != 0) {
+		EstimateParameter(paramA, sigmaA, paramB, sigmaB, &paramResult, &sigmaResult);
+		result.speed_x_rel = paramResult;
+		result.speed_x_sigma = sigmaResult;
+	}
+	else
+	{
+		if (sigmaA != 0)
+		{
+			result.speed_x_rel = paramA;
+			result.speed_x_sigma = sigmaA;
+		}
+		else if (sigmaB != 0)
+		{
+			result.speed_x_rel = paramB;
+			result.speed_x_sigma = sigmaB;
+		}
+	}
 #pragma endregion
 	//speed_y_rel
 #pragma region speed_y_rel
-
+	paramA = objL->speed_y_rel;
+	sigmaA = objL->speed_y_sigma;
+	paramB = objC->speed_y_rel;
+	sigmaB = objC->speed_y_sigma;
+	if (sigmaA != 0 && sigmaB != 0) {
+		EstimateParameter(paramA, sigmaA, paramB, sigmaB, &paramResult, &sigmaResult);
+		result.speed_y_rel = paramResult;
+		result.speed_y_sigma = sigmaResult;
+	}
+	else
+	{
+		if (sigmaA != 0)
+		{
+			result.speed_y_rel = paramA;
+			result.speed_y_sigma = sigmaA;
+		}
+		else if (sigmaB != 0)
+		{
+			result.speed_y_rel = paramB;
+			result.speed_y_sigma = sigmaB;
+		}
+	}
 #pragma endregion
 	//acceleration_x_rel
 #pragma region acceleration_x_rel
-
+	paramA = objL->acceleration_x_rel;
+	sigmaA = objL->acceleration_x_sigma;
+	paramB = objC->acceleration_x_rel;
+	sigmaB = objC->acceleration_x_sigma;
+	if (sigmaA != 0 && sigmaB != 0) {
+		EstimateParameter(paramA, sigmaA, paramB, sigmaB, &paramResult, &sigmaResult);
+		result.acceleration_x_rel = paramResult;
+		result.acceleration_x_sigma = sigmaResult;
+	}
+	else
+	{
+		if (sigmaA != 0)
+		{
+			result.acceleration_x_rel = paramA;
+			result.acceleration_x_sigma = sigmaA;
+		}
+		else if (sigmaB != 0)
+		{
+			result.acceleration_x_rel = paramB;
+			result.acceleration_x_sigma = sigmaB;
+		}
+	}
 #pragma endregion
 	//acceleration_y_rel
 #pragma region acceleration_y_rel
-
+	paramA = objL->acceleration_y_rel;
+	sigmaA = objL->acceleration_y_sigma;
+	paramB = objC->acceleration_y_rel;
+	sigmaB = objC->acceleration_y_sigma;
+	if (sigmaA != 0 && sigmaB != 0) {
+		EstimateParameter(paramA, sigmaA, paramB, sigmaB, &paramResult, &sigmaResult);
+		result.acceleration_y_rel = paramResult;
+		result.acceleration_y_sigma = sigmaResult;
+	}
+	else
+	{
+		if (sigmaA != 0)
+		{
+			result.acceleration_y_rel = paramA;
+			result.acceleration_y_sigma = sigmaA;
+		}
+		else if (sigmaB != 0)
+		{
+			result.acceleration_y_rel = paramB;
+			result.acceleration_y_sigma = sigmaB;
+		}
+	}
 #pragma endregion
 	//distance
 #pragma region distance
-
+	Point2D pos = Point2D(result.x_rel, result.y_rel);
+	result.distance = pos.module();
 #pragma endregion
 	//speed_rel
 #pragma region speed_rel
-
+	Point2D speed = Point2D(result.speed_x_rel, result.speed_y_rel);
+	result.speed_rel = speed.module();
 #pragma endregion
 	//acceleration_rel
 #pragma region acceleration_rel
-
-#pragma endregion
-	//length_sigma
-#pragma region length_sigma
-
-#pragma endregion
-	//width_sigma
-#pragma region width_sigma
-
-#pragma endregion
-	//height_sigma
-#pragma region height_sigma
-
-#pragma endregion
-	//x_sigma
-#pragma region x_sigma
-
-#pragma endregion
-	//y_sigma
-#pragma region y_sigma
-
-#pragma endregion
-	//z_sigma
-#pragma region z_sigma
-
-#pragma endregion
-	//yaw_sigma
-#pragma region yaw_sigma
-
-#pragma endregion
-	//speed_x_sigma
-#pragma region speed_x_sigma
-
-#pragma endregion
-	//speed_y_sigma
-#pragma region speed_y_sigma
-
-#pragma endregion
-	//acceleration_x_sigma
-#pragma region acceleration_x_sigma
-
-#pragma endregion
-	//acceleration_y_sigma
-#pragma region acceleration_y_sigma
-
+	Point2D accel = Point2D(result.acceleration_x_rel, result.acceleration_y_rel);
+	result.acceleration_rel = accel.module();
 #pragma endregion
 	//turn_signal
 #pragma region turn_signal
