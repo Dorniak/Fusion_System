@@ -64,19 +64,51 @@ void MAPSEstimation::Core()
 	{
 		readed[i] = false;
 	}
+	
 	ProcessData();
-	WriteOutputs();
-
+	/*
 	shortVector(&IdL);
 	shortVector(&IdC);
 	shortVectorLCA(&LCAssociations);
-
-	//ReportInfo(str);
+	*/
+	WriteOutputs();
+	printVectors();
+	ReportInfo(str);
 	str.Clear();
+	initObjects(&Estimation);
 }
 
 void MAPSEstimation::Death()
 { 
+}
+
+void MAPSEstimation::printVectors()
+{
+	str.Clear();
+	str << '\n' << "NonLaser" << '\n';
+	str << "Number: " << nonLaserJoined.number_objects << '\n';
+	for (int i = 0; i < nonLaserJoined.number_objects; i++)
+	{
+		str << nonLaserJoined.vector[i] << " ";
+	}
+	str << '\n' << "NonCamera" << '\n';
+	str << "Number: " << nonCameraJoined.number_objects << '\n';
+	for (int i = 0; i < nonCameraJoined.number_objects; i++)
+	{
+		str << nonCameraJoined.vector[i] << " ";
+	}
+	str << '\n' << "Assoc" << '\n';
+	str << "Number: " << joined.size() << '\n';
+	for (int i = 0; i < joined.size(); i++)
+	{
+		str << joined.vector[i][0] << " " << joined.vector[i][1] << '\n';
+	}
+	str << '\n' << "Estimation" << '\n';
+	str << "Number: " << Estimation.number_of_objects << '\n';
+	for (int i = 0; i < Estimation.number_of_objects; i++)
+	{
+		str << Estimation.object[i].id << " ";
+	}
 }
 
 void MAPSEstimation::readInputs()
@@ -121,6 +153,10 @@ void MAPSEstimation::readInputs()
 
 void MAPSEstimation::WriteOutputs()
 {
+	_ioOutput = StartWriting(Output("Output_estimation"));
+	AUTO_Objects &Est = *static_cast<AUTO_Objects*>(_ioOutput->Data());
+	Est = Estimation;
+	StopWriting(_ioOutput);
 }
 
 void MAPSEstimation::ProcessData()
@@ -145,7 +181,7 @@ void MAPSEstimation::Estimate()
 	for (int i = 0; i < nonCameraJoined.size(); i++)
 	{
 		Estimation.object[Estimation.number_of_objects] = findCameraObj(nonCameraJoined.vector[i]);
-		Estimation.object[Estimation.number_of_objects].id = generateIdLas(nonCameraJoined.vector[i]);
+		Estimation.object[Estimation.number_of_objects].id = generateIdCam(nonCameraJoined.vector[i]);
 		Estimation.number_of_objects++;
 	}
 
@@ -155,7 +191,7 @@ void MAPSEstimation::Estimate()
 	for (int i = 0; i < joined.size(); i++)
 	{
 		Estimation.object[Estimation.number_of_objects] = calculateObj(&findLaserObj(joined.vector[i][0]), &findCameraObj(joined.vector[i][1]));
-		Estimation.object[Estimation.number_of_objects].id = generateIdLC(joined.vector[i][0], joined.vector[i][1]);
+		//Estimation.object[Estimation.number_of_objects].id = generateIdLC(joined.vector[i][0], joined.vector[i][1]);
 		Estimation.number_of_objects++;
 	}
 }
@@ -168,7 +204,7 @@ void MAPSEstimation::shortVector(vector<int[2]> * vect)
 		id = *vect[i][0];
 		newId = *vect[i][1];
 
-		for (int j = i - 1; j > 0; j++)
+		for (int j = i - 1; j > 0; j--)
 		{
 			if (*vect[j][0] > id)
 			{
@@ -194,7 +230,7 @@ void MAPSEstimation::shortVectorLCA(vector<int[3]> * vect)
 		idC = *vect[i][1];
 		newId = *vect[i][2];
 
-		for (int j = i - 1; j > 0; j++)
+		for (int j = i - 1; j > 0; j--)
 		{
 			if (*vect[j][0] > idL)
 			{
@@ -235,7 +271,7 @@ void MAPSEstimation::shortObjects(AUTO_Objects * objects)
 	for (int i = 0; i < objects->number_of_objects; i++)
 	{
 		objectaux = objects->object[i];
-		for (int j = i - 1; j > 0; j++)
+		for (int j = i - 1; j > 0; j--)
 		{
 			//TODO:poner numero de objetos antes de este punto
 			if (objects->object[j].id > objectaux.id)
@@ -253,19 +289,20 @@ void MAPSEstimation::shortObjects(AUTO_Objects * objects)
 int MAPSEstimation::generateIdLas(int id)
 {
 	//TODO::Generar ids
-	return 0;
+
+	return id;
 }
 
 int MAPSEstimation::generateIdCam(int id)
 {
 	//TODO::Generar ids
-	return 0;
+	return id;
 }
 
 int MAPSEstimation::generateIdLC(int idL, int idC)
 {
 	//TODO:: Crear la funcion de generar el id
-	return 0;
+	return idL+idC;
 }
 
 AUTO_Object MAPSEstimation::findLaserObj(int id)
@@ -294,17 +331,15 @@ AUTO_Object MAPSEstimation::findCameraObj(int id)
 
 AUTO_Object MAPSEstimation::calculateObj(AUTO_Object * objL, AUTO_Object * objC)
 {
-	//TODO::Hacer la funcion de estimacion
-	return AUTO_Object();
 	AUTO_Object result;
 	float32_t  paramA, sigmaA, paramB, sigmaB;
 	float32_t paramResult, sigmaResult;
 	//Funcion final
-	//TODO::Recorer lista de parametros
+	initObject(&result);
 
 	//id
 #pragma region id
-	result.id = objL->id * 100 + objC->id;
+	result.id = objL->id + objC->id;//LLLCCC
 #pragma endregion
 	//gnss
 #pragma region gnss
@@ -718,6 +753,7 @@ AUTO_Object MAPSEstimation::calculateObj(AUTO_Object * objL, AUTO_Object * objC)
 #pragma region status
 
 #pragma endregion
+	return result;
 }
 
 void MAPSEstimation::EstimateParameter(float32_t paramA, float32_t sigmaA, float32_t paramB, float32_t sigmaB, float32_t * paramResult, float32_t * sigmaResult)

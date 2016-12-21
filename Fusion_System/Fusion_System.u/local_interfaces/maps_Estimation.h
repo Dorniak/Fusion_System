@@ -40,7 +40,7 @@ private :
 	vector<int[2]>IdL;//Ids de laser no asociados
 	vector<int[2]>IdC;//Ids de camara no asociados
 	vector<int[3]>LCAssociations;//Ids de camara no asociados
-
+	void printVectors();
 	void readInputs();
 	void ProcessData();
 	void WriteOutputs();

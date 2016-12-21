@@ -86,7 +86,7 @@ void MAPSJoin::Core()
 	*/
 	PrintAssociations();
 	PrintPossibleAssociations();
-	ReportInfo(str);
+	//ReportInfo(str);
 	str.Clear();
 
 }
