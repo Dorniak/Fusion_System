@@ -271,16 +271,16 @@ void MAPSEstimation::shortObjects(AUTO_Objects * objects)
 	for (int i = 0; i < objects->number_of_objects; i++)
 	{
 		objectaux = objects->object[i];
-		for (int j = i - 1; j > 0; j--)
+		for (int j = i; j > 0; j--)
 		{
 			//TODO:poner numero de objetos antes de este punto
-			if (objects->object[j].id > objectaux.id)
+			if (objects->object[j - 1].id > objectaux.id)
 			{
-				objects->object[j + 1] = objects->object[j];
+				objects->object[j] = objects->object[j - 1];
 			}
 			else
 			{
-				objects->object[j + 1] = objectaux;
+				objects->object[j] = objectaux;
 			}
 		}
 	}
