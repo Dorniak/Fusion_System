@@ -66,11 +66,11 @@ void MAPSEstimation::Core()
 	}
 	
 	ProcessData();
-	/*
+	
 	shortVector(&IdL);
 	shortVector(&IdC);
 	shortVectorLCA(&LCAssociations);
-	*/
+	
 	WriteOutputs();
 	printVectors();
 	ReportInfo(str);
@@ -204,17 +204,17 @@ void MAPSEstimation::shortVector(vector<int[2]> * vect)
 		id = *vect[i][0];
 		newId = *vect[i][1];
 
-		for (int j = i - 1; j > 0; j--)
+		for (int j = i; j > 0; j--)
 		{
-			if (*vect[j][0] > id)
+			if (*vect[j - 1][0] > id)
 			{
-				*vect[j + 1][0] = *vect[j][0];
-				*vect[j + 1][1] = *vect[j][1];
+				*vect[j][0] = *vect[j - 1][0];
+				*vect[j][1] = *vect[j - 1][1];
 			}
 			else
 			{
-				*vect[j + 1][0] = id;
-				*vect[j + 1][1] = newId;
+				*vect[j][0] = id;
+				*vect[j][1] = newId;
 				break;
 			}
 		}
@@ -230,35 +230,35 @@ void MAPSEstimation::shortVectorLCA(vector<int[3]> * vect)
 		idC = *vect[i][1];
 		newId = *vect[i][2];
 
-		for (int j = i - 1; j > 0; j--)
+		for (int j = i; j > 0; j--)
 		{
-			if (*vect[j][0] > idL)
+			if (*vect[j - 1][0] > idL)
 			{
-				*vect[j + 1][0] = *vect[j][0];
-				*vect[j + 1][1] = *vect[j][1];
-				*vect[j + 1][2] = *vect[j][2];
+				*vect[j][0] = *vect[j - 1][0];
+				*vect[j][1] = *vect[j - 1][1];
+				*vect[j][2] = *vect[j - 1][2];
 			}
-			else if (*vect[j][0] == idL)
+			else if (*vect[j - 1][0] == idL)
 			{
-				if (*vect[j][1] > idC)
+				if (*vect[j - 1][1] > idC)
 				{
-					*vect[j + 1][0] = *vect[j][0];
-					*vect[j + 1][1] = *vect[j][1];
-					*vect[j + 1][2] = *vect[j][2];
+					*vect[j][0] = *vect[j - 1][0];
+					*vect[j][1] = *vect[j - 1][1];
+					*vect[j][2] = *vect[j - 1][2];
 				}
 				else
 				{
-					*vect[j + 1][0] = idL;
-					*vect[j + 1][1] = idC;
-					*vect[j + 1][2] = newId;
+					*vect[j][0] = idL;
+					*vect[j][1] = idC;
+					*vect[j][2] = newId;
 					break;
 				}
 			}
 			else
 			{
-				*vect[j + 1][0] = idL;
-				*vect[j + 1][1] = idC;
-				*vect[j + 1][2] = newId;
+				*vect[j][0] = idL;
+				*vect[j][1] = idC;
+				*vect[j][2] = newId;
 				break;
 			}
 		}
@@ -772,4 +772,3 @@ float32_t MAPSEstimation::calcSigma(float32_t sigmaL, float32_t sigmaC)
 	float32_t sigma = (sigmaL*sigmaC) / (sigmaL + sigmaC);
 	return sigma;
 }
-//TODO::Implemaentar control division entre 0
