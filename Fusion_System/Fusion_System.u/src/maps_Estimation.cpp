@@ -73,6 +73,7 @@ void MAPSEstimation::Core()
 	
 	WriteOutputs();
 	printVectors();
+
 	ReportInfo(str);
 	str.Clear();
 	initObjects(&Estimation);
@@ -191,6 +192,7 @@ void MAPSEstimation::Estimate()
 	for (int i = 0; i < joined.size(); i++)
 	{
 		Estimation.object[Estimation.number_of_objects] = calculateObj(&findLaserObj(joined.vector[i][0]), &findCameraObj(joined.vector[i][1]));
+		//Se hace dentro
 		//Estimation.object[Estimation.number_of_objects].id = generateIdLC(joined.vector[i][0], joined.vector[i][1]);
 		Estimation.number_of_objects++;
 	}
