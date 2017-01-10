@@ -811,10 +811,23 @@ void MAPSEstimation::EstimateParameter(float32_t paramA, float32_t sigmaA, float
 	*sigmaResult = calcSigma(sigmaA, sigmaB);
 }
 
+void MAPSEstimation::EstimateParameterNew(float32_t paramA, float32_t sigmaA, float32_t paramB, float32_t sigmaB, float32_t distanceB, float32_t * paramResult, float32_t * sigmaResult)
+{
+	*paramResult = calcParamNew(paramA, sigmaA, paramB, sigmaB,distanceB);
+	*sigmaResult = calcSigma(sigmaA, sigmaB);
+}
+
 float32_t MAPSEstimation::calcParam(float32_t paramL, float32_t sigmaL, float32_t paramC, float32_t sigmaC)
 {
 	float32_t param = ((sigmaC / (sigmaL + sigmaC))*paramL) + ((sigmaL / (sigmaL + sigmaC)) *paramC);
 	return param;
+}
+
+float32_t MAPSEstimation::calcParamNew(float32_t paramL, float32_t sigmaL, float32_t paramC, float32_t sigmaC, float32_t distanceC)
+{
+	float32_t maxim = pow((float32_t)max(0.1*distanceC, 2),2);
+	float32_t param = (((sigmaC*maxim) / (sigmaL + sigmaC*maxim))*paramL) + ((sigmaL / (sigmaL + sigmaC*maxim)) *paramC);
+	return float32_t();
 }
 
 float32_t MAPSEstimation::calcSigma(float32_t sigmaL, float32_t sigmaC)
