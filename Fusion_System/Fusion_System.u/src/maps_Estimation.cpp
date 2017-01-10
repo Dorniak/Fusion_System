@@ -66,15 +66,12 @@ void MAPSEstimation::Core()
 	}
 	
 	ProcessData();
-	
-	shortVector(&IdL);
-	shortVector(&IdC);
-	shortVectorLCA(&LCAssociations);
+	shortVectorLCA(LCAssociations);
 	
 	WriteOutputs();
 	printVectors();
 
-	ReportInfo(str);
+	//ReportInfo(str);
 	str.Clear();
 	initObjects(&Estimation);
 }
@@ -192,75 +189,49 @@ void MAPSEstimation::Estimate()
 	for (int i = 0; i < joined.size(); i++)
 	{
 		Estimation.object[Estimation.number_of_objects] = calculateObj(&findLaserObj(joined.vector[i][0]), &findCameraObj(joined.vector[i][1]));
-		//Se hace dentro
-		//Estimation.object[Estimation.number_of_objects].id = generateIdLC(joined.vector[i][0], joined.vector[i][1]);
+		Estimation.object[Estimation.number_of_objects].id = generateIdLC(joined.vector[i][0], joined.vector[i][1]);
 		Estimation.number_of_objects++;
 	}
 }
 
-void MAPSEstimation::shortVector(vector<int[2]> * vect)
-{
-	int id, newId;
-	for (int i = 0; i < vect->size(); i++)
-	{
-		id = *vect[i][0];
-		newId = *vect[i][1];
-
-		for (int j = i; j > 0; j--)
-		{
-			if (*vect[j - 1][0] > id)
-			{
-				*vect[j][0] = *vect[j - 1][0];
-				*vect[j][1] = *vect[j - 1][1];
-			}
-			else
-			{
-				*vect[j][0] = id;
-				*vect[j][1] = newId;
-				break;
-			}
-		}
-	}
-}
-
-void MAPSEstimation::shortVectorLCA(vector<int[3]> * vect)
+void MAPSEstimation::shortVectorLCA(vector<array<int,3>> vect)
 {
 	int idL, idC, newId;
-	for (int i = 0; i < vect->size(); i++)
+	for (int i = 0; i < (int)vect.size(); i++)
 	{
-		idL = *vect[i][0];
-		idC = *vect[i][1];
-		newId = *vect[i][2];
+		idL = vect[i][0];
+		idC = vect[i][1];
+		newId = vect[i][2];
 
 		for (int j = i; j > 0; j--)
 		{
-			if (*vect[j - 1][0] > idL)
+			if (vect[j - 1][0] > idL)
 			{
-				*vect[j][0] = *vect[j - 1][0];
-				*vect[j][1] = *vect[j - 1][1];
-				*vect[j][2] = *vect[j - 1][2];
+				vect[j][0] = vect[j - 1][0];
+				vect[j][1] = vect[j - 1][1];
+				vect[j][2] = vect[j - 1][2];
 			}
-			else if (*vect[j - 1][0] == idL)
+			else if (vect[j - 1][0] == idL)
 			{
-				if (*vect[j - 1][1] > idC)
+				if (vect[j - 1][1] > idC)
 				{
-					*vect[j][0] = *vect[j - 1][0];
-					*vect[j][1] = *vect[j - 1][1];
-					*vect[j][2] = *vect[j - 1][2];
+					vect[j][0] = vect[j - 1][0];
+					vect[j][1] = vect[j - 1][1];
+					vect[j][2] = vect[j - 1][2];
 				}
 				else
 				{
-					*vect[j][0] = idL;
-					*vect[j][1] = idC;
-					*vect[j][2] = newId;
+					vect[j][0] = idL;
+					vect[j][1] = idC;
+					vect[j][2] = newId;
 					break;
 				}
 			}
 			else
 			{
-				*vect[j][0] = idL;
-				*vect[j][1] = idC;
-				*vect[j][2] = newId;
+				vect[j][0] = idL;
+				vect[j][1] = idC;
+				vect[j][2] = newId;
 				break;
 			}
 		}
@@ -275,7 +246,6 @@ void MAPSEstimation::shortObjects(AUTO_Objects * objects)
 		objectaux = objects->object[i];
 		for (int j = i; j > 0; j--)
 		{
-			//TODO:poner numero de objetos antes de este punto
 			if (objects->object[j - 1].id > objectaux.id)
 			{
 				objects->object[j] = objects->object[j - 1];
@@ -290,21 +260,98 @@ void MAPSEstimation::shortObjects(AUTO_Objects * objects)
 
 int MAPSEstimation::generateIdLas(int id)
 {
-	//TODO::Generar ids
-
-	return id;
+	std::array<int, 3> vect;
+	int pos = findAssoc(id, -1);
+	if (pos != -1) {
+		return LCAssociations[pos][2];
+	}
+	else
+	{
+		vect[0] = id;
+		vect[1] = -1;
+		vect[2] = lastID + 1;
+		lastID++;
+		//LCAssociations.push_back(vect);
+		
+		LCAssociations.push_back(vect);
+		return vect[2];
+	}
 }
 
 int MAPSEstimation::generateIdCam(int id)
 {
-	//TODO::Generar ids
-	return id;
+	std::array<int, 3> vect;
+	int pos = findAssoc(-1, id);
+	if (pos != -1) {
+		return LCAssociations[pos][2];
+	}
+	else
+	{
+		vect[0] = -1;
+		vect[1] = id;
+		vect[2] = lastID + 1;
+		lastID++;
+		LCAssociations.push_back(vect);
+		return vect[2];
+	}
 }
 
 int MAPSEstimation::generateIdLC(int idL, int idC)
 {
-	//TODO:: Crear la funcion de generar el id
-	return idL+idC;
+	std::array<int, 3> vect;
+	int pos = findAssoc(idL, idC);
+	if (pos != -1) {
+		return LCAssociations[pos][2];
+	}
+	else
+	{
+		vect[0] = idL;
+		vect[1] = idC;
+		vect[2] = lastID + 1;
+		lastID++;
+		LCAssociations.push_back(vect);
+		return vect[2];
+	}
+}
+
+int MAPSEstimation::findAssoc(int idL, int idC)
+{
+	if (idL == -1)
+	{
+		for (int i = 0; i < (int)LCAssociations.size(); i++)
+		{
+			if (LCAssociations[i][1] == idC)
+			{
+				return i;
+			}
+		}
+		return -1;
+	}
+	else if (idC == -1)
+	{
+		for (int i = 0; i < (int)LCAssociations.size(); i++)
+		{
+			if (LCAssociations[i][0] == idL )
+			{
+				return i;
+			}
+		}
+		return -1;
+	}
+	else
+	{
+		for (int i = 0; i < (int)LCAssociations.size(); i++)
+		{
+			if (LCAssociations[i][0] == idL || LCAssociations[i][1] == idC)
+			{
+				//Update association
+				LCAssociations[i][0] = idL;
+				LCAssociations[i][1] = idC;
+				return i;
+			}
+		}
+		return -1;
+	}
 }
 
 AUTO_Object MAPSEstimation::findLaserObj(int id)
@@ -341,7 +388,7 @@ AUTO_Object MAPSEstimation::calculateObj(AUTO_Object * objL, AUTO_Object * objC)
 
 	//id
 #pragma region id
-	result.id = objL->id + objC->id;//LLLCCC
+
 #pragma endregion
 	//gnss
 #pragma region gnss
@@ -763,6 +810,7 @@ void MAPSEstimation::EstimateParameter(float32_t paramA, float32_t sigmaA, float
 	*paramResult = calcParam(paramA, sigmaA, paramB, sigmaB);
 	*sigmaResult = calcSigma(sigmaA, sigmaB);
 }
+
 float32_t MAPSEstimation::calcParam(float32_t paramL, float32_t sigmaL, float32_t paramC, float32_t sigmaC)
 {
 	float32_t param = ((sigmaC / (sigmaL + sigmaC))*paramL) + ((sigmaL / (sigmaL + sigmaC)) *paramC);

@@ -9,6 +9,8 @@
 #include "maps.hpp"
 #include "auto_objects.h"
 #include "STATIC_VECTOR.h"
+#include <vector>
+#include <array>
 
 // Declares a new MAPSComponent child class
 class MAPSEstimation : public MAPSComponent 
@@ -36,22 +38,20 @@ private :
 	NonAssociated nonLaserJoined;
 	NonAssociated nonCameraJoined;
 	
-	AUTO_Objects Estimation;
-	vector<int[2]>IdL;//Ids de laser no asociados
-	vector<int[2]>IdC;//Ids de camara no asociados
-	vector<int[3]>LCAssociations;//Ids de camara no asociados
+	AUTO_Objects Estimation;	
+	vector<array<int, 3>>LCAssociations;//Ids de camara no asociados
+	int lastID = 0;
 	void printVectors();
 	void readInputs();
 	void ProcessData();
 	void WriteOutputs();
-	//TODO:Generador de ids
 	void Estimate();
-	void shortVector(vector<int[2]> *vect);
-	void shortVectorLCA(vector<int[3]> *vect);
+	void shortVectorLCA(vector<array<int, 3>> vect);
 	void shortObjects(AUTO_Objects * objects);
 	int generateIdLas(int id);
 	int generateIdCam(int id);
 	int generateIdLC(int idL, int idC);
+	int findAssoc(int idL, int idC);//Return position
 	AUTO_Object findLaserObj(int id);
 	AUTO_Object findCameraObj(int id);
 
