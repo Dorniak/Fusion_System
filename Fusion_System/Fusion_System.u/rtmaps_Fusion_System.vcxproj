@@ -108,6 +108,7 @@
   <ItemGroup>
     <ClCompile Include="src\maps_Bayesian_Fusion.cpp" />
     <ClCompile Include="src\maps_Estimation.cpp" />
+    <ClCompile Include="src\maps_GraficEst.cpp" />
     <ClCompile Include="src\maps_GraficResult.cpp" />
     <ClCompile Include="src\maps_Grafics.cpp" />
     <ClCompile Include="src\maps_Join.cpp" />
@@ -122,6 +123,7 @@
     <ClInclude Include="local_interfaces\Hipotesys.h" />
     <ClInclude Include="local_interfaces\maps_Bayesian_Fusion.h" />
     <ClInclude Include="local_interfaces\maps_Estimation.h" />
+    <ClInclude Include="local_interfaces\maps_GraficEst.h" />
     <ClInclude Include="local_interfaces\maps_GraficResult.h" />
     <ClInclude Include="local_interfaces\maps_Grafics.h" />
     <ClInclude Include="local_interfaces\maps_Join.h" />
