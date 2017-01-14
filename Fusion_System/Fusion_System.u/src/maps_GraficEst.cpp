@@ -116,7 +116,7 @@ void MAPSGraficEst::WriteEst()
 				fEst << '\n' << ArrayEstObjects.timestamp << "," << ArrayEstObjects.object[i].x_rel << "," << ArrayEstObjects.object[i].y_rel << "," << ArrayEstObjects.object[i].x_sigma
 					<< "," << ArrayEstObjects.object[i].y_sigma << "," << ArrayEstObjects.object[i].speed_rel << "," << ArrayEstObjects.object[i].speed_x_rel << "," << ArrayEstObjects.object[i].speed_y_rel
 					<< "," << ArrayEstObjects.object[i].speed_x_sigma << "," << ArrayEstObjects.object[i].speed_y_sigma;
-				fEst = false;
+				//fEst = false;
 			}
 		}
 	}

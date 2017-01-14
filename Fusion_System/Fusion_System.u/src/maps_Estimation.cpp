@@ -827,7 +827,7 @@ float32_t MAPSEstimation::calcParamNew(float32_t paramL, float32_t sigmaL, float
 {
 	float32_t maxim = pow((float32_t)max(0.1*distanceC, 2),2);
 	float32_t param = (((sigmaC*maxim) / (sigmaL + sigmaC*maxim))*paramL) + ((sigmaL / (sigmaL + sigmaC*maxim)) *paramC);
-	return float32_t();
+	return param;
 }
 
 float32_t MAPSEstimation::calcSigma(float32_t sigmaL, float32_t sigmaC)

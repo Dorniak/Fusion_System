@@ -160,7 +160,7 @@ void MAPSGraficResult::WriteResult()
 {
 	float32_t X_Estimation, Y_Estimation, X_SigmaE, Y_SigmaE;
 	float32_t X_Laser, Y_Laser, X_SigmaL, Y_SigmaL;
-	float32_t X_Camera, Y_Camera, X_SigmaC, Y_SigmaC;
+	float32_t X_Camera, Y_Camera, X_SigmaC, Y_SigmaC,distanceC;
 	bool is[2] = { false,false };
 
 	for (int i = 0; i < ArrayLaserObjects.number_of_objects; i++)
@@ -185,13 +185,16 @@ void MAPSGraficResult::WriteResult()
 			Y_Camera = ArrayCameraObjects.object[i].y_rel;
 			X_SigmaC = ArrayCameraObjects.object[i].x_sigma;
 			Y_SigmaC = ArrayCameraObjects.object[i].y_sigma;
+			distanceC = ArrayCameraObjects.object[i].distance;
 			is[1] = true;
 			break;
 		}
 	}
 	if (is[0] && is[1]) {
-		X_Estimation = calcParam(X_Laser, X_SigmaL, X_Camera, X_SigmaC);
-		Y_Estimation = calcParam(Y_Laser, Y_SigmaL, Y_Camera, Y_SigmaC);
+		/*X_Estimation = calcParam(X_Laser, X_SigmaL, X_Camera, X_SigmaC);
+		Y_Estimation = calcParam(Y_Laser, Y_SigmaL, Y_Camera, Y_SigmaC);*/
+		X_Estimation = calcParam(X_Laser, X_SigmaL, X_Camera, X_SigmaC,distanceC);
+		Y_Estimation = calcParam(Y_Laser, Y_SigmaL, Y_Camera, Y_SigmaC,distanceC);
 		X_SigmaE = calcSigma(X_SigmaL, X_SigmaC);
 		Y_SigmaE = calcSigma(Y_SigmaL, Y_SigmaC);
 		if (!firstE)
@@ -211,6 +214,13 @@ void MAPSGraficResult::WriteResult()
 float32_t MAPSGraficResult::calcParam(float32_t paramL, float32_t sigmaL, float32_t paramC, float32_t sigmaC)
 {
 	float32_t param = ((sigmaC / (sigmaL + sigmaC))*paramL) + ((sigmaL / (sigmaL + sigmaC)) *paramC);
+	return param;
+}
+
+float32_t MAPSGraficResult::calcParam(float32_t paramL, float32_t sigmaL, float32_t paramC, float32_t sigmaC, float32_t distanceC)
+{
+	float32_t maxim = pow((float32_t)max(0.1*distanceC, 2), 2);
+	float32_t param = (((sigmaC*maxim) / (sigmaL + sigmaC*maxim))*paramL) + ((sigmaL / (sigmaL + sigmaC*maxim)) *paramC);
 	return param;
 }
 

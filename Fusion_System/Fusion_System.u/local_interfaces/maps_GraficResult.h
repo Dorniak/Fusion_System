@@ -13,7 +13,6 @@
 #include <string>
 #include <direct.h>
 #include "Common.h"
-
 using namespace std;
 // Declares a new MAPSComponent child class
 class MAPSGraficResult : public MAPSComponent 
@@ -47,6 +46,7 @@ private:
 	void WriteCamera();
 	void WriteResult();
 	float32_t calcParam(float32_t paramL, float32_t sigmaL, float32_t paramC, float32_t sigmaC);
+	float32_t calcParam(float32_t paramL, float32_t sigmaL, float32_t paramC, float32_t sigmaC, float32_t distanceC);
 	float32_t calcSigma(float32_t sigmaL, float32_t sigmaC);
 
 };
