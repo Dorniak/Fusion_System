@@ -15,9 +15,6 @@
     <ClCompile Include="src\maps_Matching.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\STATIC_VECTOR.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="src\maps_Predictor.cpp">
       <Filter>src</Filter>
     </ClCompile>
@@ -31,6 +28,9 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\maps_Bayesian_Fusion.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Structures.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
@@ -50,15 +50,6 @@
     <ClInclude Include="local_interfaces\maps_Matching.h">
       <Filter>local_interfaces</Filter>
     </ClInclude>
-    <ClInclude Include="local_interfaces\Properties.h">
-      <Filter>local_interfaces</Filter>
-    </ClInclude>
-    <ClInclude Include="local_interfaces\Match_Objects.h">
-      <Filter>local_interfaces</Filter>
-    </ClInclude>
-    <ClInclude Include="local_interfaces\STATIC_VECTOR.h">
-      <Filter>local_interfaces</Filter>
-    </ClInclude>
     <ClInclude Include="local_interfaces\maps_Predictor.h">
       <Filter>local_interfaces</Filter>
     </ClInclude>
@@ -75,6 +66,12 @@
       <Filter>local_interfaces</Filter>
     </ClInclude>
     <ClInclude Include="local_interfaces\maps_Bayesian_Fusion.h">
+      <Filter>local_interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="local_interfaces\Structures.h">
+      <Filter>local_interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="local_interfaces\Parameters.h">
       <Filter>local_interfaces</Filter>
     </ClInclude>
   </ItemGroup>

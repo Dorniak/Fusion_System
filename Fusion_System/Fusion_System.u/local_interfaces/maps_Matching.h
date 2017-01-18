@@ -7,9 +7,8 @@
 
 // Includes maps sdk library header
 #include "maps.hpp"
-#include "Match_Objects.h"
 #include <math.h>
-#include "STATIC_VECTOR.h"
+#include "Structures.h"
 
 // Declares a new MAPSComponent child class
 class MAPSMatching : public MAPSComponent 

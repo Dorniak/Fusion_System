@@ -5,8 +5,6 @@
 #ifndef _Maps_Predictor_H
 #define _Maps_Predictor_H
 
-#define framerate 100
-
 // Includes maps sdk library header
 #include "maps.hpp"
 #include "auto_objects.h"
@@ -24,6 +22,8 @@ class MAPSPredictor : public MAPSComponent
 	// Use standard header definition macro
 	MAPS_COMPONENT_STANDARD_HEADER_CODE(MAPSPredictor)
 private :
+	int framerate = 100;
+	float prueba=0;
 	LARGE_INTEGER Frecuency, StartingTime, EndingTime;
 	double ElapsedTime;
 	MAPSStreamedString str;

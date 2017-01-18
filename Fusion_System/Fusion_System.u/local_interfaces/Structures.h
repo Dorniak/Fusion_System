@@ -32,7 +32,7 @@ public:
 	void erase(int pos);
 	void push_back(int id);
 };
-//En pruebas
+
 class Point3D
 {
 public:
@@ -52,9 +52,7 @@ public:
 	Point2D(float32_t x, float32_t y);
 	float32_t dist(Point2D other);
 	float32_t module();
-//	Point2D add(Point2D b);
 	Point2D operator+(Point2D b);
-//	Point2D sub(Point2D b);
 	Point2D operator-(Point2D b);
 	void move(float32_t a, float32_t b);
 	void rote(double angle);
@@ -76,7 +74,7 @@ public:
 	BOUNDIG_BOX ampliate(Point2D sigma);
 	bool isInside(Point2D P);
 };
-//En pruebas
+
 class BOUNDIG_BOX_3D
 {
 public:
@@ -88,3 +86,12 @@ public:
 	BOUNDIG_BOX_3D intersection(BOUNDIG_BOX_3D other);
 	float Union_Volumen(BOUNDIG_BOX_3D other);
 };
+
+typedef struct {
+	int number_objects;//Numero de objetos del tipoque este definido
+	int id[AUTO_MAX_NUM_OBJECTS];//lista con el id de cada objeto para no tener que mirarlo en la lista de objetos
+	int number_matched[AUTO_MAX_NUM_OBJECTS];//Vector que indica numero de objetos asociados a cada uno
+	int Matrix_matched[AUTO_MAX_NUM_OBJECTS][AUTO_MAX_NUM_OBJECTS][2];//Matriz con todos los objetos
+																	  //0:id objeto camara
+																	  //1:overlap [0,100]
+}MATCH_OBJECTS;

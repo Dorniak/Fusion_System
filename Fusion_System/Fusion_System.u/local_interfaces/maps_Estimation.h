@@ -8,7 +8,7 @@
 // Includes maps sdk library header
 #include "maps.hpp"
 #include "auto_objects.h"
-#include "STATIC_VECTOR.h"
+#include "Structures.h"
 #include <vector>
 #include <array>
 

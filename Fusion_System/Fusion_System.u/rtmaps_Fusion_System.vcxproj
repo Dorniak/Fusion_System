@@ -113,7 +113,7 @@
     <ClCompile Include="src\maps_Join.cpp" />
     <ClCompile Include="src\maps_Matching.cpp" />
     <ClCompile Include="src\maps_Predictor.cpp" />
-    <ClCompile Include="src\STATIC_VECTOR.cpp" />
+    <ClCompile Include="src\Structures.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="local_interfaces\auto_common.h" />
@@ -127,9 +127,8 @@
     <ClInclude Include="local_interfaces\maps_Join.h" />
     <ClInclude Include="local_interfaces\maps_Matching.h" />
     <ClInclude Include="local_interfaces\maps_Predictor.h" />
-    <ClInclude Include="local_interfaces\Match_Objects.h" />
-    <ClInclude Include="local_interfaces\Properties.h" />
-    <ClInclude Include="local_interfaces\STATIC_VECTOR.h" />
+    <ClInclude Include="local_interfaces\Parameters.h" />
+    <ClInclude Include="local_interfaces\Structures.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

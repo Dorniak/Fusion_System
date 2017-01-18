@@ -4,29 +4,16 @@
 
 #ifndef _Maps_Join_H
 #define _Maps_Join_H
-#define MIN_SCORE 0
-
-//sum = 1
-#define weight_type 0.2
-#define weight_pos 0.4
-#define weight_size 0
-#define weight_speed 0
-#define weight_over 0.4
-#define weight_center 0//1
-
-
-
 
 // Includes maps sdk library header
 #include "maps.hpp"
 #include <math.h>
 #include <vector>
 #include <array>
-#include "Match_Objects.h"
 #include "auto_objects.h"
 #include "Hipotesys.h"
-#include "Properties.h"
-#include "STATIC_VECTOR.h"
+#include "Structures.h"
+#include "Parameters.h"
 
 // Declares a new MAPSComponent child class
 class MAPSJoin : public MAPSComponent 
@@ -50,8 +37,8 @@ private :
 
 	//Internal objects
 
-	AUTO_Objects Laser_Objects;
-	AUTO_Objects Camera_Objects;
+	AUTO_Objects ArrayLaserObjects;
+	AUTO_Objects ArrayCameraObjects;
 	MATCH_OBJECTS Laser_Matched;
 	MATCH_OBJECTS Camera_Matched;
 	int score;

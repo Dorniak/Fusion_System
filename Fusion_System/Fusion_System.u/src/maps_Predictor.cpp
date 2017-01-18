@@ -23,7 +23,7 @@ MAPS_END_OUTPUTS_DEFINITION
 
 // Use the macros to declare the properties
 MAPS_BEGIN_PROPERTIES_DEFINITION(MAPSPredictor)
-    MAPS_PROPERTY("framerate",100,false,true)
+	MAPS_PROPERTY("framerate",100,false,true)
 MAPS_END_PROPERTIES_DEFINITION
 
 // Use the macros to declare the actions
@@ -51,6 +51,7 @@ void MAPSPredictor::Core()
 {
 	str.Clear();
 	readInputs();
+	framerate = GetIntegerProperty("framerate");
 	// We must check if we have minimun 2 frames for that we can do a prediction
 	if (!ready)
 	{
@@ -201,8 +202,7 @@ int MAPSPredictor::findPosition(AUTO_Objects objects, int id)
 }
 
 void MAPSPredictor::moveObstacle(AUTO_Object * obstacle, int timestamp)
-{
-	
+{	
 	Point3D vector;
 	//Move the position and the bounding box to the predicted position
 
@@ -218,6 +218,5 @@ void MAPSPredictor::moveObstacle(AUTO_Object * obstacle, int timestamp)
 		obstacle->bounding_box_y_rel[i] += vector.y;
 	}
 
-	obstacle->distance = (float32_t)sqrt(pow(obstacle->x_rel, 2) + pow(obstacle->y_rel, 2) + pow(obstacle->z_rel, 2));
-		
+	obstacle->distance = (float32_t)sqrt(pow(obstacle->x_rel, 2) + pow(obstacle->y_rel, 2) + pow(obstacle->z_rel, 2));	
 }

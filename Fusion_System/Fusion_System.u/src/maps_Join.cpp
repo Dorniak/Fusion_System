@@ -108,12 +108,12 @@ void MAPSJoin::ReadInputs()
 	{
 	case 0:
 		input_Laser_Objects = static_cast<AUTO_Objects*>(ioeltin->Data());
-		Laser_Objects = *input_Laser_Objects;
+		ArrayLaserObjects = *input_Laser_Objects;
 		readed[0] = true;
 		break;
 	case 1:
 		input_Camera_Objects = static_cast<AUTO_Objects*>(ioeltin->Data());
-		Camera_Objects = *input_Camera_Objects;
+		ArrayCameraObjects = *input_Camera_Objects;
 		readed[1] = true;
 		break;
 	case 2:
@@ -191,19 +191,19 @@ void MAPSJoin::ProcessData()
 	//At the end of this for we will have a list of asociated objects
 	cleanAssociatedList();
 	//Now we can find the non calculated Laser objects
-	for (int j = 0; j < Laser_Objects.number_of_objects; j++)
+	for (int j = 0; j < ArrayLaserObjects.number_of_objects; j++)
 	{
-		if (!findAssociatedLaser(Laser_Objects.object[j].id))
+		if (!findAssociatedLaser(ArrayLaserObjects.object[j].id))
 		{
-			nonLaserJoined.push_back(Laser_Objects.object[j].id);
+			nonLaserJoined.push_back(ArrayLaserObjects.object[j].id);
 		}
 	}
 	//Now we can find the non calculated Caemra objects
-	for (int k = 0; k < Camera_Objects.number_of_objects; k++)
+	for (int k = 0; k < ArrayCameraObjects.number_of_objects; k++)
 	{
-		if (!findAssociatedCamera(Camera_Objects.object[k].id))
+		if (!findAssociatedCamera(ArrayCameraObjects.object[k].id))
 		{
-			nonCameraJoined.push_back(Camera_Objects.object[k].id);
+			nonCameraJoined.push_back(ArrayCameraObjects.object[k].id);
 		}
 	}
 }
@@ -212,12 +212,12 @@ void MAPSJoin::WriteOutputs()
 {
 	_ioOutput = StartWriting(Output("LaserObjects"));
 	AUTO_Objects &LaserObj = *static_cast<AUTO_Objects*>(_ioOutput->Data());
-	LaserObj = Laser_Objects;
+	LaserObj = ArrayLaserObjects;
 	StopWriting(_ioOutput);
 
 	_ioOutput = StartWriting(Output("CameraObjects"));
 	AUTO_Objects &CameraObj = *static_cast<AUTO_Objects*>(_ioOutput->Data());
-	CameraObj = Camera_Objects;
+	CameraObj = ArrayCameraObjects;
 	StopWriting(_ioOutput);
 
 	_ioOutput = StartWriting(Output("AObjects"));
@@ -249,7 +249,7 @@ void MAPSJoin::PrintPossibleAssociations()
 {
 	str << '\n' << "Possible Associations" << '\n';
 	//MatrixOfAssociations
-	for (int i = 0; i < Laser_Objects.number_of_objects; i++)
+	for (int i = 0; i < ArrayLaserObjects.number_of_objects; i++)
 	{
 		str << "Laser ID: " << Laser_Matched.id[i] << '\n';
 		for (int j = 0; j < Laser_Matched.number_matched[i]; j++)
@@ -267,8 +267,8 @@ int MAPSJoin::calculateScore(int id_Laser, int id_Camera)
 
 	//Calculate the scores
 	AUTO_Object object_Laser, object_Camera;
-	object_Laser = Laser_Objects.object[findPositionObject(id_Laser, &Laser_Objects)];
-	object_Camera = Camera_Objects.object[findPositionObject(id_Camera, &Camera_Objects)];
+	object_Laser = ArrayLaserObjects.object[findPositionObject(id_Laser, &ArrayLaserObjects)];
+	object_Camera = ArrayCameraObjects.object[findPositionObject(id_Camera, &ArrayCameraObjects)];
 	if (compatibles(object_Laser.object_class, object_Camera.object_class))
 	{
 		score_type = calcScoreType(&object_Laser, &object_Camera);
@@ -374,7 +374,7 @@ void MAPSJoin::shortMatrixAssociations()
 	//Ordenar la matriz de asociaciones de mayor a menor por score
 	int id, score, k, j;
 	//Recorres la lista de objetos del laser
-	for (int i = 0; i < Laser_Objects.number_of_objects; i++)
+	for (int i = 0; i < ArrayLaserObjects.number_of_objects; i++)
 	{
 		j = 0;
 		//Recorres la lista de un objeto 
@@ -395,11 +395,12 @@ void MAPSJoin::shortMatrixAssociations()
 		}
 	}
 }
+
 void MAPSJoin::selectAssociations()
 {
 	int posAmb;
 	shortMatrixAssociations();
-	for (int i = 0; i < Laser_Objects.number_of_objects; i++)
+	for (int i = 0; i < ArrayLaserObjects.number_of_objects; i++)
 	{
 		//No hay que copiar el id del laser por que ya estaba antes
 		joined.vector[i][1] = MatrixOfAssociations[i][0][0];//Copiar el id de la camara 

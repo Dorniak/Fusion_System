@@ -1,4 +1,4 @@
-#include "STATIC_VECTOR.h"
+#include "Structures.h"
 
 NonAssociated::NonAssociated()
 {
@@ -125,14 +125,11 @@ Point2D::Point2D()
 	y = 0;
 }
 
-// Constructor uses default arguments to allow calling with zero, one,
-// or two values.
 Point2D::Point2D(float32_t x , float32_t y ) {
 	this->x = x;
 	this->y = y;
 }
 
-// Distance to another Point2D.  Pythagorean thm.
 float32_t Point2D::dist(Point2D other) 
 {
 	float32_t xd = x - other.x;
@@ -150,40 +147,27 @@ float32_t Point2D::module()
 	return module;
 }
 
-// Add or subtract two Point2Ds.
-//Point2D Point2D::add(Point2D b)
-//{
-//	return Point2D(x + b.x, y + b.y);
-//}
-
 Point2D Point2D::operator+(Point2D b)
 {
-	// TODO: insert return statement here
 	return Point2D(x + b.x, y + b.y);
 }
-
-//Point2D Point2D::sub(Point2D b)
-//{
-//	return Point2D(x - b.x, y - b.y);
-//}
 
 Point2D Point2D::operator-(Point2D b)
 {
 	return Point2D(x - b.x, y - b.y);
 }
 
-// Move the existing Point2D.
 void Point2D::move(float32_t a, float32_t b)
 {
 	x += a;
 	y += b;
 }
+
 void Point2D::rote(double angle)
 {
 	x = (x * (float32_t)cos(angle)) - (y * (float32_t)sin(angle));
 	y = (x * (float32_t)sin(angle)) + (y * (float32_t)cos(angle));
 }
-
 
 BOUNDIG_BOX::BOUNDIG_BOX()
 {
@@ -237,35 +221,30 @@ void BOUNDIG_BOX::reordenar()
 		{
 			switch (i) {
 			case 0:
-				// Code
 				if (point[j].x < p[i].x && point[j].y > p[i].y)
 				{
 					p[i] = point[j];
 				}
 				break;
 			case 1:
-				// Code
 				if (point[j].x > p[i].x && point[j].y > p[i].y)
 				{
 					p[i] = point[j];
 				}
 				break;
 			case 2:
-				// Code
 				if (point[j].x > p[i].x && point[j].y < p[i].y)
 				{
 					p[i] = point[j];
 				}
 				break;
 			case 3:
-				// Code
 				if (point[j].x < p[i].x && point[j].y < p[i].y)
 				{
 					p[i] = point[j];
 				}
 				break;
 			default:
-				// Code
 				break;
 			}
 		}
@@ -403,10 +382,10 @@ BOUNDIG_BOX_3D::BOUNDIG_BOX_3D(Point3D a, Point3D b, Point3D c, Point3D d, Point
 
 BOUNDIG_BOX_3D::BOUNDIG_BOX_3D(Point3D p, Point3D sigma)
 {
-	//abajo
+	//down
 	//1 2
 	//0 3
-	//arria
+	//up
 	//5 6
 	//4 7
 	point[0] = Point3D(p.x - sigma.x, p.y + sigma.y, p.z - sigma.z);
