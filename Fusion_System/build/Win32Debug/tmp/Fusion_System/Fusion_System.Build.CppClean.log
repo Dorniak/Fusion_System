@@ -1,10 +1,13 @@
 d:\documentos\github\fusion_system\fusion_system\build\win32debug\tmp\fusion_system\vc140.pdb
 d:\documentos\github\fusion_system\fusion_system\build\win32debug\tmp\fusion_system\vc140.idb
-d:\documentos\github\fusion_system\fusion_system\build\win32debug\tmp\fusion_system\static_vector.obj
-d:\documentos\github\fusion_system\fusion_system\build\win32debug\tmp\fusion_system\maps_synchronizer.obj
+d:\documentos\github\fusion_system\fusion_system\build\win32debug\tmp\fusion_system\structures.obj
+d:\documentos\github\fusion_system\fusion_system\build\win32debug\tmp\fusion_system\maps_predictor.obj
 d:\documentos\github\fusion_system\fusion_system\build\win32debug\tmp\fusion_system\maps_matching.obj
-d:\documentos\github\fusion_system\fusion_system\build\win32debug\tmp\fusion_system\maps_gating.obj
+d:\documentos\github\fusion_system\fusion_system\build\win32debug\tmp\fusion_system\maps_join.obj
+d:\documentos\github\fusion_system\fusion_system\build\win32debug\tmp\fusion_system\maps_grafics.obj
+d:\documentos\github\fusion_system\fusion_system\build\win32debug\tmp\fusion_system\maps_graficresult.obj
 d:\documentos\github\fusion_system\fusion_system\build\win32debug\tmp\fusion_system\maps_estimation.obj
+d:\documentos\github\fusion_system\fusion_system\build\win32debug\tmp\fusion_system\maps_bayesian_fusion.obj
 d:\documentos\github\fusion_system\fusion_system\build\win32debug\tmp\fusion_system\fusion_system.lib
 d:\documentos\github\fusion_system\fusion_system\build\win32debug\tmp\fusion_system\fusion_system.exp
 d:\documentos\github\fusion_system\fusion_system\packages\debug\fusion_system.ilk

@@ -480,7 +480,7 @@ int MAPSJoin::findAmbiguities(int pos)
 void MAPSJoin::selectNextAssociation(int pos)
 {
 	//Seleccionar la siguiente asociacion posible y copiarla al vector de asociaciones
-	int id_actual, posMatrix;
+	int id_actual;
 	id_actual = joined.vector[pos][1];
 	//MatrixOfAssociations
 	int i(0);

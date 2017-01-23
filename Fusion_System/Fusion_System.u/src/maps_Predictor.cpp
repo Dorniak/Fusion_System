@@ -51,7 +51,7 @@ void MAPSPredictor::Core()
 {
 	str.Clear();
 	readInputs();
-	framerate = GetIntegerProperty("framerate");
+	framerate = (int)GetIntegerProperty("framerate");
 	// We must check if we have minimun 2 frames for that we can do a prediction
 	if (!ready)
 	{
