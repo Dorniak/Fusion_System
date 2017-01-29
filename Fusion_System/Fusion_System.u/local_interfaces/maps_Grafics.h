@@ -22,9 +22,9 @@ class MAPSGrafics : public MAPSComponent
 	// Use standard header definition macro
 	MAPS_COMPONENT_STANDARD_HEADER_CODE(MAPSGrafics)
 private :
-	string direction = dir;
-	bool firstL = true;
-	bool firstC = true;
+	string direction;
+	bool firstL;
+	bool firstC;
 	// Place here your specific methods and attributes
 	MAPSIOElt* elt;
 	MAPSStreamedString str;

@@ -21,13 +21,13 @@ class MAPSGraficResult : public MAPSComponent
 	// Use standard header definition macro
 	MAPS_COMPONENT_STANDARD_HEADER_CODE(MAPSGraficResult)
 private:
-	string direction = dir;
+	string direction;
 	// Place here your specific methods and attributes
-	bool firstL = true;
-	bool firstC = true;
-	bool firstE = true;
-	bool readed[2] = { false,false };
-	int numInputs = 2;
+	bool firstL;
+	bool firstC;
+	bool firstE;
+	bool readed[2];
+	int numInputs;
 	MAPSIOElt* elt;
 	MAPSStreamedString str;
 	MAPSIOElt *_ioOutput;

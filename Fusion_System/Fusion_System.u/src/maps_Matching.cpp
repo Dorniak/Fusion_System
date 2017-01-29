@@ -46,7 +46,7 @@ MAPS_COMPONENT_DEFINITION(MAPSMatching,"Matching","1.0",128,
 
 void MAPSMatching::Birth()
 {
-	
+	numInputs = 2;
 }
 
 void MAPSMatching::Core()
@@ -451,8 +451,8 @@ float MAPSMatching::compareArea(BOUNDIG_BOX BBox, BOUNDIG_BOX BBoxOriginal)
 	float32_t x_max = max(max(BBox.point[0].x, BBox.point[1].x), max(BBox.point[2].x, BBox.point[3].x));
 	float32_t x_min = min(min(BBox.point[0].x, BBox.point[1].x), min(BBox.point[2].x, BBox.point[3].x));
 
-	base = fabs(y_max- y_min);//y max - y min
-	altura = fabs(x_max - x_min);//x max - x min
+	base = fabs((float)(y_max- y_min));//y max - y min
+	altura = fabs((float)(x_max - x_min));//x max - x min
 	area1 = base * altura;
 
 	y_max = max(max(BBoxOriginal.point[0].y, BBoxOriginal.point[1].y), max(BBoxOriginal.point[2].y, BBoxOriginal.point[3].y));
@@ -460,8 +460,8 @@ float MAPSMatching::compareArea(BOUNDIG_BOX BBox, BOUNDIG_BOX BBoxOriginal)
 	x_max = max(max(BBoxOriginal.point[0].x, BBoxOriginal.point[1].x), max(BBoxOriginal.point[2].x, BBoxOriginal.point[3].x));
 	x_min = min(min(BBoxOriginal.point[0].x, BBoxOriginal.point[1].x), min(BBoxOriginal.point[2].x, BBoxOriginal.point[3].x));
 
-	base = fabs(y_max - y_min);//y max - y min
-	altura = fabs(x_max - x_min);//x max - x min
+	base = fabs((float)(y_max - y_min));//y max - y min
+	altura = fabs((float)(x_max - x_min));//x max - x min
 	area2 = base * altura;
 
 	return (float)((area1 * 100) / area2);//Porcentaje de coincidencia
@@ -525,7 +525,7 @@ int MAPSMatching::calcIU(AUTO_Object * objet1, AUTO_Object * objet2, BOUNDIG_BOX
 	areaI = BBoxInter->area();
 	areaU = area1 + area2 - areaI;
 	areaFinal = (areaI / areaU)*100;//[0,100]
-	areaFinal = round(areaFinal);
+	areaFinal = floor(areaFinal);
 
 	return (int)areaFinal;
 }

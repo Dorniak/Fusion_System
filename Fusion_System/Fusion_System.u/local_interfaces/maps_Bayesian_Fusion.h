@@ -47,14 +47,14 @@ private :
 	//Predictor
 	/*----------------------------------------------------------------------------------------------------*/
 	//Variables Predictor
-	int framerate = 100;
+	int framerate;
 	LARGE_INTEGER Frecuency, StartingTime, EndingTime;//Variables for measure the time
 	double ElapsedTime;//Elapsed time
 	uint32_t timestamp;//Next common timestamp(Software sincronization
-	bool predicted = false;//Control already predicted
-	bool firsttime = true;//Control for the first loop
+	bool predicted;//Control already predicted
+	bool firsttime;//Control for the first loop
 	bool updated[2];//Control already predicted objects
-	bool ready = false;//Ready for start the analisys
+	bool ready;//Ready for start the analisys
 	bool completedL[2];//Structure Laser filling control
 	bool completedC[2];//Structure Camera filling control
 	//Functions Predictor
@@ -297,7 +297,7 @@ private :
 	//Variables Join
 	AUTO_Objects Estimation;//Array of estimated objects
 	vector<array<int, 3>>LCAssociations;//Ids of camera objects non asociated
-	int lastID = 0;//Last id used
+	int lastID;//Last id used
 	//Functions Join
 	/// <summary>
 	/// Estimation function

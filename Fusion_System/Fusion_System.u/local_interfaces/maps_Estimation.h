@@ -18,8 +18,8 @@ class MAPSEstimation : public MAPSComponent
 	// Use standard header definition macro
 	MAPS_COMPONENT_STANDARD_HEADER_CODE(MAPSEstimation)
 private :
-	bool readed[5] = { false,false, false, false ,false };
-	int numInputs = 5;
+	bool readed[5];
+	int numInputs;
 
 	MAPSIOElt* elt;
 	MAPSStreamedString str;
@@ -40,7 +40,7 @@ private :
 	
 	AUTO_Objects Estimation;	
 	vector<array<int, 3>>LCAssociations;//Ids de camara no asociados
-	int lastID = 0;
+	int lastID;
 	void printVectors();
 	void readInputs();
 	void ProcessData();

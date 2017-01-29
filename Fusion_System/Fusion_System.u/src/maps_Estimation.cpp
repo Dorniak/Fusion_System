@@ -49,6 +49,11 @@ MAPS_COMPONENT_DEFINITION(MAPSEstimation,"Estimation","1.0",128,
 //Initialization: Birth() will be called once at diagram execution startup.			  
 void MAPSEstimation::Birth()
 {
+	numInputs = 5;
+	lastID = 0;
+	for (int i = 0; i < 5; i++) {
+		readed[i] = false;
+	}
 	//Inicializar
 	initObjects(&Estimation);
 }
@@ -162,7 +167,7 @@ void MAPSEstimation::ProcessData()
 	Estimate();
 
 	//Ordenar la lista de estimaciones por id
-	shortObjects(&Estimation);
+	//shortObjects(&Estimation);
 
 }
 

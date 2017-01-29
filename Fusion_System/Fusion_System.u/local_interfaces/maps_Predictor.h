@@ -22,8 +22,8 @@ class MAPSPredictor : public MAPSComponent
 	// Use standard header definition macro
 	MAPS_COMPONENT_STANDARD_HEADER_CODE(MAPSPredictor)
 private :
-	int framerate = 100;
-	float prueba=0;
+	int framerate;
+	float prueba;
 	LARGE_INTEGER Frecuency, StartingTime, EndingTime;
 	double ElapsedTime;
 	MAPSStreamedString str;
@@ -31,12 +31,12 @@ private :
 	uint32_t timestamp;
 	MAPSIOElt *_ioOutput;
 	//Fill control of the structures
-	bool predicted=false;
+	bool predicted;
 	bool updated[2];
-	bool ready = false;
+	bool ready;
 	bool completedL[2];
 	bool completedC[2];
-	bool firsttime=true;
+	bool firsttime;
 	//Inputs
 	AUTO_Objects* ArrayLaserObjects;
 	AUTO_Objects* ArrayCameraObjects;

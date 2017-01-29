@@ -44,6 +44,11 @@ MAPS_COMPONENT_DEFINITION(MAPSBayesian_Fusion,"Bayesian_Fusion","1.0",128,
 //Initialization: Birth() will be called once at diagram execution startup.			  
 void MAPSBayesian_Fusion::Birth()
 {
+	framerate = 100;
+	predicted = false;
+	firsttime = true;
+	ready = false;
+	lastID = 0;
 	QueryPerformanceFrequency(&Frecuency);
 	QueryPerformanceCounter(&StartingTime);
     // Reports this information to the RTMaps console. You can remove this line if you know when Birth() is called in the component lifecycle.
@@ -81,7 +86,7 @@ void MAPSBayesian_Fusion::Death()
 
 void MAPSBayesian_Fusion::predecir()
 {
-	if (abs((int)(timestamp - min(LaserObjects[1].timestamp, CameraObjects[1].timestamp))) > framerate * 10)
+	if ((double)(abs((int)(timestamp - min(LaserObjects[1].timestamp, CameraObjects[1].timestamp))) > framerate * 10))
 	{
 		timestamp = min(LaserObjects[1].timestamp, CameraObjects[1].timestamp);
 	}
@@ -473,7 +478,7 @@ int MAPSBayesian_Fusion::calcIU(AUTO_Object * objet1, AUTO_Object * objet2, BOUN
 	areaI = BBoxInter->area();
 	areaU = area1 + area2 - areaI;
 	areaFinal = (areaI / areaU) * 100;//[0,100]
-	areaFinal = round(areaFinal);
+	areaFinal = floor(areaFinal);
 
 	return (int)areaFinal;
 }
@@ -531,7 +536,7 @@ int MAPSBayesian_Fusion::calculateScore(int id_Laser, int id_Camera)
 
 		score = (float)(score_type*weight_type + score_pos*weight_pos + score_size*weight_size + score_speed*weight_speed + score_overlap*weight_over + score_centered*weight_center);
 
-		score = round(score);
+		score = floor(score);
 		return (int)score;
 	}
 	else return 0;//They are not compatibles
@@ -1804,6 +1809,6 @@ void MAPSBayesian_Fusion::calcEstimation()
 	initObjects(&Estimation);
 	Estimate();
 	//short the list of estimations by id
-	shortObjects(&Estimation);
+	//shortObjects(&Estimation);
 	shortVectorLCA(LCAssociations);
 }

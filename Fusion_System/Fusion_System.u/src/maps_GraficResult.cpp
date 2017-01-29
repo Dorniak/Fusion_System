@@ -42,6 +42,16 @@ MAPS_COMPONENT_DEFINITION(MAPSGraficResult,"GraficResult","1.0",128,
 
 void MAPSGraficResult::Birth()
 {
+	direction = dir;
+	firstL = true;
+	firstC = true;
+	firstE = true;
+	numInputs = 2;
+	for (int i = 0; i < 2; i++) {
+		readed[i] = false;
+	}
+
+
 	direction = direction + std::to_string(idLaser) + "_" + std::to_string(idCamera) + "\\";
 	_mkdir(direction.c_str());
 

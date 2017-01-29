@@ -17,7 +17,7 @@ class MAPSMatching : public MAPSComponent
 	MAPS_COMPONENT_STANDARD_HEADER_CODE(MAPSMatching)
 private :
 	int timestamp;
-	int numInputs = 2;
+	int numInputs;
 	bool readed[2];
 	AUTO_Objects output_LaserAmpliatedBox;
 	AUTO_Objects output_CameraAmpliatedBox;

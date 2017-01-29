@@ -11,7 +11,6 @@
 #include <vector>
 #include <array>
 #include "auto_objects.h"
-#include "Hipotesys.h"
 #include "Structures.h"
 #include "Parameters.h"
 
@@ -27,8 +26,8 @@ private :
 	//Para controlar ambiguedades
 	//Matriz con el score de todas las asociaciones y su id
 	int MatrixOfAssociations[AUTO_MAX_NUM_OBJECTS][AUTO_MAX_NUM_OBJECTS][2];
-	bool readed[4] = { false,false, false, false };
-	int numInputs = 4;
+	bool readed[4];
+	int numInputs;
 
 	AUTO_Objects* input_Laser_Objects;
 	AUTO_Objects* input_Camera_Objects;

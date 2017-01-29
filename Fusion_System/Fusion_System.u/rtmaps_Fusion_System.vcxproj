@@ -106,20 +106,10 @@
     <None Include="Fusion_System.pckinfo" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\maps_Bayesian_Fusion.cpp" />
-    <ClCompile Include="src\maps_Estimation.cpp" />
-    <ClCompile Include="src\maps_GraficResult.cpp" />
-    <ClCompile Include="src\maps_Grafics.cpp" />
-    <ClCompile Include="src\maps_Join.cpp" />
-    <ClCompile Include="src\maps_Matching.cpp" />
-    <ClCompile Include="src\maps_Predictor.cpp" />
-    <ClCompile Include="src\Structures.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="local_interfaces\auto_common.h" />
     <ClInclude Include="local_interfaces\auto_objects.h" />
     <ClInclude Include="local_interfaces\Common.h" />
-    <ClInclude Include="local_interfaces\Hipotesys.h" />
+    <ClInclude Include="local_interfaces\Data_EnvironmentState.h" />
     <ClInclude Include="local_interfaces\maps_Bayesian_Fusion.h" />
     <ClInclude Include="local_interfaces\maps_Estimation.h" />
     <ClInclude Include="local_interfaces\maps_GraficResult.h" />
@@ -129,6 +119,16 @@
     <ClInclude Include="local_interfaces\maps_Predictor.h" />
     <ClInclude Include="local_interfaces\Parameters.h" />
     <ClInclude Include="local_interfaces\Structures.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\maps_Bayesian_Fusion.cpp" />
+    <ClCompile Include="src\maps_Estimation.cpp" />
+    <ClCompile Include="src\maps_GraficResult.cpp" />
+    <ClCompile Include="src\maps_Grafics.cpp" />
+    <ClCompile Include="src\maps_Join.cpp" />
+    <ClCompile Include="src\maps_Matching.cpp" />
+    <ClCompile Include="src\maps_Predictor.cpp" />
+    <ClCompile Include="src\Structures.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

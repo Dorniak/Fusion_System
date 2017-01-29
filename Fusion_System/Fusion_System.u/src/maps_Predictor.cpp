@@ -41,6 +41,11 @@ MAPS_COMPONENT_DEFINITION(MAPSPredictor,"Predictor","1.0",128,
 	  
 void MAPSPredictor::Birth()
 {
+	framerate = 100;
+	prueba = 0;
+	predicted = false;
+	ready = false;
+	firsttime = true;
 	QueryPerformanceFrequency(&Frecuency);
 	QueryPerformanceCounter(&StartingTime);
     // Reports this information to the RTMaps console. You can remove this line if you know when Birth() is called in the component lifecycle.
@@ -146,7 +151,7 @@ void MAPSPredictor::WriteOutputs()
 
 void MAPSPredictor::predecir()
 {
-	if (abs(timestamp - min(LaserObjects[1].timestamp, CameraObjects[1].timestamp)) > framerate * 10)
+	if (abs((float)(timestamp - min(LaserObjects[1].timestamp, CameraObjects[1].timestamp)) > framerate * 10))
 	{
 		timestamp = min(LaserObjects[1].timestamp, CameraObjects[1].timestamp);
 	}

@@ -48,6 +48,10 @@ MAPS_COMPONENT_DEFINITION(MAPSJoin,"Join","1.0",128,
 
 void MAPSJoin::Birth()
 {
+	for (int i = 0; i < 4; i++) {
+		readed[i] = false;
+	}
+	numInputs = 4;
     // Reports this information to the RTMaps console. You can remove this line if you know when Birth() is called in the component lifecycle.
     ReportInfo("Passing through Birth() method");
 }
@@ -291,7 +295,7 @@ int MAPSJoin::calculateScore(int id_Laser, int id_Camera)
 
 		score = (float)(score_type*weight_type + score_pos*weight_pos + score_size*weight_size + score_speed*weight_speed + score_overlap*weight_over + score_centered*weight_center);
 
-		score = round(score);
+		score = floor(score);
 		return (int)score;
 	}
 	else return 0;//Son tipos no compatibles

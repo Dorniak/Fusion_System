@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Hipotesys.h"
 #include <algorithm>
 #include "auto_objects.h"
 #define tamanoVV 300
@@ -11,7 +10,8 @@ using namespace std;
 class AssociatedObjs
 {
 public:
-	int number_objects = 0;
+	AssociatedObjs() { number_objects = 0; }
+	int number_objects;
 	int vector[AUTO_MAX_NUM_OBJECTS][3];//id_Laser id_Camera Score
 	void clear();
 	void clear(int pos);
@@ -24,7 +24,7 @@ class NonAssociated
 {
 public:
 	NonAssociated();
-	int number_objects = 0;
+	int number_objects;
 	int vector[AUTO_MAX_NUM_OBJECTS];
 	void clear();
 	int size();

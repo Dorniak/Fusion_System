@@ -42,11 +42,16 @@ MAPS_COMPONENT_DEFINITION(MAPSGrafics,"Grafics","1.0",128,
 //Initialization: Birth() will be called once at diagram execution startup.			  
 void MAPSGrafics::Birth()
 {
-	direction = direction + std::to_string(idLaser) + "_" + std::to_string(idCamera) + "\\";
+	direction = dir;
+	firstL = true;
+	firstC = true;
+
+
+	direction = direction + std::to_string((int)idLaser) + "_" + std::to_string((int)idCamera) + "\\";
 	_mkdir(direction.c_str());
 
-	fLaser.open(direction + "Laser_" + std::to_string(idLaser) + "_" + std::to_string(idCamera) + ".m", ofstream::out);
-	fCamera.open(direction + "Camera_" + std::to_string(idLaser) + "_" + std::to_string(idCamera) + ".m", ofstream::out);
+	fLaser.open(direction + "Laser_" + std::to_string((int)idLaser) + "_" + std::to_string((int)idCamera) + ".m", ofstream::out);
+	fCamera.open(direction + "Camera_" + std::to_string((int)idLaser) + "_" + std::to_string((int)idCamera) + ".m", ofstream::out);
 
 	fLaser << "%timestamp,x_rel,y_rel,x_sigma,y_sigma,speed,speed_x_rel,speed_y_rel,speed_x_sigma,speed_y_sigma" << '\n' << "LaserN=[";
 	fCamera << "%timestamp,x_rel,y_rel,x_sigma,y_sigma,speed,speed_x_rel,speed_y_rel,speed_x_sigma,speed_y_sigma" << '\n' << "Camara=[";
